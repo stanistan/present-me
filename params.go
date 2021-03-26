@@ -2,15 +2,49 @@ package crap
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/google/go-github/github"
 )
 
 type ReviewParams struct {
-	Owner, Repo string
-	Number      int
-	ReviewID    int64
+	Owner    string `required:"" help:"owner or organization"`
+	Repo     string `required:"" help:"repository name"`
+	Number   int    `required:"" help:"pull request number"`
+	ReviewID int64  `required:"" help:"reviewID number"`
+}
+
+//
+// The following formats are supported:
+// https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+func ReviewParamsFromURL(i string) (*ReviewParams, error) {
+	// trim protocol and domain if they are there, we add them back
+	// to normalize and support urls that might not have the protocol,
+	// or just look like "stanistan/...."
+	i = strings.TrimPrefix(i, "https://")
+	i = strings.TrimPrefix(i, "github.com/")
+	i = "https://github.com/" + i
+
+	u, err := url.Parse(i)
+	if err != nil {
+		return nil, err
+	}
+
+	pieces := strings.Split(u.Path, "/")
+	if len(pieces) != 5 {
+		return nil, fmt.Errorf("invalid url path %s", u.Path)
+	}
+
+	return ReviewParamsFromMap(map[string]string{
+		"owner":    pieces[1],
+		"repo":     pieces[2],
+		"number":   pieces[4],
+		"reviewID": strings.TrimPrefix(u.Fragment, "pullrequestreview-"),
+	})
 }
 
 func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {

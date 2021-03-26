@@ -2,6 +2,8 @@ package crap
 
 import (
 	"bytes"
+	"html/template"
+	"io"
 	"regexp"
 	"sort"
 	"strconv"
@@ -54,8 +56,12 @@ func BuildReviewModel(c Context, p *ReviewParams) (*ReviewModel, error) {
 	}, nil
 }
 
-func (r *ReviewModel) AsMarkdown() ([]byte, error) {
+type AsMarkdownOptions struct {
+	AsHTML bool `help:"if true will render the mardkown to html"`
+	InBody bool `help:"if true will place the rendered HTML into a body/template"`
+}
 
+func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	var (
 		buf   bytes.Buffer
 		write = func(ss ...string) {
@@ -75,7 +81,24 @@ func (r *ReviewModel) AsMarkdown() ([]byte, error) {
 		write(stripLeadingNumber(*c.Body))
 	}
 
-	return buf.Bytes(), nil
+	if !opts.AsHTML {
+		_, err := w.Write(buf.Bytes())
+		return err
+	}
+
+	var html bytes.Buffer
+	if err := md.Convert(buf.Bytes(), &html); err != nil {
+		return err
+	}
+
+	if !opts.InBody {
+		_, err := w.Write(html.Bytes())
+		return err
+	}
+
+	return bodyContentTemplate.Execute(w, map[string]interface{}{
+		"Body": template.HTML(html.Bytes()),
+	})
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)
