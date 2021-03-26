@@ -69,3 +69,7 @@ func (r *ReviewParams) ListReviewComments(c Context) ([]*github.PullRequestComme
 	cs, _, err := c.Client.PullRequests.ListReviewComments(c.Ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
 	return cs, err
 }
+
+func (r *ReviewParams) Model(c Context) (*ReviewModel, error) {
+	return BuildReviewModel(c, r)
+}

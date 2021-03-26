@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 	"github.com/yuin/goldmark"
@@ -29,53 +28,56 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
+
 	log.Fatal(s.ListenAndServe())
 }
 
 func renderReview(w http.ResponseWriter, r *http.Request) {
-	params, err := crap.ReviewParamsFromMap(mux.Vars(r))
-	if err != nil {
+	if err := func() error {
+		params, err := crap.ReviewParamsFromMap(mux.Vars(r))
+		if err != nil {
+			return err
+		}
+
+		model, err := params.Model(crap.Context{
+			Ctx:    r.Context(),
+			Client: github.NewClient(nil),
+		})
+		if err != nil {
+			return err
+		}
+
+		mdBody, err := model.AsMarkdown()
+		if err != nil {
+			return err
+		}
+		// 3. Convert the MD -> HTML
+		var buf bytes.Buffer
+		if err := md.Convert(mdBody, &buf); err != nil {
+			return err
+		}
+
+		// 4. Write the output (templated) to the buf
+		if err := bodyContentTemplate.Execute(w, map[string]interface{}{
+			"Body": template.HTML(buf.Bytes()),
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	}(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
 	}
-
-	b, err := crap.Run(crap.Context{
-		Ctx:    r.Context(),
-		Client: github.NewClient(nil),
-	}, params)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	md := goldmark.New(
-		goldmark.WithExtensions(
-			extension.GFM,
-			highlighting.NewHighlighting(
-				highlighting.WithStyle("github"),
-				highlighting.WithCodeBlockOptions(func(_ highlighting.CodeBlockContext) []html.Option {
-					return []html.Option{}
-				}),
-			),
-		),
-	)
-
-	var buf bytes.Buffer
-	err = md.Convert(b.Bytes(), &buf)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = bodyContentTemplate.Execute(w, map[string]interface{}{
-		"Body": template.HTML(buf.Bytes()),
-	})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 }
+
+var md = goldmark.New(
+	goldmark.WithExtensions(
+		extension.GFM,
+		highlighting.NewHighlighting(
+			highlighting.WithStyle("github"),
+		),
+	),
+)
 
 var bodyContentTemplate = template.Must(template.New("content").Parse(`
 <html>
