@@ -1,26 +1,14 @@
-package main
+package crap
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"sort"
 	"strconv"
-
-	"github.com/google/go-github/github"
 )
 
-func main() {
-
-	params := ReviewParams{
-		Owner:    "stanistan",
-		Repo:     "invoice-proxy",
-		Number:   3,
-		ReviewID: 605888708,
-	}
-
+func test() {
 	// We get our context set up so we can chat with the client, this is
 	// something that's got to be pretty simple, maybe we do this with a server
 	// at some point, but to start with running this as a command that takes
@@ -55,12 +43,6 @@ func main() {
 	//    to the original source, etc).
 	//
 	// 3. Stuff about the rest of the files?
-	b, err := run(Context{Ctx: context.Background(), Client: github.NewClient(nil)}, &params)
-	if err != nil {
-		panic(err)
-	}
-
-	b.WriteTo(os.Stdout)
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.`)
@@ -75,7 +57,7 @@ func orderOf(c string) (int, bool) {
 	return n, true
 }
 
-func run(c Context, p *ReviewParams) (*bytes.Buffer, error) {
+func Run(c Context, p *ReviewParams) (*bytes.Buffer, error) {
 	var b bytes.Buffer
 
 	// get the PR
@@ -86,7 +68,7 @@ func run(c Context, p *ReviewParams) (*bytes.Buffer, error) {
 
 	// maybe write a pre-amble here?
 
-	_, err = fmt.Fprintf(&b, "(#%d) %s \n\n", *pull.Number, *pull.Title)
+	_, err = fmt.Fprintf(&b, "# (#%d) %s \n\n", *pull.Number, *pull.Title)
 	if err != nil {
 		return nil, err
 	}
@@ -117,48 +99,15 @@ func run(c Context, p *ReviewParams) (*bytes.Buffer, error) {
 		return c1 < c2
 	})
 
-	b.Write([]byte("## Changes\n\n"))
-
 	for _, c := range comments {
-		fmt.Fprintf(&b, "**`%s`**\n\n", *c.Path)
+		fmt.Fprintf(&b, "### %s\n\n", *c.Path)
 		b.Write([]byte("```diff\n"))
 		b.Write([]byte(*c.DiffHunk))
 		b.Write([]byte("\n```"))
 		b.Write([]byte("\n\n"))
 		b.Write([]byte(*c.Body))
-		b.Write([]byte("\n\n---\n\n"))
+		b.Write([]byte("\n\n"))
 	}
 
 	return &b, nil
-}
-
-type Context struct {
-	Ctx    context.Context
-	Client *github.Client
-}
-
-type ReviewParams struct {
-	Owner, Repo string
-	Number      int
-	ReviewID    int64
-}
-
-func (r *ReviewParams) ListFiles(c Context) ([]*github.CommitFile, error) {
-	fs, _, err := c.Client.PullRequests.ListFiles(c.Ctx, r.Owner, r.Repo, r.Number, nil)
-	return fs, err
-}
-
-func (r *ReviewParams) GetPullRequest(c Context) (*github.PullRequest, error) {
-	pr, _, err := c.Client.PullRequests.Get(c.Ctx, r.Owner, r.Repo, r.Number)
-	return pr, err
-}
-
-func (r *ReviewParams) GetReview(c Context) (*github.PullRequestReview, error) {
-	review, _, err := c.Client.PullRequests.GetReview(c.Ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
-	return review, err
-}
-
-func (r *ReviewParams) ListReviewComments(c Context) ([]*github.PullRequestComment, error) {
-	cs, _, err := c.Client.PullRequests.ListReviewComments(c.Ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
-	return cs, err
 }
