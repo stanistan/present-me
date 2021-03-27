@@ -25,14 +25,18 @@ func main() {
 		WriteTimeout: 5 * time.Second,
 	}
 
+	log.Printf("starting server at port %s", s.Addr)
 	log.Fatal(s.ListenAndServe())
 }
 
 func run(w http.ResponseWriter, r *http.Request, params *crap.ReviewParams) error {
-	model, err := params.Model(crap.Context{
-		Ctx:    r.Context(),
-		Client: github.NewClient(nil),
-	})
+	model, err := params.Model(
+		crap.Context{
+			Ctx:    r.Context(),
+			Client: github.NewClient(nil),
+		},
+		r.URL.Query().Get("refresh") == "1",
+	)
 	if err != nil {
 		return err
 	}
@@ -56,6 +60,7 @@ func renderReview(w http.ResponseWriter, r *http.Request) {
 
 func handle(w http.ResponseWriter, f func() error) {
 	if err := f(); err != nil {
+		log.Printf("Error: %s", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

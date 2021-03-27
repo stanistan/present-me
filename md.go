@@ -6,6 +6,7 @@ import (
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer/html"
 )
 
 func intoHTML(w io.Writer, bytes []byte) error {
@@ -18,5 +19,8 @@ var md = goldmark.New(
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("github"),
 		),
+	),
+	goldmark.WithRendererOptions(
+		html.WithUnsafe(),
 	),
 )

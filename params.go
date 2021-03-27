@@ -104,6 +104,6 @@ func (r *ReviewParams) ListReviewComments(c Context) ([]*github.PullRequestComme
 	return cs, err
 }
 
-func (r *ReviewParams) Model(c Context) (*ReviewModel, error) {
-	return BuildReviewModel(c, r)
+func (r *ReviewParams) Model(c Context, refreshData bool) (*ReviewModel, error) {
+	return BuildReviewModel(c, r, refreshData)
 }

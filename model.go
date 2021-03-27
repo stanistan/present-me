@@ -2,7 +2,9 @@ package crap
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
+	"log"
 	"regexp"
 	"sort"
 	"strconv"
@@ -16,9 +18,20 @@ type ReviewModel struct {
 	PR       *github.PullRequest
 	Review   *github.PullRequestReview
 	Comments []*github.PullRequestComment
+	Files    []*github.CommitFile
 }
 
-func BuildReviewModel(c Context, p *ReviewParams) (*ReviewModel, error) {
+func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewModel, error) {
+	if !refreshData {
+		cached, err := cache.Read(p)
+		if err != nil {
+			return nil, err
+		}
+		if cached != nil {
+			return cached, nil
+		}
+	}
+
 	pull, err := p.GetPullRequest(c)
 	if err != nil {
 		return nil, err
@@ -47,12 +60,18 @@ func BuildReviewModel(c Context, p *ReviewParams) (*ReviewModel, error) {
 		return c1 < c2
 	})
 
-	return &ReviewModel{
+	files, err := p.ListFiles(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return cache.Write(p, &ReviewModel{
 		Params:   p,
 		PR:       pull,
 		Review:   review,
 		Comments: comments,
-	}, nil
+		Files:    files,
+	})
 }
 
 type AsMarkdownOptions struct {
@@ -71,7 +90,9 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 		}
 	)
 
-	write("# (", string(r.Params.Number), ") ", *r.PR.Title)
+	log.Printf("rendering %+v", *r.Params)
+
+	write("# (#", strconv.Itoa(r.Params.Number), ") ", *r.PR.Title)
 	write(*r.Review.Body)
 
 	for _, c := range r.Comments {
@@ -79,6 +100,12 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 		write("```diff\n" + *c.DiffHunk + "\n```")
 		write(stripLeadingNumber(*c.Body))
 	}
+
+	buf.Write([]byte("```json\n"))
+	e := json.NewEncoder(&buf)
+	e.SetIndent("", "  ")
+	_ = e.Encode(r)
+	write("```")
 
 	if !opts.AsHTML {
 		_, err := w.Write(buf.Bytes())
