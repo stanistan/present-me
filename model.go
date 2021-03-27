@@ -2,7 +2,6 @@ package crap
 
 import (
 	"bytes"
-	"html/template"
 	"io"
 	"regexp"
 	"sort"
@@ -96,9 +95,7 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 		return err
 	}
 
-	return bodyContentTemplate.Execute(w, map[string]interface{}{
-		"Body": template.HTML(html.Bytes()),
-	})
+	return intoTemplate(w, html.Bytes())
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)

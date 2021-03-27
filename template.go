@@ -2,7 +2,16 @@ package crap
 
 import (
 	"html/template"
+	"io"
 )
+
+func intoTemplate(w io.Writer, bytes []byte) error {
+	return bodyContentTemplate.Execute(w, struct {
+		Body template.HTML
+	}{
+		Body: template.HTML(bytes),
+	})
+}
 
 var bodyContentTemplate = template.Must(template.New("content").Parse(`
 <html>

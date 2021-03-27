@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"html/template"
 	"log"
 	"net/http"
 	"time"
