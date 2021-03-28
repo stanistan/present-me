@@ -2,6 +2,8 @@
 
 {{ .Review.Body }}
 
+---
+
 {{ range .Comments }}
 ### `{{ .Path }}`
 

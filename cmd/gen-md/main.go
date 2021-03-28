@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/google/go-github/github"
-	"github.com/stanistan/present-me"
+	pm "github.com/stanistan/present-me"
 )
 
 func main() {
@@ -14,12 +14,12 @@ func main() {
 		log.Fatal("missing argument for url")
 	}
 
-	params, err := crap.ReviewParamsFromURL(os.Args[1])
+	params, err := pm.ReviewParamsFromURL(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	model, err := params.Model(crap.Context{
+	model, err := params.Model(pm.Context{
 		Ctx:    context.Background(),
 		Client: github.NewClient(nil),
 	}, false)
@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := model.AsMarkdown(os.Stdout, crap.AsMarkdownOptions{}); err != nil {
+	if err := model.AsMarkdown(os.Stdout, pm.AsMarkdownOptions{}); err != nil {
 		log.Fatal(err)
 	}
 }

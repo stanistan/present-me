@@ -1,4 +1,4 @@
-package crap
+package presentme
 
 import (
 	"testing"

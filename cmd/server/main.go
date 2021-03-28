@@ -8,7 +8,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 
-	"github.com/stanistan/present-me"
+	pm "github.com/stanistan/present-me"
 )
 
 func main() {
@@ -29,9 +29,9 @@ func main() {
 	log.Fatal(s.ListenAndServe())
 }
 
-func run(w http.ResponseWriter, r *http.Request, params *crap.ReviewParams) error {
+func run(w http.ResponseWriter, r *http.Request, params *pm.ReviewParams) error {
 	model, err := params.Model(
-		crap.Context{
+		pm.Context{
 			Ctx:    r.Context(),
 			Client: github.NewClient(nil),
 		},
@@ -41,7 +41,7 @@ func run(w http.ResponseWriter, r *http.Request, params *crap.ReviewParams) erro
 		return err
 	}
 
-	return model.AsMarkdown(w, crap.AsMarkdownOptions{
+	return model.AsMarkdown(w, pm.AsMarkdownOptions{
 		AsHTML: true,
 		InBody: true,
 	})
@@ -49,7 +49,7 @@ func run(w http.ResponseWriter, r *http.Request, params *crap.ReviewParams) erro
 
 func renderReview(w http.ResponseWriter, r *http.Request) {
 	handle(w, func() error {
-		params, err := crap.ReviewParamsFromMap(mux.Vars(r))
+		params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 		if err != nil {
 			return err
 		}
