@@ -12,4 +12,5 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/yuin/goldmark v1.3.3
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
+	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
 )

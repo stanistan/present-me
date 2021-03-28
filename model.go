@@ -2,7 +2,7 @@ package crap
 
 import (
 	"bytes"
-	"encoding/json"
+	// "encoding/json"
 	"io"
 	"log"
 	"regexp"
@@ -81,8 +81,8 @@ type AsMarkdownOptions struct {
 
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	var (
-		buf   bytes.Buffer
-		write = func(ss ...string) {
+		buf bytes.Buffer
+		_   = func(ss ...string) {
 			for _, s := range ss {
 				buf.Write([]byte(s))
 			}
@@ -91,21 +91,26 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	)
 
 	log.Printf("rendering %+v", *r.Params)
-
-	write("# (#", strconv.Itoa(r.Params.Number), ") ", *r.PR.Title)
-	write(*r.Review.Body)
-
-	for _, c := range r.Comments {
-		write("### " + *c.Path)
-		write("```diff\n" + *c.DiffHunk + "\n```")
-		write(stripLeadingNumber(*c.Body))
+	if err := reviewBody(&buf, r); err != nil {
+		return err
 	}
 
-	buf.Write([]byte("```json\n"))
-	e := json.NewEncoder(&buf)
-	e.SetIndent("", "  ")
-	_ = e.Encode(r)
-	write("```")
+	/*
+		write("# (#", strconv.Itoa(r.Params.Number), ") ", *r.PR.Title)
+		write(*r.Review.Body)
+
+		for _, c := range r.Comments {
+			write("### " + *c.Path)
+			write("```diff\n" + *c.DiffHunk + "\n```")
+			write(stripLeadingNumber(*c.Body))
+		}
+
+		buf.Write([]byte("```json\n"))
+		e := json.NewEncoder(&buf)
+		e.SetIndent("", "  ")
+		_ = e.Encode(r)
+		write("```")
+	*/
 
 	if !opts.AsHTML {
 		_, err := w.Write(buf.Bytes())

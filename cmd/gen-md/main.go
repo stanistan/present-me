@@ -22,7 +22,7 @@ func main() {
 	model, err := params.Model(crap.Context{
 		Ctx:    context.Background(),
 		Client: github.NewClient(nil),
-	})
+	}, false)
 	if err != nil {
 		log.Fatal(err)
 	}
