@@ -1,4 +1,4 @@
-module github.com/stanistan/crap
+module github.com/stanistan/present-me
 
 go 1.16
 

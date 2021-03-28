@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/google/go-github/github"
-	"github.com/stanistan/crap"
+	"github.com/stanistan/present-me"
 )
 
 func main() {
