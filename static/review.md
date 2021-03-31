@@ -1,17 +1,32 @@
-# (#{{.Params.Number}}) {{.PR.Title}}
+# ([#{{.Params.Number}}][1]) {{.PR.Title}}
 
-{{ .Review.Body }}
+| | |
+|:-|-:|
+| Source | {{ .PR.HTMLURL }} |
+| Author | [{{.Review.User.Login}}]({{.Review.User.HTMLURL}}) |
+
+---
+
+{{ .PR.Body | safe }}
+
+{{ .Review.Body | safe }}
 
 ---
 
 {{ range .Comments }}
-### `{{ .Path }}`
+## `{{ .Path }}`
 
 ```diff
-{{.DiffHunk}}
+{{.DiffHunk | safe}}
 ```
 
 {{.Body | stripLeadingNumber }}
 
 ---
 {{ end }}
+
+```json
+{{ . }}
+```
+
+[1]: {{.PR.HTMLURL}}

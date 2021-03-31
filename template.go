@@ -32,6 +32,9 @@ var templateFuncMap = template.FuncMap{
 	"stripLeadingNumber": func(s string) template.HTML {
 		return template.HTML(stripLeadingNumber(s))
 	},
+	"safe": func(s string) template.HTML {
+		return template.HTML(s)
+	},
 }
 
 func templateMust(n, content string) *template.Template {

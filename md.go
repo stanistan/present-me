@@ -16,6 +16,7 @@ func intoHTML(w io.Writer, bytes []byte) error {
 var md = goldmark.New(
 	goldmark.WithExtensions(
 		extension.GFM,
+		extension.DefinitionList,
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("github"),
 		),

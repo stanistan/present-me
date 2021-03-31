@@ -23,11 +23,13 @@ type ReviewModel struct {
 
 func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewModel, error) {
 	if !refreshData {
-		cached, err := cache.Read(p)
+		var cached *ReviewModel
+		err := cache.Read(p, &cached, cacheTTL)
 		if err != nil {
 			return nil, err
 		}
 		if cached != nil {
+			log.Println("serving from cache")
 			return cached, nil
 		}
 	}
@@ -65,13 +67,19 @@ func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewMode
 		return nil, err
 	}
 
-	return cache.Write(p, &ReviewModel{
+	model := &ReviewModel{
 		Params:   p,
 		PR:       pull,
 		Review:   review,
 		Comments: comments,
 		Files:    files,
-	})
+	}
+
+	if err := cache.Write(p, model); err != nil {
+		return nil, err
+	}
+
+	return model, nil
 }
 
 type AsMarkdownOptions struct {
@@ -82,35 +90,12 @@ type AsMarkdownOptions struct {
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	var (
 		buf bytes.Buffer
-		_   = func(ss ...string) {
-			for _, s := range ss {
-				buf.Write([]byte(s))
-			}
-			buf.Write([]byte("\n\n"))
-		}
 	)
 
 	log.Printf("rendering %+v", *r.Params)
 	if err := reviewBody(&buf, r); err != nil {
 		return err
 	}
-
-	/*
-		write("# (#", strconv.Itoa(r.Params.Number), ") ", *r.PR.Title)
-		write(*r.Review.Body)
-
-		for _, c := range r.Comments {
-			write("### " + *c.Path)
-			write("```diff\n" + *c.DiffHunk + "\n```")
-			write(stripLeadingNumber(*c.Body))
-		}
-
-		buf.Write([]byte("```json\n"))
-		e := json.NewEncoder(&buf)
-		e.SetIndent("", "  ")
-		_ = e.Encode(r)
-		write("```")
-	*/
 
 	if !opts.AsHTML {
 		_, err := w.Write(buf.Bytes())
