@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/google/go-github/github"
@@ -14,48 +15,51 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/{owner}/{repo}/pull/{number}/{reviewID}", renderReview).
+	sub := r.PathPrefix("/{owner}/{repo}/pull/{number}/{reviewID}").
 		Methods("GET").
-		Name("review")
+		Subrouter()
+
+	sub.HandleFunc("", doMD(pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
+	sub.HandleFunc("/md", doMD(pm.AsMarkdownOptions{}))
+
+	port, ok := os.LookupEnv("PORT")
+	if !ok || port == "" {
+		port = "8080"
+	}
 
 	s := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		Handler:      r,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	log.Printf("starting server at port %s", s.Addr)
 	log.Fatal(s.ListenAndServe())
 }
 
-func run(w http.ResponseWriter, r *http.Request, params *pm.ReviewParams) error {
-	model, err := params.Model(
-		pm.Context{
-			Ctx:    r.Context(),
-			Client: github.NewClient(nil),
-		},
-		r.URL.Query().Get("refresh") == "1",
-	)
-	if err != nil {
-		return err
+func doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handle(w, func() error {
+			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
+			if err != nil {
+				return err
+			}
+
+			model, err := params.Model(
+				pm.Context{
+					Ctx:    r.Context(),
+					Client: github.NewClient(nil),
+				},
+				r.URL.Query().Get("refresh") == "1",
+			)
+			if err != nil {
+				return err
+			}
+
+			return model.AsMarkdown(w, opts)
+		})
 	}
-
-	return model.AsMarkdown(w, pm.AsMarkdownOptions{
-		AsHTML: true,
-		InBody: true,
-	})
-}
-
-func renderReview(w http.ResponseWriter, r *http.Request) {
-	handle(w, func() error {
-		params, err := pm.ReviewParamsFromMap(mux.Vars(r))
-		if err != nil {
-			return err
-		}
-
-		return run(w, r, params)
-	})
 }
 
 func handle(w http.ResponseWriter, f func() error) {
