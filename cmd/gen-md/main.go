@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/go-github/github"
 	pm "github.com/stanistan/present-me"
 )
 
@@ -19,9 +18,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	ctx := context.Background()
 	model, err := params.Model(pm.Context{
-		Ctx:    context.Background(),
-		Client: github.NewClient(nil),
+		Ctx:    ctx,
+		Client: pm.GithubClient(ctx),
 	}, false)
 	if err != nil {
 		log.Fatal(err)

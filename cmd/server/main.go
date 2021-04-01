@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 
 	pm "github.com/stanistan/present-me"
@@ -49,7 +48,7 @@ func doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 			model, err := params.Model(
 				pm.Context{
 					Ctx:    r.Context(),
-					Client: github.NewClient(nil),
+					Client: pm.GithubClient(r.Context()),
 				},
 				r.URL.Query().Get("refresh") == "1",
 			)

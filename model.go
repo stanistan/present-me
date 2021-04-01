@@ -2,14 +2,21 @@ package presentme
 
 import (
 	"bytes"
-	// "encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"regexp"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/google/go-github/github"
+	dc "github.com/stanistan/present-me/internal/cache"
+)
+
+var (
+	cache    = dc.NewCache()
+	cacheTTL = 10 * time.Minute
 )
 
 type ReviewModel struct {
@@ -21,19 +28,7 @@ type ReviewModel struct {
 	Files    []*github.CommitFile
 }
 
-func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewModel, error) {
-	if !refreshData {
-		var cached *ReviewModel
-		err := cache.Read(p, &cached, cacheTTL)
-		if err != nil {
-			return nil, err
-		}
-		if cached != nil {
-			log.Println("serving from cache")
-			return cached, nil
-		}
-	}
-
+func fetchReviewModel(c Context, p *ReviewParams) (*ReviewModel, error) {
 	pull, err := p.GetPullRequest(c)
 	if err != nil {
 		return nil, err
@@ -67,19 +62,26 @@ func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewMode
 		return nil, err
 	}
 
-	model := &ReviewModel{
+	return &ReviewModel{
 		Params:   p,
 		PR:       pull,
 		Review:   review,
 		Comments: comments,
 		Files:    files,
-	}
+	}, nil
+}
 
-	if err := cache.Write(p, model); err != nil {
-		return nil, err
-	}
-
-	return model, nil
+func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewModel, error) {
+	var data *ReviewModel
+	err := cache.Apply(&data, dc.Provider{
+		Key:          p,
+		TTL:          cacheTTL,
+		ForceRefresh: refreshData,
+		Fetch: func() (interface{}, error) {
+			return fetchReviewModel(c, p)
+		},
+	})
+	return data, err
 }
 
 type AsMarkdownOptions struct {
@@ -88,6 +90,10 @@ type AsMarkdownOptions struct {
 }
 
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
+	if r == nil {
+		return fmt.Errorf("model is nil!")
+	}
+
 	var (
 		buf bytes.Buffer
 	)
