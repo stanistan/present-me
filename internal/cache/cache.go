@@ -13,7 +13,8 @@ import (
 )
 
 type Cache struct {
-	d *diskv.Diskv
+	disabled bool
+	d        *diskv.Diskv
 }
 
 type Provider struct {
@@ -35,12 +36,12 @@ func (c *Cache) Apply(into interface{}, opts Provider) error {
 	}
 
 	if !opts.ForceRefresh {
-		log.Printf("reading from cache")
 		ok, err := c.Read(opts.Key, into, opts.TTL)
 		if err != nil {
 			return err
 		}
 		if ok {
+			log.Printf("using cached value")
 			return nil
 		}
 	}
@@ -62,6 +63,10 @@ func (c *Cache) Apply(into interface{}, opts Provider) error {
 }
 
 func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool, error) {
+	if c.disabled {
+		return false, nil
+	}
+
 	k, err := Key(key)
 	if err != nil {
 		return false, err
@@ -86,6 +91,10 @@ func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool
 }
 
 func (c *Cache) Write(key interface{}, data interface{}) error {
+	if c.disabled {
+		return nil
+	}
+
 	k, err := Key(key)
 	if err != nil {
 		return err
@@ -99,12 +108,20 @@ func (c *Cache) Write(key interface{}, data interface{}) error {
 	return c.d.Write(k, bytes)
 }
 
-func NewCache() *Cache {
-	const cacheDir = "/tmp/present-me-data"
-	log.Printf("initializing data cache at %s", cacheDir)
+type CacheOpts struct {
+	Enabled  bool   `yaml:"enabled"`
+	BasePath string `yaml:"base_path"`
+}
+
+func NewCache(opts CacheOpts) *Cache {
+	if !opts.Enabled {
+		return &Cache{disabled: true}
+	}
+
+	log.Printf("initializing data cache at %s", opts.BasePath)
 	return &Cache{
 		d: diskv.New(diskv.Options{
-			BasePath:     cacheDir,
+			BasePath:     opts.BasePath,
 			CacheSizeMax: 10 * 1024,
 		}),
 	}

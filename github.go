@@ -2,30 +2,17 @@ package presentme
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"sort"
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/github"
-	"gopkg.in/yaml.v2"
 )
 
 type GHOpts struct {
 	AppID          int64  `yaml:"app_id"`
 	InstallationID int64  `yaml:"installation_id"`
 	PrivateKeyFile string `yaml:"private_key_file"`
-}
-
-func GHOptsFromFile(path string) (GHOpts, error) {
-	var d GHOpts
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return d, err
-	}
-
-	err = yaml.Unmarshal(data, &d)
-	return d, err
 }
 
 func (o *GHOpts) HTTPClient() (*http.Client, error) {

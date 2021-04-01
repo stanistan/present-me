@@ -18,14 +18,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	opts, err := pm.GHOptsFromFile(os.Args[2])
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("%+v", opts)
-
-	g, err := pm.NewGH(opts)
+	config := pm.MustConfig(os.Args[2])
+	g, err := pm.NewGH(config.Github)
 	if err != nil {
 		log.Fatal(err)
 	}

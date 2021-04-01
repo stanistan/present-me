@@ -12,12 +12,9 @@ import (
 )
 
 func main() {
-	opts, err := pm.GHOptsFromFile(os.Args[1])
-	if err != nil {
-		log.Fatal(err)
-	}
+	config := pm.MustConfig(os.Args[1])
 
-	g, err := pm.NewGH(opts)
+	g, err := pm.NewGH(config.Github)
 	if err != nil {
 		log.Fatal(err)
 	}

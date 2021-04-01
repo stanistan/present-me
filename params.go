@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	dc "github.com/stanistan/present-me/internal/cache"
 )
@@ -98,8 +97,3 @@ func (r *ReviewParams) Model(ctx context.Context, g *GH, refreshData bool) (*Rev
 	})
 	return data, err
 }
-
-var (
-	cache    = dc.NewCache()
-	cacheTTL = 10 * time.Minute
-)
