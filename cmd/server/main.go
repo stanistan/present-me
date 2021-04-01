@@ -12,14 +12,24 @@ import (
 )
 
 func main() {
+	opts, err := pm.GHOptsFromFile(os.Args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	g, err := pm.NewGH(opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := mux.NewRouter()
 
 	sub := r.PathPrefix("/{owner}/{repo}/pull/{number}/{reviewID}").
 		Methods("GET").
 		Subrouter()
 
-	sub.HandleFunc("", doMD(pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
-	sub.HandleFunc("/md", doMD(pm.AsMarkdownOptions{}))
+	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
+	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{}))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok || port == "" {
@@ -37,7 +47,7 @@ func main() {
 	log.Fatal(s.ListenAndServe())
 }
 
-func doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
+func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, func() error {
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
@@ -45,13 +55,7 @@ func doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 				return err
 			}
 
-			model, err := params.Model(
-				pm.Context{
-					Ctx:    r.Context(),
-					Client: pm.GithubClient(r.Context()),
-				},
-				r.URL.Query().Get("refresh") == "1",
-			)
+			model, err := params.Model(r.Context(), g, r.URL.Query().Get("refresh") == "1")
 			if err != nil {
 				return err
 			}

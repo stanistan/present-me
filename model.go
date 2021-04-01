@@ -6,17 +6,9 @@ import (
 	"io"
 	"log"
 	"regexp"
-	"sort"
 	"strconv"
-	"time"
 
 	"github.com/google/go-github/github"
-	dc "github.com/stanistan/present-me/internal/cache"
-)
-
-var (
-	cache    = dc.NewCache()
-	cacheTTL = 10 * time.Minute
 )
 
 type ReviewModel struct {
@@ -26,62 +18,6 @@ type ReviewModel struct {
 	Review   *github.PullRequestReview
 	Comments []*github.PullRequestComment
 	Files    []*github.CommitFile
-}
-
-func fetchReviewModel(c Context, p *ReviewParams) (*ReviewModel, error) {
-	pull, err := p.GetPullRequest(c)
-	if err != nil {
-		return nil, err
-	}
-
-	review, err := p.GetReview(c)
-	if err != nil {
-		return nil, err
-	}
-
-	comments, err := p.ListReviewComments(c)
-	if err != nil {
-		return nil, err
-	}
-
-	sort.Slice(comments, func(i, j int) bool {
-		c1, c1Ok := orderOf(*comments[i].Body)
-		c2, c2Ok := orderOf(*comments[j].Body)
-		if !c1Ok && !c2Ok {
-			return false
-		} else if !c1Ok {
-			return false
-		} else if !c2Ok {
-			return true
-		}
-		return c1 < c2
-	})
-
-	files, err := p.ListFiles(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ReviewModel{
-		Params:   p,
-		PR:       pull,
-		Review:   review,
-		Comments: comments,
-		Files:    files,
-	}, nil
-}
-
-func BuildReviewModel(c Context, p *ReviewParams, refreshData bool) (*ReviewModel, error) {
-	var data *ReviewModel
-	err := cache.Apply(&data, dc.Provider{
-		Key:          p,
-		TTL:          cacheTTL,
-		ForceRefresh: refreshData,
-		Fetch: func() (interface{}, error) {
-			return fetchReviewModel(c, p)
-		},
-	})
-	return data, err
 }
 
 type AsMarkdownOptions struct {

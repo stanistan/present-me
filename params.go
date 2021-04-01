@@ -1,12 +1,14 @@
 package presentme
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/google/go-github/github"
+	dc "github.com/stanistan/present-me/internal/cache"
 )
 
 type ReviewParams struct {
@@ -84,26 +86,20 @@ func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 	}, nil
 }
 
-func (r *ReviewParams) ListFiles(c Context) ([]*github.CommitFile, error) {
-	fs, _, err := c.Client.PullRequests.ListFiles(c.Ctx, r.Owner, r.Repo, r.Number, nil)
-	return fs, err
+func (r *ReviewParams) Model(ctx context.Context, g *GH, refreshData bool) (*ReviewModel, error) {
+	var data *ReviewModel
+	err := cache.Apply(&data, dc.Provider{
+		Key:          r,
+		TTL:          cacheTTL,
+		ForceRefresh: refreshData,
+		Fetch: func() (interface{}, error) {
+			return g.FetchReviewModel(ctx, r)
+		},
+	})
+	return data, err
 }
 
-func (r *ReviewParams) GetPullRequest(c Context) (*github.PullRequest, error) {
-	pr, _, err := c.Client.PullRequests.Get(c.Ctx, r.Owner, r.Repo, r.Number)
-	return pr, err
-}
-
-func (r *ReviewParams) GetReview(c Context) (*github.PullRequestReview, error) {
-	review, _, err := c.Client.PullRequests.GetReview(c.Ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
-	return review, err
-}
-
-func (r *ReviewParams) ListReviewComments(c Context) ([]*github.PullRequestComment, error) {
-	cs, _, err := c.Client.PullRequests.ListReviewComments(c.Ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
-	return cs, err
-}
-
-func (r *ReviewParams) Model(c Context, refreshData bool) (*ReviewModel, error) {
-	return BuildReviewModel(c, r, refreshData)
-}
+var (
+	cache    = dc.NewCache()
+	cacheTTL = 10 * time.Minute
+)
