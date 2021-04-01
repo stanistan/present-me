@@ -1,4 +1,4 @@
-data-cache
 .DS_Store
 config.yaml
 *.pem
+data/*

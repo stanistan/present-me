@@ -27,6 +27,7 @@ func main() {
 
 	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
 	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{}))
+	sub.HandleFunc("/slides", doMD(g, pm.AsMarkdownOptions{AsSlides: true}))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok || port == "" {

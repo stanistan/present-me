@@ -20,6 +20,14 @@ func reviewBody(w io.Writer, r *ReviewModel) error {
 	return reviewTemplate.Execute(w, r)
 }
 
+func asSlide(w io.Writer, bytes []byte) error {
+	return slideTemplate.Execute(w, struct {
+		Body template.HTML
+	}{
+		Body: template.HTML(bytes),
+	})
+}
+
 var templateFuncMap = template.FuncMap{
 	"render_md": func(s string) template.HTML {
 		var buf bytes.Buffer
@@ -45,12 +53,16 @@ func templateMust(n, content string) *template.Template {
 }
 
 var (
-	//go:embed static/html.html
+	//go:embed templates/html.html
 	htmlBytes string
 
-	//go:embed static/review.md
+	//go:embed templates/review.md
 	reviewBytes string
+
+	//go:embed templates/slides.html
+	slideBytes string
 
 	reviewTemplate = templateMust("review", reviewBytes)
 	htmlTemplate   = templateMust("html", htmlBytes)
+	slideTemplate  = templateMust("slide", slideBytes)
 )

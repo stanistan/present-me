@@ -21,8 +21,9 @@ type ReviewModel struct {
 }
 
 type AsMarkdownOptions struct {
-	AsHTML bool `help:"if true will render the mardkown to html"`
-	InBody bool `help:"if true will place the rendered HTML into a body/template"`
+	AsSlides bool
+	AsHTML   bool `help:"if true will render the mardkown to html"`
+	InBody   bool `help:"if true will place the rendered HTML into a body/template"`
 }
 
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
@@ -37,6 +38,10 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	log.Printf("rendering %+v", *r.Params)
 	if err := reviewBody(&buf, r); err != nil {
 		return err
+	}
+
+	if opts.AsSlides {
+		return asSlide(w, buf.Bytes())
 	}
 
 	if !opts.AsHTML {
