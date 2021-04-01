@@ -1,36 +1,22 @@
 # present-me
 
-We get our context set up so we can chat with the client, this is
-something that's got to be pretty simple, maybe we do this with a server
-at some point, but to start with running this as a command that takes
-some args would be pretty neato, and it can dump out some markdown.
+**Present Me** is an application should make presenting
+a Pull Request easier.
 
-If this runs as a server we will then want to do take this markdown,
-render it, etc.
+Generally, when we submit PRs they are read top to bottom,
+with little control to the _author_ of the PR in how they
+want to present the information (outside of the PR description).
 
-We can split this out into different `cmd/` s.
+`present-me` uses Github's Review Comments as an annotation method
+to generate a markdown presentation as well as slides in [remarkjs][1].
 
-The general behavior is this:
+**This requires Read Access to work.**
 
-1. We get the Review
-2. We get the ReviewComments
-3. We get the Files
+## TODO
 
-Determine the order of the markdown to print:
+- [ ] multiple kinds of auth (currently uses github application private key)
+- [ ] different stylesheets
+- [ ] list files in the PR (that are not commented)
+- [ ] better logging and error handling
 
-0. The PR Title
-
-1. the Review.Body
-
-2. The ReviewComments.Body in order that they appear, the ordering of the
-comments is by 1) if they start with a number!, and then by the rest.
-this should be fine since we're not going to have _too many_ comments, this
-is a thing a person would do on their own. Of course.
-
-Each one will also have an associated file path. Keep track of this so we can know
-what the rest of the file paths are, at the end of the PR?
-
-Will probably want to play with the representation of these (with _changes_, and links
-to the original source, etc).
-
-3. Stuff about the rest of the files?
+[1]: http://remarkjs.com
