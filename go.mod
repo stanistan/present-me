@@ -4,11 +4,11 @@ go 1.16
 
 require (
 	github.com/bradleyfalzon/ghinstallation v1.1.1
+	github.com/cespare/reflex v0.3.0
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gorilla/mux v1.8.0
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/stretchr/testify v1.4.0
