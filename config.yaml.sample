@@ -1,0 +1,8 @@
+diskcache:
+  enabled: true
+  base_path: "/tmp/present-me-data"
+
+github:
+  app_id: <id>
+  installation_id: <id>
+  private_key_file: some/path/to/private/key
