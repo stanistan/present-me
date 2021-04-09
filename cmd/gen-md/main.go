@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	pm "github.com/stanistan/present-me"
 )

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 
 	pm "github.com/stanistan/present-me"
 )
@@ -25,9 +25,9 @@ func main() {
 		Methods("GET").
 		Subrouter()
 
-	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
+	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsSlides: true}))
 	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{}))
-	sub.HandleFunc("/slides", doMD(g, pm.AsMarkdownOptions{AsSlides: true}))
+	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok || port == "" {
@@ -41,7 +41,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Printf("starting server at port %s", s.Addr)
+	log.Infof("starting server at port %s", s.Addr)
 	log.Fatal(s.ListenAndServe())
 }
 

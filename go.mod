@@ -11,6 +11,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
+	github.com/pkg/errors v0.8.1
+	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.4.0
 	github.com/yuin/goldmark v1.3.3
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691

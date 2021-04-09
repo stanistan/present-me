@@ -5,7 +5,8 @@ import (
 	_ "embed"
 	"html/template"
 	"io"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func intoTemplate(w io.Writer, bytes []byte) error {

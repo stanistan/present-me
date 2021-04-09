@@ -3,13 +3,13 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/peterbourgon/diskv"
+	log "github.com/sirupsen/logrus"
 )
 
 type Cache struct {

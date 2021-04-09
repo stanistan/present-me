@@ -2,13 +2,12 @@ package presentme
 
 import (
 	"bytes"
-	"fmt"
 	"io"
-	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/google/go-github/github"
+	log "github.com/sirupsen/logrus"
 )
 
 type ReviewModel struct {
@@ -27,15 +26,9 @@ type AsMarkdownOptions struct {
 }
 
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
-	if r == nil {
-		return fmt.Errorf("model is nil!")
-	}
+	var buf bytes.Buffer
 
-	var (
-		buf bytes.Buffer
-	)
-
-	log.Printf("rendering %+v", *r.Params)
+	log.Infof("rendering %+v", *r.Params)
 	if err := reviewBody(&buf, r); err != nil {
 		return err
 	}

@@ -2,9 +2,10 @@ package presentme
 
 import (
 	"io/ioutil"
-	"log"
 	"time"
 
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
 	dc "github.com/stanistan/present-me/internal/cache"
@@ -15,20 +16,34 @@ type Config struct {
 	Github    GHOpts       `yaml:"github"`
 }
 
-func MustConfig(path string) Config {
+func (c *Config) configure() {
+	configureCache(c.DiskCache)
+}
+
+func LoadConfig(path string) (Config, error) {
 	var c Config
+
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return c, errors.Wrapf(err, "could not read config at path %s", path)
 	}
 
 	err = yaml.Unmarshal(data, &c)
 	if err != nil {
+		return c, errors.Wrapf(err, "error parsing the config at path %s", path)
+	}
+
+	return c, nil
+}
+
+func MustConfig(path string) Config {
+	c, err := LoadConfig(path)
+	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("config %+v", c)
-	configureCache(c.DiskCache)
+	log.Infof("config %+v", c)
+	c.configure()
 	return c
 }
 
