@@ -109,8 +109,8 @@ func (c *Cache) Write(key interface{}, data interface{}) error {
 }
 
 type CacheOpts struct {
-	Enabled  bool   `yaml:"enabled"`
-	BasePath string `yaml:"base_path"`
+	Enabled  bool   `name:"enabled"`
+	BasePath string `name:"base-path"`
 }
 
 func NewCache(opts CacheOpts) *Cache {

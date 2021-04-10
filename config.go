@@ -12,11 +12,12 @@ import (
 )
 
 type Config struct {
-	DiskCache dc.CacheOpts `yaml:"diskcache"`
-	Github    GHOpts       `yaml:"github"`
+	DiskCache dc.CacheOpts `embed:"" prefix:"disk-cache-"`
+	Github    GHOpts       `embed:"" prefix:"gh-"`
 }
 
-func (c *Config) configure() {
+func (c *Config) Configure() {
+	log.Infof("config %+v", c)
 	configureCache(c.DiskCache)
 }
 
@@ -42,8 +43,7 @@ func MustConfig(path string) Config {
 		panic(err)
 	}
 
-	log.Infof("config %+v", c)
-	c.configure()
+	c.Configure()
 	return c
 }
 

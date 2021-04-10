@@ -7,24 +7,43 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/github"
+
+	"github.com/stanistan/present-me/internal/secret"
 )
 
 type GHOpts struct {
-	AppID          int64  `yaml:"app_id"`
-	InstallationID int64  `yaml:"installation_id"`
-	PrivateKeyFile string `yaml:"private_key_file"`
+	AppID          int64        `name:"app_id" env:"GH_APP_ID"`
+	InstallationID int64        `name:"installation_id" env:"GH_INSTALLATION_ID"`
+	PrivateKey     GHPrivateKey `embed prefix:"pk-"`
+}
+
+type GHPrivateKey struct {
+	File       string `name:"file" env:"GH_PK_FILE"`
+	SecretName string `name:"secret-name" env:"GH_PK_SECRET_NAME"`
 }
 
 func (o *GHOpts) HTTPClient() (*http.Client, error) {
-	tr := http.DefaultTransport
-	itr, err := ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKeyFile)
-	if err != nil {
-		return nil, err
+	var (
+		itr *ghinstallation.Transport
+		err error
+
+		tr = http.DefaultTransport
+	)
+
+	if o.PrivateKey.File != "" {
+		itr, err = ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKey.File)
+		if err != nil {
+			return nil, err
+		}
+	} else if o.PrivateKey.SecretName != "" {
+		pk, err := secret.Get(context.Background(), o.PrivateKey.SecretName)
+		if err != nil {
+			return nil, err
+		}
+		itr, err = ghinstallation.New(tr, o.AppID, o.InstallationID, pk)
 	}
 
-	return &http.Client{
-		Transport: itr,
-	}, nil
+	return &http.Client{Transport: itr}, nil
 }
 
 type GH struct {

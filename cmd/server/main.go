@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alecthomas/kong"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
@@ -12,7 +13,9 @@ import (
 )
 
 func main() {
-	config := pm.MustConfig(os.Args[1])
+	var config pm.Config
+	_ = kong.Parse(&config)
+	config.Configure()
 
 	g, err := pm.NewGH(config.Github)
 	if err != nil {
@@ -35,13 +38,13 @@ func main() {
 	}
 
 	s := &http.Server{
-		Addr:         ":" + port,
+		Addr:         "0.0.0.0:" + port,
 		Handler:      r,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Infof("starting server at port %s", s.Addr)
+	log.Infof("starting server at %s", s.Addr)
 	log.Fatal(s.ListenAndServe())
 }
 
