@@ -14,7 +14,7 @@ import (
 type GHOpts struct {
 	AppID          int64        `name:"app_id" env:"GH_APP_ID"`
 	InstallationID int64        `name:"installation_id" env:"GH_INSTALLATION_ID"`
-	PrivateKey     GHPrivateKey `embed prefix:"pk-"`
+	PrivateKey     GHPrivateKey `embed:"" prefix:"pk-"`
 }
 
 type GHPrivateKey struct {
