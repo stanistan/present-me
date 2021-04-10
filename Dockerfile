@@ -8,4 +8,8 @@ RUN go mod download
 
 COPY . .
 RUN go build -o /go/bin/server -mod readonly ./cmd/server
-ENTRYPOINT ["/go/bin/server"]
+
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /go/bin/server /app
+ENTRYPOINT ["/app"]
