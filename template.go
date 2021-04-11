@@ -63,6 +63,9 @@ var (
 	//go:embed templates/slides.html
 	slideBytes string
 
+	//go:embed templates/index.html
+	IndexHTML []byte
+
 	reviewTemplate = templateMust("review", reviewBytes)
 	htmlTemplate   = templateMust("html", htmlBytes)
 	slideTemplate  = templateMust("slide", slideBytes)

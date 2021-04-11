@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -28,12 +29,28 @@ func main() {
 		Methods("GET").
 		Subrouter()
 
-	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsSlides: true}))
-	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{}))
-	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
+	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsSlides: true})).Name("slides")
+	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{})).Name("md")
+	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true})).Name("post")
 
 	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hi"))
+		url := r.URL.Query().Get("url")
+		params, err := pm.ReviewParamsFromURL(url)
+		if err != nil {
+			w.Write(pm.IndexHTML)
+		} else {
+			toURL, err := sub.Get("post").URL(
+				"owner", params.Owner,
+				"repo", params.Repo,
+				"number", strconv.Itoa(params.Number),
+				"reviewID", strconv.FormatInt(params.ReviewID, 10),
+			)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			} else {
+				http.Redirect(w, r, toURL.String(), http.StatusTemporaryRedirect)
+			}
+		}
 	}))
 
 	port, ok := os.LookupEnv("PORT")
