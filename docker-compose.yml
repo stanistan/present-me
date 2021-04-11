@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  server:
+    build:
+      context: .
+      target: dev
+    ports:
+      - $PORT:$PORT
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      - .:/go/src/app  # for dev
+    environment:
+      - PORT=${PORT}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - DISK_CACHE_ENABLED=true
+      - DISK_CACHE_BASE_PATH=/tmp/data/cache
+      - GH_APP_ID=${GH_APP_ID}
+      - GH_INSTALLATION_ID=${GH_INSTALLATION_ID}
+      - GH_PK_SECRET_NAME=${GH_PK_SECRET_NAME}

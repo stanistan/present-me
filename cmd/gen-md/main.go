@@ -4,23 +4,25 @@ import (
 	"context"
 	"os"
 
+	"github.com/alecthomas/kong"
 	log "github.com/sirupsen/logrus"
 
 	pm "github.com/stanistan/present-me"
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		log.Fatal("missing argument for url & config")
+	var c struct {
+		Config pm.Config `embed:"" required:""`
+		URL    string    `arg:"" required:""`
 	}
+	_ = kong.Parse(&c)
 
-	params, err := pm.ReviewParamsFromURL(os.Args[1])
+	params, err := pm.ReviewParamsFromURL(c.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	config := pm.MustConfig(os.Args[2])
-	g, err := pm.NewGH(config.Github)
+	g, err := pm.NewGH(c.Config.Github)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,14 +7,16 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/github"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stanistan/present-me/internal/secret"
 )
 
 type GHOpts struct {
-	AppID          int64        `name:"app_id" env:"GH_APP_ID"`
-	InstallationID int64        `name:"installation_id" env:"GH_INSTALLATION_ID"`
-	PrivateKey     GHPrivateKey `embed:"" prefix:"pk-"`
+	AppID          int64        `name:"app_id" env:"GH_APP_ID" required:""`
+	InstallationID int64        `name:"installation_id" env:"GH_INSTALLATION_ID" required:""`
+	PrivateKey     GHPrivateKey `embed:"" prefix:"pk-" required:""`
 }
 
 type GHPrivateKey struct {
@@ -24,23 +26,28 @@ type GHPrivateKey struct {
 
 func (o *GHOpts) HTTPClient() (*http.Client, error) {
 	var (
-		itr *ghinstallation.Transport
+		itr http.RoundTripper
 		err error
 
 		tr = http.DefaultTransport
 	)
 
 	if o.PrivateKey.File != "" {
+		log.Infof("attempting to read PK from File")
 		itr, err = ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKey.File)
-		if err != nil {
-			return nil, err
-		}
 	} else if o.PrivateKey.SecretName != "" {
-		pk, err := secret.Get(context.Background(), o.PrivateKey.SecretName)
-		if err != nil {
-			return nil, err
+		log.Info("attempting to read PK from secret")
+		var pk []byte
+		pk, err = secret.Get(context.Background(), o.PrivateKey.SecretName)
+		if err == nil {
+			itr, err = ghinstallation.New(tr, o.AppID, o.InstallationID, pk)
 		}
-		itr, err = ghinstallation.New(tr, o.AppID, o.InstallationID, pk)
+	} else {
+		itr = tr
+	}
+
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create HTTP Client")
 	}
 
 	return &http.Client{Transport: itr}, nil
