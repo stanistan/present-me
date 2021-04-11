@@ -16,6 +16,7 @@ type Config struct {
 }
 
 func (c *Config) Configure() {
+	log.SetFormatter(&log.JSONFormatter{})
 	log.Infof("config %+v", c)
 	configureCache(c.DiskCache)
 }

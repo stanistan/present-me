@@ -32,6 +32,10 @@ func main() {
 	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{}))
 	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true}))
 
+	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("hi"))
+	}))
+
 	port, ok := os.LookupEnv("PORT")
 	if !ok || port == "" {
 		port = "8080"
