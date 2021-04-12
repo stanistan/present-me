@@ -17,6 +17,7 @@ var md = goldmark.New(
 	goldmark.WithExtensions(
 		extension.GFM,
 		extension.DefinitionList,
+		extension.Typographer,
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("github"),
 		),

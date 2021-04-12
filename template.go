@@ -9,6 +9,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func IndexPage(w io.Writer, url, err string) error {
+	return indexTemplate.Execute(w, struct {
+		URL string
+		Err string
+	}{
+		URL: url,
+		Err: err,
+	})
+}
+
 func intoTemplate(w io.Writer, bytes []byte) error {
 	return htmlTemplate.Execute(w, struct {
 		Body template.HTML
@@ -64,9 +74,10 @@ var (
 	slideBytes string
 
 	//go:embed templates/index.html
-	IndexHTML []byte
+	indexBytes string
 
 	reviewTemplate = templateMust("review", reviewBytes)
 	htmlTemplate   = templateMust("html", htmlBytes)
 	slideTemplate  = templateMust("slide", slideBytes)
+	indexTemplate  = templateMust("index", indexBytes)
 )

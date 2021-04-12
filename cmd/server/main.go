@@ -29,17 +29,23 @@ func main() {
 		Methods("GET").
 		Subrouter()
 
-	sub.HandleFunc("", doMD(g, pm.AsMarkdownOptions{AsSlides: true})).Name("slides")
+	sub.HandleFunc("/slides", doMD(g, pm.AsMarkdownOptions{AsSlides: true})).Name("slides")
 	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{})).Name("md")
 	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true})).Name("post")
 
 	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		url := r.URL.Query().Get("url")
+		if url == "" {
+			_ = pm.IndexPage(w, "", "")
+			return
+		}
+
+		urlType := r.URL.Query().Get("to")
 		params, err := pm.ReviewParamsFromURL(url)
 		if err != nil {
-			w.Write(pm.IndexHTML)
+			_ = pm.IndexPage(w, url, err.Error())
 		} else {
-			toURL, err := sub.Get("post").URL(
+			toURL, err := sub.Get(urlType).URL(
 				"owner", params.Owner,
 				"repo", params.Repo,
 				"number", strconv.Itoa(params.Number),
