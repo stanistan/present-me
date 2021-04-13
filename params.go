@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	dc "github.com/stanistan/present-me/internal/cache"
 )
 
@@ -51,21 +53,21 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 	owner, ok := m["owner"]
 	if !ok || owner == "" {
-		return nil, fmt.Errorf("missing owner")
+		return nil, errors.New("missing owner")
 	}
 
 	repo, ok := m["repo"]
 	if !ok || repo == "" {
-		return nil, fmt.Errorf("missing repo")
+		return nil, errors.New("missing repo")
 	}
 
 	numberVal, ok := m["number"]
 	if !ok || numberVal == "" {
-		return nil, fmt.Errorf("missing number")
+		return nil, errors.New("missing number")
 	}
 	number, err := strconv.ParseInt(numberVal, 10, 0)
 	if err != nil {
-		return nil, fmt.Errorf("invalid number: %s", err)
+		return nil, errors.Wrap(err, "invalid number")
 	}
 
 	reviewIDVal, ok := m["reviewID"]

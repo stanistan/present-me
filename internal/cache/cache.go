@@ -109,8 +109,8 @@ func (c *Cache) Write(key interface{}, data interface{}) error {
 }
 
 type CacheOpts struct {
-	Enabled  bool   `name:"enabled"`
-	BasePath string `name:"base-path"`
+	Enabled  bool   `name:"enabled" env:"DISK_CACHE_ENABLED"`
+	BasePath string `name:"base-path" env:"DISK_CACHE_BASE_PATH"`
 }
 
 func NewCache(opts CacheOpts) *Cache {

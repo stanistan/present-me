@@ -9,6 +9,7 @@ services:
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
       - .:/go/src/app  # for dev
+      - cache-content:/tmp/data/cache:rw
     environment:
       - PORT=${PORT}
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
@@ -17,3 +18,5 @@ services:
       - GH_APP_ID=${GH_APP_ID}
       - GH_INSTALLATION_ID=${GH_INSTALLATION_ID}
       - GH_PK_SECRET_NAME=${GH_PK_SECRET_NAME}
+volumes:
+  cache-content:
