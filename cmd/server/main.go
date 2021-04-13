@@ -33,6 +33,8 @@ func main() {
 	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{})).Name("md")
 	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true})).Name("post")
 
+	r.PathPrefix("/static").Handler(http.FileServer(http.FS(pm.StaticContent)))
+
 	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		url := r.URL.Query().Get("url")
 		if url == "" {
