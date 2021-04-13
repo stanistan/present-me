@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	pm "github.com/stanistan/present-me"
+	cache "github.com/stanistan/present-me/internal/cache"
 )
 
 func main() {
@@ -80,12 +81,17 @@ func main() {
 func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, func() error {
+			ctx := cache.ContextWithOptions(r.Context(), &cache.Options{
+				TTL:          10 * time.Minute,
+				ForceRefresh: r.URL.Query().Get("refresh") == "1",
+			})
+
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 			if err != nil {
 				return err
 			}
 
-			model, err := params.Model(r.Context(), g, r.URL.Query().Get("refresh") == "1")
+			model, err := params.Model(ctx, g)
 			if err != nil {
 				return err
 			}

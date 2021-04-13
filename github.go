@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
+	dc "github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/secret"
 )
 
@@ -67,23 +68,47 @@ func NewGH(opts GHOpts) (*GH, error) {
 }
 
 func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFile, error) {
-	fs, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
-	return fs, err
+	var fs []*github.CommitFile
+	return fs, cache.Apply(ctx, &fs, dc.Provider{
+		Key: []interface{}{r.Owner, r.Repo, r.Number, "files"},
+		Fetch: func() (interface{}, error) {
+			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
+			return d, err
+		},
+	})
 }
 
 func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullRequest, error) {
-	pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
-	return pr, err
+	var pr *github.PullRequest
+	return pr, cache.Apply(ctx, &pr, dc.Provider{
+		Key: []interface{}{r.Owner, r.Repo, r.Number, "pr"},
+		Fetch: func() (interface{}, error) {
+			pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
+			return pr, err
+		},
+	})
 }
 
 func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullRequestReview, error) {
-	review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
-	return review, err
+	var review *github.PullRequestReview
+	return review, cache.Apply(ctx, &review, dc.Provider{
+		Key: []interface{}{r, "review"},
+		Fetch: func() (interface{}, error) {
+			review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
+			return review, err
+		},
+	})
 }
 
 func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
-	cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
-	return cs, err
+	var cs []*github.PullRequestComment
+	return cs, cache.Apply(ctx, &cs, dc.Provider{
+		Key: []interface{}{r, "review-comments"},
+		Fetch: func() (interface{}, error) {
+			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
+			return cs, err
+		},
+	})
 }
 
 func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {

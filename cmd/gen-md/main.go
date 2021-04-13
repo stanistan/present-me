@@ -10,24 +10,25 @@ import (
 	pm "github.com/stanistan/present-me"
 )
 
-func main() {
-	var c struct {
-		Config pm.Config `embed:"" required:""`
-		URL    string    `arg:"" required:""`
-	}
-	_ = kong.Parse(&c)
+var c struct {
+	Config pm.Config `embed:"" required:""`
+	URL    string    `arg:"" required:""`
+}
 
-	params, err := pm.ReviewParamsFromURL(c.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
+func main() {
+	_ = kong.Parse(&c)
 
 	g, err := pm.NewGH(c.Config.Github)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	model, err := params.Model(context.Background(), g, false)
+	params, err := pm.ReviewParamsFromURL(c.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	model, err := params.Model(context.Background(), g)
 	if err != nil {
 		log.Fatal(err)
 	}

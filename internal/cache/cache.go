@@ -1,14 +1,15 @@
 package cache
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/peterbourgon/diskv"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,14 +18,17 @@ type Cache struct {
 	d        *diskv.Diskv
 }
 
-type Provider struct {
-	Key          interface{}
+type Options struct {
 	TTL          time.Duration
 	ForceRefresh bool
-	Fetch        func() (interface{}, error)
 }
 
-func (c *Cache) Apply(into interface{}, opts Provider) error {
+type Provider struct {
+	Key   interface{}
+	Fetch func() (interface{}, error)
+}
+
+func (c *Cache) Apply(ctx context.Context, into interface{}, p Provider) error {
 	// This probably needs to be checked a bit better, but
 	// this is ok for now.
 	//
@@ -32,28 +36,36 @@ func (c *Cache) Apply(into interface{}, opts Provider) error {
 	// interface that was passed in.
 	v := reflect.ValueOf(into).Elem()
 	if !v.CanSet() {
-		return fmt.Errorf("cannot set value here")
+		return errors.New("cannot set value here")
 	}
 
-	if !opts.ForceRefresh {
-		ok, err := c.Read(opts.Key, into, opts.TTL)
+	var (
+		ttl          time.Duration
+		forceRefresh bool
+	)
+
+	opts, ok := OptionsFromContext(ctx)
+	if ok {
+		ttl = opts.TTL
+		forceRefresh = opts.ForceRefresh
+	}
+
+	if !forceRefresh {
+		ok, err := c.Read(p.Key, into, ttl)
 		if err != nil {
 			return err
 		}
 		if ok {
-			log.Printf("using cached value")
 			return nil
 		}
 	}
 
-	log.Printf("fetching data")
-	data, err := opts.Fetch()
+	data, err := p.Fetch()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("writing data to cache")
-	err = c.Write(opts.Key, data)
+	err = c.Write(p.Key, data)
 	if err != nil {
 		return err
 	}
@@ -74,6 +86,7 @@ func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool
 
 	bytes, err := c.d.Read(k)
 	if err != nil {
+		log.Error(err)
 		return false, nil // FILE MISSING, Do a check here:)
 	}
 

@@ -8,8 +8,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-
-	dc "github.com/stanistan/present-me/internal/cache"
 )
 
 type ReviewParams struct {
@@ -70,13 +68,13 @@ func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 		return nil, errors.Wrap(err, "invalid number")
 	}
 
+	var reviewID int64
 	reviewIDVal, ok := m["reviewID"]
-	if !ok || reviewIDVal == "" {
-		return nil, fmt.Errorf("missing reviewID")
-	}
-	reviewID, err := strconv.ParseInt(reviewIDVal, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid reviewID: %s", err)
+	if ok && reviewIDVal != "" {
+		reviewID, err = strconv.ParseInt(reviewIDVal, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid reviewID: %s", err)
+		}
 	}
 
 	return &ReviewParams{
@@ -87,15 +85,6 @@ func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 	}, nil
 }
 
-func (r *ReviewParams) Model(ctx context.Context, g *GH, refreshData bool) (*ReviewModel, error) {
-	var data *ReviewModel
-	err := cache.Apply(&data, dc.Provider{
-		Key:          r,
-		TTL:          cacheTTL,
-		ForceRefresh: refreshData,
-		Fetch: func() (interface{}, error) {
-			return g.FetchReviewModel(ctx, r)
-		},
-	})
-	return data, err
+func (r *ReviewParams) Model(ctx context.Context, g *GH) (*ReviewModel, error) {
+	return g.FetchReviewModel(ctx, r)
 }

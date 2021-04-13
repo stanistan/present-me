@@ -1,8 +1,6 @@
 package presentme
 
 import (
-	"time"
-
 	log "github.com/sirupsen/logrus"
 
 	dc "github.com/stanistan/present-me/internal/cache"
@@ -26,6 +24,5 @@ func configureCache(opts dc.CacheOpts) {
 }
 
 var (
-	cache    *dc.Cache = dc.NewCache(dc.CacheOpts{Enabled: false})
-	cacheTTL           = 10 * time.Minute
+	cache *dc.Cache = dc.NewCache(dc.CacheOpts{Enabled: false})
 )
