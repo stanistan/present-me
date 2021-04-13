@@ -48,6 +48,11 @@ func main() {
 		if err != nil {
 			_ = pm.IndexPage(w, url, err.Error())
 		} else {
+			err := params.EnsureReviewID(r.Context(), g)
+			if err != nil {
+				_ = pm.IndexPage(w, url, err.Error())
+				return
+			}
 			toURL, err := sub.Get(urlType).URL(
 				"owner", params.Owner,
 				"repo", params.Repo,

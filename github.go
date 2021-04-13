@@ -89,6 +89,17 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 	})
 }
 
+func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRequestReview, error) {
+	var reviews []*github.PullRequestReview
+	return reviews, cache.Apply(ctx, &reviews, dc.Provider{
+		Key: []interface{}{r.Owner, r.Repo, r.Number, "reviews"},
+		Fetch: func() (interface{}, error) {
+			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Number, nil)
+			return reviews, err
+		},
+	})
+}
+
 func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullRequestReview, error) {
 	var review *github.PullRequestReview
 	return review, cache.Apply(ctx, &review, dc.Provider{
@@ -114,8 +125,18 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
 	pull, err := g.GetPullRequest(ctx, r)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not fetch PR")
 	}
+
+	/* if r.ReviewID == 0 {
+		reviews, err := g.ListReviews(ctx, r)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not fetch reviews for PR")
+		}
+		for _, rev := range reviews {
+			if rev.User.Login == pull.User.Login {
+				r.ReviewID ==
+	} */
 
 	review, err := g.GetReview(ctx, r)
 	if err != nil {

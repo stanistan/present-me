@@ -19,9 +19,13 @@ type ReviewParams struct {
 
 //
 // The following formats are supported:
-// https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
-// github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
-// stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// - https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// - github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// - stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
+// - stanistan/invoice-proxy/pull/3
+//
+// If there is no pullrequestreview number provided, we will find the
+// first one that belongs to the author of the PR itself.
 func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 	// trim protocol and domain if they are there, we add them back
 	// to normalize and support urls that might not have the protocol,
@@ -87,4 +91,28 @@ func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 
 func (r *ReviewParams) Model(ctx context.Context, g *GH) (*ReviewModel, error) {
 	return g.FetchReviewModel(ctx, r)
+}
+
+func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) error {
+	if r.ReviewID != 0 {
+		return nil
+	}
+
+	pull, err := g.GetPullRequest(ctx, r)
+	if err != nil {
+		return errors.Wrap(err, "could not fetch PR")
+	}
+
+	reviews, err := g.ListReviews(ctx, r)
+	if err != nil {
+		return errors.Wrap(err, "could not fetch reviews for PR")
+	}
+	for _, rev := range reviews {
+		if *rev.User.Login == *pull.User.Login {
+			r.ReviewID = *rev.ID
+			return nil
+		}
+	}
+
+	return errors.New("could not find review by author of PR")
 }
