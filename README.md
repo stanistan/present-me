@@ -1,22 +1,16 @@
 # present-me
 
-**Present Me** is an application should make presenting
-a Pull Request easier.
+[(pr)esent-me][1] is an experiment to try to give the author of
+a Pull Request a better way to convey why a changeset looks the
+way that it does, and how the folks reading and reviewing it
+should approach it.
 
-Generally, when we submit PRs they are read top to bottom,
-with little control to the _author_ of the PR in how they
-want to present the information (outside of the PR description).
+([read more][2])
 
-`present-me` uses Github's Review Comments as an annotation method
-to generate a markdown presentation as well as slides in [remarkjs][1].
+## Acknowledgements
 
-**This requires Read Access to work.**
+- revealjs.com for the slides feature
+- [tufte-css](https://edwardtufte.github.io/tufte-css/) for styling
 
-## TODO
-
-- [ ] multiple kinds of auth (currently uses github application private key)
-- [ ] different stylesheets
-- [ ] list files in the PR (that are not commented)
-- [ ] better logging and error handling
-
-[1]: http://remarkjs.com
+[1]: https://present-me.stanistan.dev
+[2]: https://www.stanistan.com/writes/2021/04/03/present-me/
