@@ -23,12 +23,13 @@ func (c *Config) Configure() {
 
 func configureLogger() {
 	// This is sset to be GOOGLE format (ish)
-	// https://cloud.google.com/logging/docs/structured-logging
-	zerolog.MessageFieldName = "message"
+	// - https://cloud.google.com/logging/docs/structured-logging
+	// - https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogSeverity
 	zerolog.LevelFieldName = "severity"
 	zerolog.TimestampFieldName = "times"
+	zerolog.MessageFieldName = "message"
+	zerolog.ErrorFieldName = "message"
 	zerolog.LevelFieldMarshalFunc = func(l zerolog.Level) string {
-		// https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogSeverity
 		switch l {
 		case zerolog.TraceLevel:
 			return "DEBUG"
