@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/google/go-github/github"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type ReviewModel struct {
@@ -28,7 +28,7 @@ type AsMarkdownOptions struct {
 func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	var buf bytes.Buffer
 
-	log.Infof("rendering %+v", *r.Params)
+	log.Info().Msgf("rendering %+v", *r.Params)
 	if err := reviewBody(&buf, r); err != nil {
 		return err
 	}

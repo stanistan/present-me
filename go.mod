@@ -12,11 +12,10 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.1
 	github.com/peterbourgon/diskv v2.0.1+incompatible
-	github.com/pkg/errors v0.8.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.6.1
 	github.com/yuin/goldmark v1.3.3
 	github.com/yuin/goldmark-highlighting v0.0.0-20200307114337-60d527fdb691
 	google.golang.org/genproto v0.0.0-20210406143921-e86de6bf7a46
-	gopkg.in/yaml.v2 v2.2.2
 )

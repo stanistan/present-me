@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"io"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func IndexPage(w io.Writer, url, err string) error {
@@ -44,7 +44,7 @@ var templateFuncMap = template.FuncMap{
 		var buf bytes.Buffer
 		err := intoHTML(&buf, []byte(s))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err)
 		}
 		return template.HTML(buf.Bytes())
 	},

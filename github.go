@@ -8,7 +8,7 @@ import (
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	dc "github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/secret"
@@ -34,10 +34,10 @@ func (o *GHOpts) HTTPClient() (*http.Client, error) {
 	)
 
 	if o.PrivateKey.File != "" {
-		log.Infof("attempting to read PK from File")
+		log.Info().Msg("attempting to read PK from File")
 		itr, err = ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKey.File)
 	} else if o.PrivateKey.SecretName != "" {
-		log.Info("attempting to read PK from secret")
+		log.Info().Msg("attempting to read PK from secret")
 		var pk []byte
 		pk, err = secret.Get(context.Background(), o.PrivateKey.SecretName)
 		if err == nil {

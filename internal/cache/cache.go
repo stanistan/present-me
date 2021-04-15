@@ -10,7 +10,7 @@ import (
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/peterbourgon/diskv"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type Cache struct {
@@ -86,7 +86,7 @@ func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool
 
 	bytes, err := c.d.Read(k)
 	if err != nil {
-		log.Error(err)
+		log.Error().Err(err)
 		return false, nil // FILE MISSING, Do a check here:)
 	}
 
@@ -131,7 +131,7 @@ func NewCache(opts CacheOpts) *Cache {
 		return &Cache{disabled: true}
 	}
 
-	log.Printf("initializing data cache at %s", opts.BasePath)
+	log.Info().Msgf("initializing data cache at %s", opts.BasePath)
 	return &Cache{
 		d: diskv.New(diskv.Options{
 			BasePath:     opts.BasePath,

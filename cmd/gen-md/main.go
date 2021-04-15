@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/alecthomas/kong"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	pm "github.com/stanistan/present-me"
 )
@@ -17,23 +17,31 @@ var c struct {
 
 func main() {
 	_ = kong.Parse(&c)
+	c.Config.Configure()
+	if err := realMain(); err != nil {
+		log.Fatal().Err(err)
+	}
+}
 
+func realMain() error {
 	g, err := pm.NewGH(c.Config.Github)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	params, err := pm.ReviewParamsFromURL(c.URL)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	model, err := params.Model(context.Background(), g)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if err := model.AsMarkdown(os.Stdout, pm.AsMarkdownOptions{}); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }

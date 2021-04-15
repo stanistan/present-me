@@ -10,7 +10,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	pm "github.com/stanistan/present-me"
 	cache "github.com/stanistan/present-me/internal/cache"
@@ -23,7 +23,7 @@ func main() {
 
 	g, err := pm.NewGH(config.Github)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	r := mux.NewRouter()
@@ -104,8 +104,8 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Infof("starting server at %s", s.Addr)
-	log.Fatal(s.ListenAndServe())
+	log.Info().Msgf("starting server at %s", s.Addr)
+	log.Fatal().Err(s.ListenAndServe())
 }
 
 func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
@@ -128,7 +128,7 @@ func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
 
 func handle(w http.ResponseWriter, f func() error) {
 	if err := f(); err != nil {
-		log.Error(err)
+		log.Error().Err(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
