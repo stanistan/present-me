@@ -1,8 +1,6 @@
 package presentme
 
 import (
-	"strings"
-
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -17,8 +15,6 @@ type Config struct {
 }
 
 func (c *Config) Configure() {
-	// This is sset to be GOOGLE format (ish)
-	// https://cloud.google.com/logging/docs/structured-logging
 	configureLogger()
 
 	log.Info().Msgf("config %+v", c)
@@ -26,11 +22,32 @@ func (c *Config) Configure() {
 }
 
 func configureLogger() {
+	// This is sset to be GOOGLE format (ish)
+	// https://cloud.google.com/logging/docs/structured-logging
 	zerolog.MessageFieldName = "message"
 	zerolog.LevelFieldName = "severity"
 	zerolog.TimestampFieldName = "times"
 	zerolog.LevelFieldMarshalFunc = func(l zerolog.Level) string {
-		return strings.ToUpper(l.String())
+		// https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogSeverity
+		switch l {
+		case zerolog.TraceLevel:
+			return "DEBUG"
+		case zerolog.DebugLevel:
+			return "DEBUG"
+		case zerolog.InfoLevel:
+			return "INFO"
+		case zerolog.WarnLevel:
+			return "WARNING"
+		case zerolog.ErrorLevel:
+			return "ERROR"
+		case zerolog.FatalLevel:
+			return "ALERT"
+		case zerolog.PanicLevel:
+			return "ALERT"
+		case zerolog.NoLevel:
+			return ""
+		}
+		return ""
 	}
 }
 
