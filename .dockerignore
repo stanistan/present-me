@@ -1,6 +1,6 @@
 .dockerignore
 .env
 docker-compose.yml
-Dockerfile
+*Dockerfile
 Makefile
 README.md
