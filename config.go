@@ -42,13 +42,13 @@ func configureLogger() {
 		case zerolog.ErrorLevel:
 			return "ERROR"
 		case zerolog.FatalLevel:
-			return "ALERT"
+			return "CRITICAL"
 		case zerolog.PanicLevel:
 			return "ALERT"
 		case zerolog.NoLevel:
-			return ""
+			return "DEFAULT"
 		}
-		return ""
+		return "DEFAULT"
 	}
 }
 
