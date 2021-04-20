@@ -100,13 +100,18 @@ func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) error {
 
 	pull, err := g.GetPullRequest(ctx, r)
 	if err != nil {
-		return errors.Wrap(err, "could not fetch PR")
+		return err
 	}
 
 	reviews, err := g.ListReviews(ctx, r)
 	if err != nil {
-		return errors.Wrap(err, "could not fetch reviews for PR")
+		return err
 	}
+
+	if len(reviews) == 0 {
+		return fmt.Errorf("PR has no reviews")
+	}
+
 	for _, rev := range reviews {
 		if *rev.User.Login == *pull.User.Login {
 			r.ReviewID = *rev.ID
@@ -114,5 +119,5 @@ func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) error {
 		}
 	}
 
-	return errors.New("could not find review by author of PR")
+	return fmt.Errorf("PR has no review from the PR author %s", *pull.User.Login)
 }

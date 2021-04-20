@@ -23,7 +23,7 @@ func main() {
 
 	g, err := pm.NewGH(config.Github)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("")
 	}
 
 	r := mux.NewRouter()
@@ -47,18 +47,27 @@ func main() {
 		handle(w, func() error {
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 			if err != nil {
-				return err
+				return &pm.Error{
+					Msg:      "Malformed PR URL",
+					Cause:    err,
+					HttpCode: 400,
+				}
 			}
 
 			err = params.EnsureReviewID(cacheContext(r), g)
 			if err != nil {
-				return err
+				return &pm.Error{
+					Msg:      "Failed to find associated review ID",
+					Cause:    err,
+					HttpCode: 404,
+				}
 			}
 
 			toURL, err := urlForParams(params, "post")(sub)
 			if err != nil {
 				return err
 			}
+
 			http.Redirect(w, r, toURL, http.StatusTemporaryRedirect)
 			return nil
 		})
@@ -104,8 +113,10 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Info().Msgf("starting server at %s", s.Addr)
-	log.Fatal().Err(s.ListenAndServe())
+	log.Info().Str("address", s.Addr).Msg("started server")
+	if err := s.ListenAndServe(); err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
 }
 
 func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
@@ -128,8 +139,9 @@ func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
 
 func handle(w http.ResponseWriter, f func() error) {
 	if err := f(); err != nil {
-		log.Error().Err(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		e := pm.WrapErr(err)
+		log.Err(e).Msg("")
+		http.Error(w, e.Error(), e.HttpCode)
 	}
 }
 
@@ -161,6 +173,7 @@ func urlForParams(params *pm.ReviewParams, t string) func(*mux.Router) (string, 
 		if err != nil {
 			return "", errors.Wrap(err, "could not construct url")
 		}
+
 		return u.String(), nil
 	}
 }

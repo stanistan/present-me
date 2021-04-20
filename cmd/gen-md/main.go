@@ -19,7 +19,7 @@ func main() {
 	_ = kong.Parse(&c)
 	c.Config.Configure()
 	if err := realMain(); err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("")
 	}
 }
 

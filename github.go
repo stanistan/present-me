@@ -73,7 +73,7 @@ func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFi
 		Key: []interface{}{r.Owner, r.Repo, r.Number, "files"},
 		Fetch: func() (interface{}, error) {
 			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
-			return d, err
+			return d, WrapGithubErr(err, "call to ListFiles failed")
 		},
 	})
 }
@@ -84,7 +84,7 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 		Key: []interface{}{r.Owner, r.Repo, r.Number, "pr"},
 		Fetch: func() (interface{}, error) {
 			pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
-			return pr, err
+			return pr, WrapGithubErr(err, "call to GetPullRequest failed")
 		},
 	})
 }
@@ -95,7 +95,7 @@ func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRe
 		Key: []interface{}{r.Owner, r.Repo, r.Number, "reviews"},
 		Fetch: func() (interface{}, error) {
 			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Number, nil)
-			return reviews, err
+			return reviews, WrapGithubErr(err, "call to ListReviews failed")
 		},
 	})
 }
@@ -106,7 +106,7 @@ func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullReques
 		Key: []interface{}{r, "review"},
 		Fetch: func() (interface{}, error) {
 			review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
-			return review, err
+			return review, WrapGithubErr(err, "call to GetReview failed")
 		},
 	})
 }
@@ -117,7 +117,7 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 		Key: []interface{}{r, "review-comments"},
 		Fetch: func() (interface{}, error) {
 			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
-			return cs, err
+			return cs, WrapGithubErr(err, "call to ListReviewComments failed")
 		},
 	})
 }
@@ -125,18 +125,8 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
 	pull, err := g.GetPullRequest(ctx, r)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch PR")
+		return nil, err
 	}
-
-	/* if r.ReviewID == 0 {
-		reviews, err := g.ListReviews(ctx, r)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not fetch reviews for PR")
-		}
-		for _, rev := range reviews {
-			if rev.User.Login == pull.User.Login {
-				r.ReviewID ==
-	} */
 
 	review, err := g.GetReview(ctx, r)
 	if err != nil {

@@ -86,7 +86,7 @@ func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool
 
 	bytes, err := c.d.Read(k)
 	if err != nil {
-		log.Error().Err(err)
+		log.Warn().Err(err).Msg("")
 		return false, nil // FILE MISSING, Do a check here:)
 	}
 

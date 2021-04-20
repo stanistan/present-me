@@ -44,7 +44,7 @@ var templateFuncMap = template.FuncMap{
 		var buf bytes.Buffer
 		err := intoHTML(&buf, []byte(s))
 		if err != nil {
-			log.Fatal().Err(err)
+			log.Fatal().Err(err).Msg("")
 		}
 		return template.HTML(buf.Bytes())
 	},
