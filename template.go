@@ -11,11 +11,12 @@ import (
 
 func IndexPage(w io.Writer, url, err string) error {
 	return indexTemplate.Execute(w, struct {
-		URL string
-		Err string
+		URL, Err string
+		ReadMe   string
 	}{
-		URL: url,
-		Err: err,
+		URL:    url,
+		Err:    err,
+		ReadMe: readme,
 	})
 }
 
@@ -64,6 +65,9 @@ func templateMust(n, content string) *template.Template {
 }
 
 var (
+	//go:embed README.md
+	readme string
+
 	//go:embed templates/html.html
 	htmlBytes string
 
