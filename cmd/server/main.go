@@ -28,23 +28,111 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// serving css & fonts n things
+	// TODO(https://github.com/stanistan/present-me/issues/9):
+	//
+	// This can be something that we pull in at runtime instead of building
+	// the assets into the binary.
 	r.PathPrefix("/static").Handler(http.FileServer(http.FS(pm.StaticContent)))
 
-	// our main routes
+	// our main routes router, sub routes are set up later
 	sub := r.PathPrefix("/{owner}/{repo}/pull/{number}/{reviewID}").
 		Methods("GET").
 		Subrouter()
 
-	sub.HandleFunc("/slides", doMD(g, pm.AsMarkdownOptions{AsSlides: true})).
-		Name("slides")
-	sub.HandleFunc("/md", doMD(g, pm.AsMarkdownOptions{})).
-		Name("md")
-	sub.HandleFunc("/post", doMD(g, pm.AsMarkdownOptions{AsHTML: true, InBody: true})).
-		Name("post")
+	// our server context,
+	// it holds the subrouter so we can do consistent url redirection
+	server := &server{g: g, sub: sub}
 
-	r.HandleFunc("/{owner}/{repo}/pull/{number}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handle(w, func() error {
+	// all the routes!
+	sub.HandleFunc("/slides", server.slides()).Name("slides")                 // MD rendered as slides
+	sub.HandleFunc("/md", server.rawMD()).Name("md")                          // raw MD
+	sub.HandleFunc("/post", server.post()).Name("post")                       // the MD rendered as a post
+	r.HandleFunc("/{owner}/{repo}/pull/{number}", server.pr()).Methods("GET") // redirects to one of the above
+	r.Handle("/", server.index()).Methods("GET")                              // renders the form
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handle(w, r, func() error {
+			return &pm.Error{
+				Msg:      "Not Found",
+				HttpCode: 404,
+			}
+		})
+	})
+
+	// start the server
+	err = listenAndServe(r)
+	if err != nil {
+		log.Fatal().Err(err).Msg("")
+	}
+}
+
+func listenAndServe(router *mux.Router) error {
+	// get our PORT from the env
+	port, ok := os.LookupEnv("PORT")
+	if !ok || port == "" {
+		port = "8080"
+	}
+
+	s := &http.Server{
+		Addr:         ":" + port,
+		Handler:      router,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	log.Info().Str("address", s.Addr).Msg("started server")
+	return s.ListenAndServe()
+}
+
+type server struct {
+	g   *pm.GH
+	sub *mux.Router
+}
+
+func (s *server) index() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handle(w, r, func() error {
+			log.Info().Msgf("request %s", r)
+			var (
+				url         string
+				err         error
+				renderIndex = func() error {
+					var errMsg string
+					if err != nil {
+						errMsg = err.Error()
+					}
+					_ = pm.IndexPage(w, url, errMsg)
+					return nil
+				}
+			)
+
+			url = r.URL.Query().Get("url")
+			if url == "" {
+				return renderIndex()
+			}
+
+			params, err := pm.ReviewParamsFromURL(url)
+			if err != nil {
+				return renderIndex()
+			}
+
+			toURL, err := s.urlForParams(params, urlType(r))
+			if err != nil {
+				return &pm.Error{
+					Msg:      "could not construct valid url",
+					Cause:    err,
+					HttpCode: 500,
+				}
+			}
+
+			http.Redirect(w, r, toURL, http.StatusTemporaryRedirect)
+			return nil
+		})
+	}
+}
+
+func (s *server) pr() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handle(w, r, func() error {
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 			if err != nil {
 				return &pm.Error{
@@ -54,7 +142,7 @@ func main() {
 				}
 			}
 
-			err = params.EnsureReviewID(cacheContext(r), g)
+			err = params.EnsureReviewID(cacheContext(r), s.g)
 			if err != nil {
 				return &pm.Error{
 					Msg:      "Failed to find associated review ID",
@@ -63,7 +151,7 @@ func main() {
 				}
 			}
 
-			toURL, err := urlForParams(params, "post")(sub)
+			toURL, err := s.urlForParams(params, "post")
 			if err != nil {
 				return err
 			}
@@ -71,63 +159,30 @@ func main() {
 			http.Redirect(w, r, toURL, http.StatusTemporaryRedirect)
 			return nil
 		})
-	}))
-
-	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		url := r.URL.Query().Get("url")
-		if url == "" {
-			_ = pm.IndexPage(w, "", "")
-			return
-		}
-
-		params, err := pm.ReviewParamsFromURL(url)
-		if err != nil {
-			_ = pm.IndexPage(w, url, err.Error())
-			return
-		}
-
-		err = params.EnsureReviewID(r.Context(), g)
-		if err != nil {
-			_ = pm.IndexPage(w, url, err.Error())
-			return
-		}
-
-		toURL, err := urlForParams(params, urlType(r))(sub)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		http.Redirect(w, r, toURL, http.StatusTemporaryRedirect)
-	}))
-
-	port, ok := os.LookupEnv("PORT")
-	if !ok || port == "" {
-		port = "8080"
-	}
-
-	s := &http.Server{
-		Addr:         ":" + port,
-		Handler:      r,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
-	log.Info().Str("address", s.Addr).Msg("started server")
-	if err := s.ListenAndServe(); err != nil {
-		log.Fatal().Err(err).Msg("")
 	}
 }
 
-func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
+func (s *server) slides() http.HandlerFunc {
+	return s.doMD(pm.AsMarkdownOptions{AsSlides: true})
+}
+
+func (s *server) rawMD() http.HandlerFunc {
+	return s.doMD(pm.AsMarkdownOptions{})
+}
+
+func (s *server) post() http.HandlerFunc {
+	return s.doMD(pm.AsMarkdownOptions{AsHTML: true, InBody: true})
+}
+
+func (s *server) doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		handle(w, func() error {
+		handle(w, r, func() error {
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 			if err != nil {
 				return err
 			}
 
-			model, err := params.Model(cacheContext(r), g)
+			model, err := params.Model(cacheContext(r), s.g)
 			if err != nil {
 				return err
 			}
@@ -137,11 +192,21 @@ func doMD(g *pm.GH, opts pm.AsMarkdownOptions) http.HandlerFunc {
 	}
 }
 
-func handle(w http.ResponseWriter, f func() error) {
+func handle(w http.ResponseWriter, r *http.Request, f func() error) {
 	if err := f(); err != nil {
 		e := pm.WrapErr(err)
-		log.Err(e).Msg("")
-		http.Error(w, e.Error(), e.HttpCode)
+		if e.HttpCode > 500 {
+			log.Err(e).Int("status", e.HttpCode).Msg("")
+		} else {
+			log.Info().
+				Int("status", e.HttpCode).
+				Str("path", r.URL.Path).
+				Msgf("error: %s", e.Error())
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(e.HttpCode)
+		_ = pm.ErrorPage(w, e)
 	}
 }
 
@@ -162,18 +227,16 @@ func urlType(r *http.Request) string {
 	}
 }
 
-func urlForParams(params *pm.ReviewParams, t string) func(*mux.Router) (string, error) {
-	return func(sub *mux.Router) (string, error) {
-		u, err := sub.Get(t).URL(
-			"owner", params.Owner,
-			"repo", params.Repo,
-			"number", strconv.Itoa(params.Number),
-			"reviewID", strconv.FormatInt(params.ReviewID, 10),
-		)
-		if err != nil {
-			return "", errors.Wrap(err, "could not construct url")
-		}
-
-		return u.String(), nil
+func (s *server) urlForParams(params *pm.ReviewParams, t string) (string, error) {
+	u, err := s.sub.Get(t).URL(
+		"owner", params.Owner,
+		"repo", params.Repo,
+		"number", strconv.Itoa(params.Number),
+		"reviewID", strconv.FormatInt(params.ReviewID, 10),
+	)
+	if err != nil {
+		return "", errors.Wrap(err, "could not construct url")
 	}
+
+	return u.String(), nil
 }

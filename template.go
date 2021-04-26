@@ -9,6 +9,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func ErrorPage(w io.Writer, err *Error) error {
+	return errorTemplate.Execute(w, struct {
+		Error *Error
+	}{
+		Error: err,
+	})
+}
+
 func IndexPage(w io.Writer, url, err string) error {
 	return indexTemplate.Execute(w, struct {
 		URL, Err string
@@ -80,8 +88,12 @@ var (
 	//go:embed templates/index.html
 	indexBytes string
 
+	//go:embed templates/error.html
+	errorBytes string
+
 	reviewTemplate = templateMust("review", reviewBytes)
 	htmlTemplate   = templateMust("html", htmlBytes)
 	slideTemplate  = templateMust("slide", slideBytes)
 	indexTemplate  = templateMust("index", indexBytes)
+	errorTemplate  = templateMust("error", errorBytes)
 )
