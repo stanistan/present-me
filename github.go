@@ -138,7 +138,12 @@ func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewMode
 		return nil, err
 	}
 
+	annotatedFiles := map[string]struct{}{}
 	sort.Slice(comments, func(i, j int) bool {
+
+		annotatedFiles[*comments[i].Path] = struct{}{}
+		annotatedFiles[*comments[j].Path] = struct{}{}
+
 		c1, c1Ok := orderOf(*comments[i].Body)
 		c2, c2Ok := orderOf(*comments[j].Body)
 		if !c1Ok && !c2Ok {
@@ -156,11 +161,20 @@ func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewMode
 		return nil, err
 	}
 
+	filesByPath := map[string]ReviewFile{}
+	for _, f := range files {
+		_, ok := annotatedFiles[*f.Filename]
+		filesByPath[*f.Filename] = ReviewFile{
+			IsAnnotated: ok,
+			File:        f,
+		}
+	}
+
 	return &ReviewModel{
 		Params:   r,
 		PR:       pull,
 		Review:   review,
 		Comments: comments,
-		Files:    files,
+		Files:    filesByPath,
 	}, nil
 }

@@ -1,3 +1,4 @@
+{{ $r := . }}
 # ([#{{.Params.Number}}][1]) {{.PR.Title}}
 
 {{ define "BASE" }}/{{.Params.Owner}}/{{.Params.Repo}}/pull/{{.Params.Number}}/{{.Params.ReviewID}}{{end}}
@@ -30,9 +31,18 @@
 
 {{.Body | stripLeadingNumber }}
 
+{{ with $f := $r.CommitFile .Path }}
+Changes:
+: **+{{$f.Additions}}/-{{$f.Deletions}}** {{$f.Status}}
+{{ end }}
+
 ---
 {{ end }}
 
 ## Other Files
+
+| File | +/- | |
+|:-|-:|:-|{{ range $idx, $f := .Files }}{{ if not $f.IsAnnotated }}
+| [`{{ $f.File.Filename }}`]({{$f.File.RawURL}}) | **+{{$f.File.Additions}}/-{{$f.File.Deletions}}** | {{$f.File.Status}} | {{end}}{{ end }}
 
 [1]: {{.PR.HTMLURL}}

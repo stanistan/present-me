@@ -17,7 +17,21 @@ type ReviewModel struct {
 	PR       *github.PullRequest
 	Review   *github.PullRequestReview
 	Comments []*github.PullRequestComment
-	Files    []*github.CommitFile
+	Files    map[string]ReviewFile
+}
+
+type ReviewFile struct {
+	IsAnnotated bool
+	File        *github.CommitFile
+}
+
+func (r *ReviewModel) CommitFile(filepath string) (*github.CommitFile, error) {
+	f, ok := r.Files[filepath]
+	if !ok || f.File == nil {
+		return nil, fmt.Errorf("Missing file for path %s", filepath)
+	}
+
+	return f.File, nil
 }
 
 func (r *ReviewModel) Title() string {
