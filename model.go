@@ -2,6 +2,7 @@ package presentme
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -19,6 +20,10 @@ type ReviewModel struct {
 	Files    []*github.CommitFile
 }
 
+func (r *ReviewModel) Title() string {
+	return fmt.Sprintf("%s/%s/pull/%d", r.Params.Owner, r.Params.Repo, r.Params.Number)
+}
+
 type AsMarkdownOptions struct {
 	AsSlides bool
 	AsHTML   bool `help:"if true will render the mardkown to html"`
@@ -34,7 +39,7 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 	}
 
 	if opts.AsSlides {
-		return asSlide(w, buf.Bytes())
+		return asSlide(w, r.Title(), buf.Bytes())
 	}
 
 	if !opts.AsHTML {
@@ -52,7 +57,7 @@ func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
 		return err
 	}
 
-	return intoTemplate(w, html.Bytes())
+	return intoTemplate(w, r.Title(), html.Bytes())
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)

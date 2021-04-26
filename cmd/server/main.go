@@ -21,7 +21,7 @@ func main() {
 	_ = kong.Parse(&config)
 	config.Configure()
 
-	g, err := pm.NewGH(config.Github)
+	g, err := config.GH()
 	if err != nil {
 		log.Fatal().Err(err).Msg("")
 	}
@@ -91,7 +91,6 @@ type server struct {
 func (s *server) index() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, r, func() error {
-			log.Info().Msgf("request %s", r)
 			var (
 				url         string
 				err         error

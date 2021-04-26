@@ -1,6 +1,7 @@
 package presentme
 
 import (
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -12,6 +13,11 @@ type Config struct {
 
 	DiskCache dc.CacheOpts `embed:"" prefix:"disk-cache-"`
 	Github    GHOpts       `embed:"" prefix:"gh-"`
+}
+
+func (c *Config) GH() (*GH, error) {
+	g, err := NewGH(c.Github)
+	return g, errors.WithStack(err)
 }
 
 func (c *Config) Configure() {

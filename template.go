@@ -28,11 +28,13 @@ func IndexPage(w io.Writer, url, err string) error {
 	})
 }
 
-func intoTemplate(w io.Writer, bytes []byte) error {
+func intoTemplate(w io.Writer, title string, bytes []byte) error {
 	return htmlTemplate.Execute(w, struct {
-		Body template.HTML
+		Body  template.HTML
+		Title string
 	}{
-		Body: template.HTML(bytes),
+		Body:  template.HTML(bytes),
+		Title: title,
 	})
 }
 
@@ -40,11 +42,13 @@ func reviewBody(w io.Writer, r *ReviewModel) error {
 	return reviewTemplate.Execute(w, r)
 }
 
-func asSlide(w io.Writer, bytes []byte) error {
+func asSlide(w io.Writer, title string, bytes []byte) error {
 	return slideTemplate.Execute(w, struct {
-		Body template.HTML
+		Body  template.HTML
+		Title string
 	}{
-		Body: template.HTML(bytes),
+		Body:  template.HTML(bytes),
+		Title: title,
 	})
 }
 
