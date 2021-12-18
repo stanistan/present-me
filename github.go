@@ -11,7 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	dc "github.com/stanistan/present-me/internal/cache"
-	"github.com/stanistan/present-me/internal/secret"
 )
 
 type GHOpts struct {
@@ -21,8 +20,7 @@ type GHOpts struct {
 }
 
 type GHPrivateKey struct {
-	File       string `name:"file" env:"GH_PK_FILE"`
-	SecretName string `name:"secret-name" env:"GH_PK_SECRET_NAME"`
+	File string `name:"file" env:"GH_PK_FILE"`
 }
 
 func (o *GHOpts) HTTPClient() (*http.Client, error) {
@@ -36,13 +34,6 @@ func (o *GHOpts) HTTPClient() (*http.Client, error) {
 	if o.PrivateKey.File != "" {
 		log.Info().Msg("attempting to read PK from File")
 		itr, err = ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKey.File)
-	} else if o.PrivateKey.SecretName != "" {
-		log.Info().Msg("attempting to read PK from secret")
-		var pk []byte
-		pk, err = secret.Get(context.Background(), o.PrivateKey.SecretName)
-		if err == nil {
-			itr, err = ghinstallation.New(tr, o.AppID, o.InstallationID, pk)
-		}
 	} else {
 		itr = tr
 	}
