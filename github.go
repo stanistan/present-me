@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/bradleyfalzon/ghinstallation"
+	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
