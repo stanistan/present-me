@@ -93,31 +93,31 @@ func (r *ReviewParams) Model(ctx context.Context, g *GH) (*ReviewModel, error) {
 	return g.FetchReviewModel(ctx, r)
 }
 
-func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) error {
+func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) (bool, error) {
 	if r.ReviewID != 0 {
-		return nil
+		return false, nil
 	}
 
 	pull, err := g.GetPullRequest(ctx, r)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	reviews, err := g.ListReviews(ctx, r)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if len(reviews) == 0 {
-		return fmt.Errorf("PR has no reviews")
+		return false, fmt.Errorf("PR has no reviews")
 	}
 
 	for _, rev := range reviews {
 		if *rev.User.Login == *pull.User.Login {
 			r.ReviewID = *rev.ID
-			return nil
+			return true, nil
 		}
 	}
 
-	return fmt.Errorf("PR has no review from the PR author %s", *pull.User.Login)
+	return false, fmt.Errorf("PR has no review from the PR author %s", *pull.User.Login)
 }

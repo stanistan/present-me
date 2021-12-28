@@ -109,7 +109,13 @@ func (s *server) index() http.HandlerFunc {
 				return renderIndex()
 			}
 
-			params, err := pm.ReviewParamsFromURL(url)
+			var params *pm.ReviewParams
+			params, err = pm.ReviewParamsFromURL(url)
+			if err != nil {
+				return renderIndex()
+			}
+
+			_, err = params.EnsureReviewID(cacheContext(r), s.g)
 			if err != nil {
 				return renderIndex()
 			}
@@ -141,7 +147,7 @@ func (s *server) pr() http.HandlerFunc {
 				}
 			}
 
-			err = params.EnsureReviewID(cacheContext(r), s.g)
+			_, err = params.EnsureReviewID(cacheContext(r), s.g)
 			if err != nil {
 				return &pm.Error{
 					Msg:      "Failed to find associated review ID",
@@ -161,16 +167,22 @@ func (s *server) pr() http.HandlerFunc {
 	}
 }
 
+var (
+	slidesOpts pm.AsMarkdownOptions = pm.AsMarkdownOptions{AsSlides: true}
+	rawMDOpts                       = pm.AsMarkdownOptions{}
+	postOpts                        = pm.AsMarkdownOptions{AsHTML: true, InBody: true}
+)
+
 func (s *server) slides() http.HandlerFunc {
-	return s.doMD(pm.AsMarkdownOptions{AsSlides: true})
+	return s.doMD(slidesOpts)
 }
 
 func (s *server) rawMD() http.HandlerFunc {
-	return s.doMD(pm.AsMarkdownOptions{})
+	return s.doMD(rawMDOpts)
 }
 
 func (s *server) post() http.HandlerFunc {
-	return s.doMD(pm.AsMarkdownOptions{AsHTML: true, InBody: true})
+	return s.doMD(postOpts)
 }
 
 func (s *server) doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
@@ -179,6 +191,26 @@ func (s *server) doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
 			if err != nil {
 				return err
+			}
+
+			changed, err := params.EnsureReviewID(cacheContext(r), s.g)
+			if err != nil {
+				return &pm.Error{
+					Msg:      "missing reviewID",
+					Cause:    err,
+					HttpCode: 404,
+				}
+			} else if changed {
+				toURL, err := s.urlForParams(params, optsToURLType(opts))
+				if err != nil {
+					return &pm.Error{
+						Msg:      "could not construct valid url",
+						Cause:    err,
+						HttpCode: 500,
+					}
+				}
+				http.Redirect(w, r, toURL, http.StatusTemporaryRedirect)
+				return nil
 			}
 
 			model, err := params.Model(cacheContext(r), s.g)
@@ -221,6 +253,17 @@ func urlType(r *http.Request) string {
 	switch t {
 	case "post", "md", "slides":
 		return t
+	default:
+		return "post"
+	}
+}
+
+func optsToURLType(opts pm.AsMarkdownOptions) string {
+	switch opts {
+	case slidesOpts:
+		return "slides"
+	case rawMDOpts:
+		return "md"
 	default:
 		return "post"
 	}
