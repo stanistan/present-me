@@ -12,18 +12,22 @@ to create a single "post", or "slides."
 
 These are all valid URLs to query for:
 
-`https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746`
-: **Fully qualified Pull Request Review URL (the permalink from GitHub)**
+- `https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746` 
 
-`github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746`
-: **Dropping the Protocol (https is implicit)**
+   **Fully qualified Pull Request Review URL (the permalink from GitHub)**
+   
+- `github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746`
+   
+   **Dropping the Protocol (https is implicit)**
+   
+- `stanistan/invoice-proxy/pull/3#pullrequestreview-625362746`
+   
+   **Dropping the Domain (https://github.com implicit)**
+   
+- `stanistan/invoice-proxy/pull/3`
 
-`stanistan/invoice-proxy/pull/3#pullrequestreview-625362746`
-: **Dropping the Domain (https://github.com implicit)**
-
-`stanistan/invoice-proxy/pull/3`
-: **Dropping the URL Fragment.** This will attempt to find the first PR review
-  by the author, and display that if possible.
+   **Dropping the URL Fragment.** This will attempt to find the first PR review
+   by the author, and display that if possible.
 
 ### Making a Review
 
