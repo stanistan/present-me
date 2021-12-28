@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/hashstructure/v2"
-	"github.com/peterbourgon/diskv"
+	"github.com/peterbourgon/diskv/v3"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -122,8 +122,9 @@ func (c *Cache) Write(key interface{}, data interface{}) error {
 }
 
 type CacheOpts struct {
-	Enabled  bool   `name:"enabled" env:"DISK_CACHE_ENABLED"`
-	BasePath string `name:"base-path" env:"DISK_CACHE_BASE_PATH"`
+	Enabled        bool   `name:"enabled" env:"DISK_CACHE_ENABLED"`
+	BasePath       string `name:"base-path" env:"DISK_CACHE_BASE_PATH"`
+	CacheMaxSizeKB uint64 `name:"cache-max-size" env:"DISK_CACHE_MAX_SIZE_KB" default:"1024"`
 }
 
 func NewCache(opts CacheOpts) *Cache {
@@ -131,13 +132,13 @@ func NewCache(opts CacheOpts) *Cache {
 		return &Cache{disabled: true}
 	}
 
-	log.Info().Msgf("initializing data cache at %s", opts.BasePath)
-	return &Cache{
-		d: diskv.New(diskv.Options{
-			BasePath:     opts.BasePath,
-			CacheSizeMax: 10 * 1024,
-		}),
+	cacheOpts := diskv.Options{
+		BasePath:     opts.BasePath,
+		CacheSizeMax: opts.CacheMaxSizeKB * 1024,
 	}
+
+	log.Info().Msgf("initializing cache basePath=%s size=%d", cacheOpts.BasePath, cacheOpts.CacheSizeMax)
+	return &Cache{d: diskv.New(cacheOpts)}
 }
 
 type Value struct {

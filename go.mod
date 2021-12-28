@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v39 v39.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.1
-	github.com/peterbourgon/diskv v2.0.1+incompatible
+	github.com/peterbourgon/diskv/v3 v3.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.6.1
