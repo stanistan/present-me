@@ -5,18 +5,16 @@ services:
       context: .
       dockerfile: dev.Dockerfile
     ports:
-      - $PORT:$PORT
+    - $PORT:$PORT
     volumes:
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-      - .:/go/src/app  # for dev
-      - cache-content:/tmp/data/cache:rw
+    - .:/go/src/app  # for dev
+    - cache-content:/tmp/data/cache:rw
     environment:
-      - PORT=${PORT}
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-      - DISK_CACHE_ENABLED=true
-      - DISK_CACHE_BASE_PATH=/tmp/data/cache
-      - GH_APP_ID=${GH_APP_ID}
-      - GH_INSTALLATION_ID=${GH_INSTALLATION_ID}
-      - GH_PK_SECRET_NAME=${GH_PK_SECRET_NAME}
+    - PORT=${PORT}
+    - DISK_CACHE_ENABLED=true
+    - DISK_CACHE_BASE_PATH=/tmp/data/cache
+    - GH_APP_ID=${GH_APP_ID}
+    - GH_INSTALLATION_ID=${GH_INSTALLATION_ID}
+    - GH_PK_FILE=${GH_PK_FILE}
 volumes:
   cache-content:
