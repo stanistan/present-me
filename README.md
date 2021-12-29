@@ -40,7 +40,7 @@ These are all valid URLs to query for:
    or if you put in the PR url (no fragment), it'll try to find the first review
    written by the author of the PR.
    - [generated post](https://present-me.stanistan.dev/stanistan/invoice-proxy/pull/3/625362746/post)
-   - [generated slides](https://present-me.stanistan.dev/stanistan/invoice-proxy/pull/3/625362746/slides) using <https://revealjs.com>
+   - [generated slides](https://present-me.stanistan.dev/stanistan/invoice-proxy/pull/3/625362746/slides) using <https://remarkjs.com>
    - [generated md](https://present-me.stanistan.dev/stanistan/invoice-proxy/pull/3/625362746/md)
 
 [1]: https://present-me.stanistan.dev
