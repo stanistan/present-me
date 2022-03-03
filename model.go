@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v43/github"
 	"github.com/rs/zerolog/log"
 )
 
