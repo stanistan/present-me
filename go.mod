@@ -6,7 +6,6 @@ require (
 	github.com/alecthomas/kong v0.2.1-0.20190708041108-0548c6b1afae
 	github.com/bradleyfalzon/ghinstallation/v2 v2.0.4
 	github.com/cespare/reflex v0.3.0
-	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v43 v43.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.1

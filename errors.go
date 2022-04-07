@@ -3,7 +3,7 @@ package presentme
 import (
 	"fmt"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v43/github"
 	"github.com/pkg/errors"
 )
 
