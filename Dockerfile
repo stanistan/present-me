@@ -1,4 +1,4 @@
-FROM golang:1.17.3-alpine AS build
+FROM golang:1.20.0-alpine AS build
 WORKDIR /go/src/app
 ENV CGO_ENABLED=0
 COPY go.mod go.sum ./
