@@ -2,4 +2,5 @@
 *.pem
 data/*
 .env
-.hermit/*
+.hermit/node/lib/node_modules/*
+.hermit/node/cache/*
