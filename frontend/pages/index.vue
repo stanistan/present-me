@@ -1,3 +1,3 @@
 <template>
-    <div class="text-xl text-yellow-500 bg-black">whatup you</div>
+    <div class="text-xl text-red-500 bg-black">whatup a you</div>
 </template>
