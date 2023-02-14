@@ -15,23 +15,26 @@ func main() {
 	_ = kong.Parse(&config)
 
 	r := mux.NewRouter()
-	api := r.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	}).Methods("GET")
 
+	// 1. Register API routes
+	api := r.PathPrefix("/api").Subrouter()
+	for _, r := range apiRoutes {
+		api.Handle(r.Prefix, r.Handler).Methods(r.Method)
+	}
+
+	// 2. Register fallback website handler
 	websiteHandler, err := config.WebsiteHandler()
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not build handler")
 	}
-
 	r.PathPrefix("/").Handler(websiteHandler)
 
+	// 3. Init server
 	s := &http.Server{
 		Addr:         ":" + config.Port,
-		Handler:      r,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		Handler:      r,
 	}
 
 	if err := s.ListenAndServe(); err != nil {

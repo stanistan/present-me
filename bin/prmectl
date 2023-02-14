@@ -30,11 +30,11 @@ case "$1" in
         cd server
         # shellcheck disable=SC2046,SC2002
         exec env $(cat ../.env | xargs) \
-            go run github.com/cespare/reflex -s -- \
+            go run github.com/cespare/reflex -d fancy -s -- \
             go run ./cmd/server-nuxt --serve=proxy
         ;;
     *)
-        echo "invalid option $1"
+        echo "invalid option: $1"
         exit 1
         ;;
 esac
