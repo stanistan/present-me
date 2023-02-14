@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+# We ensure that we're running in the project directory
+# assuming that this script is in a single level sudirectory
+# out from the PROJECT base.
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+PROJECT_DIR="$SCRIPT_DIR/../"
+cd "$PROJECT_DIR"
+
+case "$1" in
+    bootstrap)
+        YARN_VERSION=1.22.19
+        npm install -g "yarn@$YARN_VERSION"
+        pushd frontend
+        yarn install
+        popd
+        ;;
+    dev)
+        trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+        prmectl start-frontend &
+        prmectl start-server &
+        wait
+        ;;
+    start-frontend)
+        cd frontend
+        exec yarn run dev
+        ;;
+    start-server)
+        cd server
+        # shellcheck disable=SC2046,SC2002
+        exec env $(cat ../.env | xargs) \
+            go run github.com/cespare/reflex -s -- \
+            go run ./cmd/server-nuxt --serve=proxy
+        ;;
+    *)
+        echo "invalid option $1"
+        exit 1
+        ;;
+esac

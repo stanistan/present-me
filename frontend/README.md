@@ -5,7 +5,7 @@ Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introdu
 ## Setup
 
 ```bash
-project-bootstrap
+prmectl bootstrap
 ```
 
 ## Development Server
