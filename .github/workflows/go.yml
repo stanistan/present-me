@@ -14,6 +14,10 @@ jobs:
     - name: Init Hermit
       run: ./bin/hermit env -r >> $GITHUB_ENV
     - name: test
-      run: go test ./...
+      run: |-
+        cd server
+        go test ./...
     - name: lint
-      run: golangci-lint run
+      run: |-
+        cd server
+        golangci-lint run
