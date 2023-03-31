@@ -138,7 +138,7 @@ func (s *server) index() http.HandlerFunc {
 func (s *server) pr() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, r, func() error {
-			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
+			params, err := reviewParamsFromVars(mux.Vars(r))
 			if err != nil {
 				return &pm.Error{
 					Msg:      "Malformed PR URL",
@@ -188,13 +188,7 @@ func (s *server) post() http.HandlerFunc {
 func (s *server) doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, r, func() error {
-			m := mux.Vars(r)
-			params, err := pm.ReviewParamsFromMap(pm.ReviewParamsMap{
-				Owner:  m["owner"],
-				Repo:   m["repo"],
-				Number: m["number"],
-				Review: m["reviewID"],
-			})
+			params, err := reviewParamsFromVars(mux.Vars(r))
 			if err != nil {
 				return err
 			}
@@ -287,4 +281,13 @@ func (s *server) urlForParams(params *pm.ReviewParams, t string) (string, error)
 	}
 
 	return u.String(), nil
+}
+
+func reviewParamsFromVars(m map[string]string) (*pm.ReviewParams, error) {
+	return pm.ReviewParamsFromMap(pm.ReviewParamsMap{
+		Owner:  m["owner"],
+		Repo:   m["repo"],
+		Number: m["number"],
+		Review: m["reviewID"],
+	})
 }
