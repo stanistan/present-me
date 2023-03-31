@@ -52,10 +52,23 @@ func main() {
 	}
 }
 
+type ghCtxKey int
+
+var ghCtxValue ghCtxKey
+
+func ContextWithGH(ctx context.Context, gh *pm.GH) context.Context {
+	return context.WithValue(ctx, ghCtxValue, gh)
+}
+
+func GHFromContext(ctx context.Context) (*pm.GH, bool) {
+	v, ok := ctx.Value(ghCtxValue).(*pm.GH)
+	return v, ok
+}
+
 func githubMiddleware(g *pm.GH) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), "gh", g)
+			ctx := ContextWithGH(r.Context(), g)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
