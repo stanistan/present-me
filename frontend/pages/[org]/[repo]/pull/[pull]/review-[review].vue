@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const data = await useFetch('/api/ping', {
+const route = useRoute();
+const data = await useFetch('/api/review', {
+    params: route.params,
     server: false,
     initialCache: false
 });
@@ -10,7 +12,7 @@ const data = await useFetch('/api/ping', {
             {{ $route.params.org }} / {{ $route.params.repo }} / {{ $route.params.pull }} / {{ $route.params.review }}
         </div>
         <div>
-            {{ data.data }}
+        <pre> {{ data.data }}</pre>
         </div>
     </div>
 </template>

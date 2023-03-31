@@ -188,7 +188,13 @@ func (s *server) post() http.HandlerFunc {
 func (s *server) doMD(opts pm.AsMarkdownOptions) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handle(w, r, func() error {
-			params, err := pm.ReviewParamsFromMap(mux.Vars(r))
+			m := mux.Vars(r)
+			params, err := pm.ReviewParamsFromMap(pm.ReviewParamsMap{
+				Owner:  m["owner"],
+				Repo:   m["repo"],
+				Number: m["number"],
+				Review: m["reviewID"],
+			})
 			if err != nil {
 				return err
 			}
