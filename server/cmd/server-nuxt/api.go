@@ -23,7 +23,7 @@ var apiRoutes []Route = []Route{
 				values = r.URL.Query()
 			)
 
-			gh, ok := ctx.Value("gh").(*pm.GH)
+			gh, ok := GHFromContext(ctx)
 			if !ok || gh == nil {
 				return nil, errors.New("missing github context")
 			}
