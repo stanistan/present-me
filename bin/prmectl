@@ -8,33 +8,40 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 PROJECT_DIR="$SCRIPT_DIR/../"
 cd "$PROJECT_DIR"
 
+usage() {
+  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '$1' -N | grep -v '\*'
+}
+
 case "$1" in
-    bootstrap)
-        YARN_VERSION=1.22.19
-        npm install -g "yarn@$YARN_VERSION"
-        pushd frontend
-        yarn install
-        popd
-        ;;
-    dev)
-        trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
-        prmectl start-frontend &
-        prmectl start-server &
-        wait
-        ;;
-    start-frontend)
-        cd frontend
-        exec yarn run dev
-        ;;
-    start-server)
-        cd server
-        # shellcheck disable=SC2046,SC2002
-        exec env $(cat ../.env | xargs) \
-            go run github.com/cespare/reflex -d fancy -s -- \
-            go run ./cmd/server-nuxt --serve=proxy
-        ;;
-    *)
-        echo "invalid option: $1"
-        exit 1
-        ;;
+  bootstrap)
+    YARN_VERSION=1.22.19
+    npm install -g "yarn@$YARN_VERSION"
+    pushd frontend
+    yarn install
+    popd
+    ;;
+  dev)
+    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+    prmectl start-frontend &
+    prmectl start-server &
+    wait
+    ;;
+  start-frontend)
+    cd frontend
+    exec yarn run dev
+    ;;
+  start-server)
+    cd server
+    # shellcheck disable=SC2046,SC2002
+    exec env $(cat ../.env | xargs) \
+      go run github.com/cespare/reflex -d fancy -s -- \
+      go run ./cmd/server-nuxt --serve=proxy
+    ;;
+  help)
+    usage
+    ;;
+  *)
+    echo "invalid option: $1"
+    exit 1
+    ;;
 esac
