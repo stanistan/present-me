@@ -13,8 +13,8 @@ import (
 )
 
 type ServeConfig struct {
-	// Port describes what port we run this server on.
-	Port string `env:"PORT" default:"8080"`
+	// Address describes the hostname this server runs on.
+	Address string `default:"localhost:8080"`
 
 	// Serve desides if we're running in proxy mode (for development)
 	// or if we are going to be serving the content from the static directory
@@ -26,10 +26,6 @@ type ServeConfig struct {
 
 func (c *ServeConfig) IsProxy() bool {
 	return c.Serve == "proxy"
-}
-
-func (c *ServeConfig) Address() string {
-	return ":" + c.Port
 }
 
 func (c *ServeConfig) WebsiteHandler() (http.Handler, error) {
