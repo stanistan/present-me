@@ -51,12 +51,12 @@ func ErrResponse(err error) *JSONResponse {
 }
 
 func (r *JSONResponse) Write(w http.ResponseWriter) error {
+	w.WriteHeader(r.Code)
 	err := json.NewEncoder(w).Encode(r.Data)
 	if err != nil {
 		log.Error().Err(err).Msg("could not write JSON response")
 		return errors.Wrap(err, "failed writing JSON")
 	}
 
-	w.WriteHeader(r.Code)
 	return nil
 }
