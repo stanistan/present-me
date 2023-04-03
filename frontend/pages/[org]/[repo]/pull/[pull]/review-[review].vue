@@ -1,7 +1,7 @@
 <template>
     <div class="mx-auto">
-        <div class="bg-black text-white text-center">
-            {{ $route.params.org }} / {{ $route.params.repo }} / {{ $route.params.pull }} / {{ $route.params.review }}
+        <div class="bg-gradient-to-b from-gray-800 to-black text-white font-mono text-sm text-center py-2 shadow">
+          {{ $route.params.org }}/{{ $route.params.repo }}/pull/{{ $route.params.pull }}/review-{{ $route.params.review }}
         </div>
 
         <div class="whitespace-pre-line">
