@@ -2,7 +2,7 @@
     <div class="m-4 border border-slate-300 rounded-xl overflow-hidden shadow flex-grow">
       <div class="w-full">
         <div class="w-full text-sm p-3 bg-slate-100 border-b border-slate-300 gap-1rounded-t-xl">
-          <span class="text-center ring bg-indigo-300 rounded-3xl p-1 text-xs mr-2 ring-indigo-100 font-mono">{{ idx }}</span>
+          <span class="text-center ring bg-gray-700 text-white rounded-3xl p-1 px-2 text-xs mr-2 ring-gray-100 font-mono">{{ idx }}</span>
           <code>{{ comment.path }}</code>
         </div>
       </div>
