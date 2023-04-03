@@ -27,21 +27,20 @@ func (o *GHOpts) HTTPClient() (*http.Client, error) {
 	var (
 		itr http.RoundTripper
 		err error
-
-		tr = http.DefaultTransport
 	)
 
 	if o.PrivateKey.File != "" {
-		log.Info().Msg("attempting to read PK from File")
-		itr, err = ghinstallation.NewKeyFromFile(tr, o.AppID, o.InstallationID, o.PrivateKey.File)
+		log.Info().Msgf("reading pk at path=%s", o.PrivateKey.File)
+		itr, err = ghinstallation.NewKeyFromFile(http.DefaultTransport, o.AppID, o.InstallationID, o.PrivateKey.File)
 	} else {
-		itr = tr
+		itr = http.DefaultTransport
 	}
 
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create HTTP Client")
+		return nil, errors.WithStack(err)
 	}
 
+	log.Info().Msg("github client initialized")
 	return &http.Client{Transport: itr}, nil
 }
 

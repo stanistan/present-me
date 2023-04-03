@@ -11,10 +11,10 @@ import (
 )
 
 type ReviewParams struct {
-	Owner    string `required:"" help:"owner or organization"`
-	Repo     string `required:"" help:"repository name"`
-	Number   int    `required:"" help:"pull request number"`
-	ReviewID int64  `required:"" help:"reviewID number"`
+	Owner    string `required:"" help:"owner or organization" json:"owner"`
+	Repo     string `required:"" help:"repository name" json:"repo"`
+	Number   int    `required:"" help:"pull request number" json:"number"`
+	ReviewID int64  `required:"" help:"reviewID number" json:"review"`
 }
 
 // The following formats are supported:

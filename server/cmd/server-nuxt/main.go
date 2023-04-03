@@ -10,11 +10,14 @@ import (
 	"github.com/rs/zerolog/log"
 
 	pm "github.com/stanistan/present-me"
+	"github.com/stanistan/present-me/internal/cache"
 )
 
 func main() {
 	var config pm.Config
 	_ = kong.Parse(&config)
+
+	config.Configure()
 
 	gh, err := config.GH()
 	if err != nil {
@@ -23,9 +26,10 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// 1. Register API routes
+	// 1. Register API routes & middleware
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(githubMiddleware(gh))
+	api.Use(cacheMiddleware)
 	for _, r := range apiRoutes {
 		api.
 			Handle(r.Prefix, r.Handler).
@@ -72,4 +76,14 @@ func githubMiddleware(g *pm.GH) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func cacheMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := cache.ContextWithOptions(r.Context(), &cache.Options{
+			TTL:          10 * time.Minute,
+			ForceRefresh: r.URL.Query().Get("refresh") == "1",
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

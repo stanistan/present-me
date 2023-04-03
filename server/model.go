@@ -12,17 +12,17 @@ import (
 )
 
 type ReviewModel struct {
-	Params *ReviewParams
+	Params *ReviewParams `json:"params"`
 
-	PR       *github.PullRequest
-	Review   *github.PullRequestReview
-	Comments []*github.PullRequestComment
-	Files    map[string]ReviewFile
+	PR       *github.PullRequest          `json:"pr"`
+	Review   *github.PullRequestReview    `json:"review"`
+	Comments []*github.PullRequestComment `json:"comments"`
+	Files    map[string]ReviewFile        `json:"files"`
 }
 
 type ReviewFile struct {
-	IsAnnotated bool
-	File        *github.CommitFile
+	IsAnnotated bool               `json:"isAnnotated"`
+	File        *github.CommitFile `json:"file"`
 }
 
 func (r *ReviewModel) CommitFile(filepath string) (*github.CommitFile, error) {
