@@ -14,10 +14,22 @@ usage() {
 
 case "$1" in
   bootstrap)
+    # 1. Make sure everything is installed!
+    hermit install
+
+    # 2. We have a specific version of YARN we are running
+    #    that gets installed globally, so we pin and install it.
     YARN_VERSION=1.22.19
     npm install -g "yarn@$YARN_VERSION"
+
+    # 3. Install node package dependencies to get started!.
     pushd frontend
     yarn install
+    popd
+
+    # 4. Install go / server dependencies
+    pushd server
+    go mod download
     popd
     ;;
   dev)
@@ -33,8 +45,8 @@ case "$1" in
   start-server)
     cd server
     # shellcheck disable=SC2046,SC2002
-    exec env $(cat ../.env | xargs) \
-      go run github.com/cespare/reflex -d fancy -s -- \
+    exec env $(cat .env | xargs) \
+      go run github.com/cespare/reflex -d none -s -- \
       go run ./cmd/server-nuxt --serve=proxy
     ;;
   help)
