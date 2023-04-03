@@ -1,31 +1,34 @@
 <template>
-  <div class="bg-gray-500 p-3 m-3">
-    <div class="bg-white p-3">
-      <div class="text-lg font-bold">File Path: {{ comment.path }}</div>
-    </div>
-    <div class="flex flex-row max-h-[90vh]">
-      <div class="bg-yellow-100 p-3 flex-none w-2/5">
-        <div v-html="commentBody"></div>
+    <div class="m-4 border border-slate-300 rounded-xl overflow-hidden shadow flex-grow">
+      <div class="w-full">
+        <div class="w-full text-sm p-3 bg-slate-100 border-b border-slate-300 gap-1rounded-t-xl">
+          <span class="text-center ring bg-indigo-300 rounded-3xl p-1 text-xs mr-2 ring-indigo-100 font-mono">{{ idx }}</span>
+          <code>{{ comment.path }}</code>
+        </div>
       </div>
-      <div class="bg-yellow-100 p-1 flex-grow overflow-scroll text-sm">
-        <pre style="border:0"><code class="language-diff">{{ comment.diff_hunk }}</code></pre>
+      <div class="flex flex-row max-h-[95vh] bg-gray-50">
+        <div class="p-3 flex-none w-2/5 text-md">
+          <div v-html="commentBody"></div>
+        </div>
+        <div class="flex-grow overflow-scroll text-sm border-l">
+          <pre class=""><code class="language-diff">{{ comment.diff_hunk }}</code></pre>
+        </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import showdown from 'showdown';
 
-import Prism from 'prismjs';
-import 'prismjs/components/prism-diff'
-import 'prism-themes/themes/prism-material-oceanic.css'
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 
 const converter = new showdown.Converter();
 converter.setFlavor('github');
 
 const props = defineProps({
-  comment: { type: Object, required: true }
+  comment: { type: Object, required: true },
+  idx: { type: String, required: true }
 });
 
 const commentBody = computed(() => {
@@ -34,8 +37,6 @@ const commentBody = computed(() => {
 });
 
 onMounted(() => {
-  Prism.highlightAll();
+  hljs.highlightAll();
 });
-
-
 </script>

@@ -6,7 +6,7 @@
       <div>{{ model.review.body }}</div>
     </div>
     <div class="gap-3">
-      <Comment v-for="comment in model.comments" :comment="comment" />
+      <Comment v-for="(comment, idx) in model.comments" :comment="comment" :idx="idx + 1" />
     </div>
   </div>
 </template>

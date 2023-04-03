@@ -15,8 +15,8 @@
   },
   "version": "0.0.0",
   "dependencies": {
+    "highlight.js": "^11.7.0",
     "prism-themes": "^1.9.0",
-    "prismjs": "^1.29.0",
     "showdown": "^2.1.0"
   }
 }
