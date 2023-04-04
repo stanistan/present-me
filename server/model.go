@@ -1,14 +1,11 @@
 package presentme
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"regexp"
 	"strconv"
 
 	"github.com/google/go-github/v50/github"
-	"github.com/rs/zerolog/log"
 )
 
 type ReviewModel struct {
@@ -42,36 +39,6 @@ type AsMarkdownOptions struct {
 	AsSlides bool
 	AsHTML   bool `help:"if true will render the mardkown to html"`
 	InBody   bool `help:"if true will place the rendered HTML into a body/template"`
-}
-
-func (r *ReviewModel) AsMarkdown(w io.Writer, opts AsMarkdownOptions) error {
-	var buf bytes.Buffer
-
-	log.Info().Msgf("rendering %+v", *r.Params)
-	if err := reviewBody(&buf, r); err != nil {
-		return err
-	}
-
-	if opts.AsSlides {
-		return asSlide(w, r.Title(), buf.Bytes())
-	}
-
-	if !opts.AsHTML {
-		_, err := w.Write(buf.Bytes())
-		return err
-	}
-
-	var html bytes.Buffer
-	if err := md.Convert(buf.Bytes(), &html); err != nil {
-		return err
-	}
-
-	if !opts.InBody {
-		_, err := w.Write(html.Bytes())
-		return err
-	}
-
-	return intoTemplate(w, r.Title(), html.Bytes())
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)
