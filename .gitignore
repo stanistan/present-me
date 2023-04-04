@@ -1,4 +1,6 @@
 .DS_Store
 *.pem
-data/*
+.cache/*
 .env
+.hermit/node/lib/node_modules/*
+.hermit/node/cache/*

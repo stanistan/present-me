@@ -2,12 +2,12 @@ version: '3.9'
 services:
   server:
     build:
-      context: .
+      context: server
       dockerfile: dev.Dockerfile
     ports:
     - $PORT:$PORT
     volumes:
-    - .:/go/src/app  # for dev
+    - ./server:/go/src/app  # for dev
     - cache-content:/tmp/data/cache:rw
     environment:
     - PORT=${PORT}

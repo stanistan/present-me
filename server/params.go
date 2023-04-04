@@ -11,13 +11,12 @@ import (
 )
 
 type ReviewParams struct {
-	Owner    string `required:"" help:"owner or organization"`
-	Repo     string `required:"" help:"repository name"`
-	Number   int    `required:"" help:"pull request number"`
-	ReviewID int64  `required:"" help:"reviewID number"`
+	Owner    string `required:"" help:"owner or organization" json:"owner"`
+	Repo     string `required:"" help:"repository name" json:"repo"`
+	Number   int    `required:"" help:"pull request number" json:"number"`
+	ReviewID int64  `required:"" help:"reviewID number" json:"review"`
 }
 
-//
 // The following formats are supported:
 // - https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
 // - github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-605888708
@@ -44,27 +43,34 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 		return nil, fmt.Errorf("invalid url path %s", u.Path)
 	}
 
-	return ReviewParamsFromMap(map[string]string{
-		"owner":    pieces[1],
-		"repo":     pieces[2],
-		"number":   pieces[4],
-		"reviewID": strings.TrimPrefix(u.Fragment, "pullrequestreview-"),
+	return ReviewParamsFromMap(ReviewParamsMap{
+		Owner:  pieces[1],
+		Repo:   pieces[2],
+		Number: pieces[4],
+		Review: strings.TrimPrefix(u.Fragment, "pullrequestreview-"),
 	})
 }
 
-func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
-	owner, ok := m["owner"]
-	if !ok || owner == "" {
+// ReviewParamsMap is the string representation,
+// struct model that corresponds to a map[string]string,
+// but named...
+type ReviewParamsMap struct {
+	Owner, Repo, Number, Review string
+}
+
+func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
+	owner := m.Owner
+	if owner == "" {
 		return nil, errors.New("missing owner")
 	}
 
-	repo, ok := m["repo"]
-	if !ok || repo == "" {
+	repo := m.Repo
+	if repo == "" {
 		return nil, errors.New("missing repo")
 	}
 
-	numberVal, ok := m["number"]
-	if !ok || numberVal == "" {
+	numberVal := m.Number
+	if numberVal == "" {
 		return nil, errors.New("missing number")
 	}
 	number, err := strconv.ParseInt(numberVal, 10, 0)
@@ -73,8 +79,8 @@ func ReviewParamsFromMap(m map[string]string) (*ReviewParams, error) {
 	}
 
 	var reviewID int64
-	reviewIDVal, ok := m["reviewID"]
-	if ok && reviewIDVal != "" {
+	reviewIDVal := m.Review
+	if reviewIDVal != "" {
 		reviewID, err = strconv.ParseInt(reviewIDVal, 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("invalid reviewID: %s", err)

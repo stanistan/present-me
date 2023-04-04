@@ -24,11 +24,11 @@ type Options struct {
 }
 
 type Provider struct {
-	Key   interface{}
-	Fetch func() (interface{}, error)
+	Key   any
+	Fetch func() (any, error)
 }
 
-func (c *Cache) Apply(ctx context.Context, into interface{}, p Provider) error {
+func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	// This probably needs to be checked a bit better, but
 	// this is ok for now.
 	//
@@ -74,7 +74,7 @@ func (c *Cache) Apply(ctx context.Context, into interface{}, p Provider) error {
 	return nil
 }
 
-func (c *Cache) Read(key interface{}, into interface{}, ttl time.Duration) (bool, error) {
+func (c *Cache) Read(key any, into any, ttl time.Duration) (bool, error) {
 	if c.disabled {
 		return false, nil
 	}
