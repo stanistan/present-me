@@ -45,7 +45,7 @@ func main() {
 
 	// 3. Init server
 	s := &http.Server{
-		Addr:         config.Address,
+		Addr:         config.Address(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		Handler:      r,
