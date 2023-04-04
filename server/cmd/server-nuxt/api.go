@@ -16,6 +16,33 @@ var apiRoutes []Route = []Route{
 		},
 	},
 	{
+		"GET", "/search",
+		func(r *http.Request) (*JSONResponse, error) {
+			ctx := r.Context()
+			gh, ok := GHFromContext(ctx)
+			if !ok || gh == nil {
+				return nil, errors.New("missing github context")
+			}
+
+			params, err := pm.ReviewParamsFromURL(r.URL.Query().Get("search"))
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = params.EnsureReviewID(ctx, gh)
+			if err != nil {
+				return &JSONResponse{
+					Code: 404,
+					Data: map[string]string{
+						"msg": "No review id",
+					},
+				}, nil
+			}
+
+			return OKResponse(params), nil
+		},
+	},
+	{
 		"GET", "/review",
 		func(r *http.Request) (*JSONResponse, error) {
 			var (

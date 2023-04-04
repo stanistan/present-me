@@ -1,16 +1,16 @@
 <template>
   <div class="">
     <div class="flex flex-row p-3 mx-auto place-content-center">
-      <div class="flex-none text-5xl font-extrabold text-right py-3 max-w-2xl">
+      <div class="flex-none text-5xl font-extrabold text-right py-3 xl:max-w-2xl md:max-w-md lg:max-w-xl">
+        <span>(#{{ model.pr.number }})</span>
         <span class="bg-clip-text text-transparent bg-gradient-to-r underline from-pink-600 to-violet-900">
           {{ model.pr.title }}
         </span>
-        (#{{ model.pr.number }})
       </div>
-      <div class="flex-none max-w-prose prose">
+      <div class="flex-none xl:max-w-prose md:max-w-md lg:max-w-lg prose">
         <div class="m-3 p-3 bg-gray-50 rounded h-full border">
-          <div v-html="prBody"></div>
-          <div v-html="reviewBody"></div>
+          <div v-if="model.pr.body" v-html="prBody"></div>
+          <div v-if="model.review.body" v-html="reviewBody"></div>
         </div>
       </div>
     </div>
@@ -28,14 +28,13 @@ converter.setFlavor('github');
 
 const props = defineProps({
   model: { type: Object, required: true }
-})
+});
 
 const prBody = computed(() => {
   return converter.makeHtml(props.model.pr.body);
-})
+});
 
 const reviewBody = computed(() => {
   return converter.makeHtml(props.model.review.body);
-})
-
+});
 </script>
