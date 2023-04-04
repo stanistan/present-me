@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -33,9 +34,23 @@ func (c *ServeConfig) Address() string {
 	return c.Hostname + ":" + c.Port
 }
 
+type spaFS struct {
+	r http.FileSystem
+}
+
+func (fs *spaFS) Open(name string) (http.File, error) {
+	f, err := fs.r.Open(name)
+	if os.IsNotExist(err) {
+		return fs.r.Open("index.html")
+	}
+
+	return f, err
+}
+
 func (c *ServeConfig) WebsiteHandler() (http.Handler, error) {
 	if !c.IsProxy() {
-		server := http.FileServer(http.Dir(c.StaticDir))
+		fs := &spaFS{http.Dir(c.StaticDir)}
+		server := http.FileServer(fs)
 		return server, nil
 	}
 
