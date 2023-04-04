@@ -13,15 +13,11 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
 	github.com/stretchr/testify v1.8.1
-	github.com/yuin/goldmark v1.5.4
-	github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594
 )
 
 require (
-	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/creack/pty v1.1.11 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
