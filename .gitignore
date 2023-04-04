@@ -4,3 +4,4 @@
 .env
 .hermit/node/lib/node_modules/*
 .hermit/node/cache/*
+server/static
