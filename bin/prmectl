@@ -38,11 +38,11 @@ case "$1" in
     prmectl start-server &
     wait
     ;;
-  prod)
+  local-prod)
     cd frontend
     yarn generate
     cd ../server
-    ln -s ../frontend/.output/public static
+    (rm static || true) && ln -s ../frontend/.output/public static
     exec env $(cat .env | xargs) \
       go run ./cmd/server-nuxt
     ;;
