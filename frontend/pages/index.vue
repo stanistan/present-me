@@ -50,7 +50,7 @@
       <ul class="list-disc ml-4 mb-4">
         <li v-for="(u, idx) in validURLs" class="text-sm">
           <strong>{{ u.why }}</strong> :: <br />
-          <span class="text-xs underline">{{ u.url }}</span>
+          <a href="#" @click="goTo(u.url)" class="text-xs underline">{{ u.url }}</a>
         </li>
       </ul>
     </div>
@@ -67,8 +67,12 @@ onMounted(() => {
   console.log(searchBox.value.focus());
 })
 
-async function submit(e) {
-  e.preventDefault();
+async function goTo(url) {
+  searchBox.value.value = url;
+  await executeSearch();
+}
+
+async function executeSearch() {
   formDisabled.value = true;
   const { data, error } = await useFetch('/api/search', {
     params: { search: searchBox.value.value },
@@ -85,6 +89,11 @@ async function submit(e) {
     const params = data.value;
     await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
   }
+}
+
+async function submit(e) {
+  e.preventDefault();
+  await executeSearch();
 }
 
 const validURLs = [
