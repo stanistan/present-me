@@ -1,9 +1,7 @@
 <template>
   <div class="mx-auto max-w-4xl">
     <div class="text-5xl font-extrabold text-center py-3">
-      <span class="bg-clip-text text-transparent bg-gradient-to-r underline from-pink-600 to-violet-900">
-        [pr]esent-me
-      </span>
+      <GradientText>[pr]esent-me</GradientText>
     </div>
 
     <form @submit="submit" class="mt-4 text-lg">
