@@ -1,13 +1,11 @@
 <template>
   <div class="mx-auto max-w-4xl">
     <div class="text-5xl font-extrabold text-center py-3">
-      <span class="bg-clip-text text-transparent bg-gradient-to-r underline from-pink-600 to-violet-900">
-        [pr]esent-me
-      </span>
+      <GradientText>[pr]esent-me</GradientText>
     </div>
 
-    <form @submit="submit" class="mt-4 text-lg">
-      <div class="mx-auto flex flex-row
+    <form @submit="submit" class="mt-4 mx-auto text-lg">
+      <div class="mx-2 flex flex-row
         rounded bg-white shadow-md
         p-2 gap-2
         border border-violet-100
@@ -29,42 +27,35 @@
           go
         </button>
       </div>
+      <div class="animate-pulse mx-auto text-center text-4xl py-4 font-bold" v-if="formDisabled">
+        Loading...
+      </div>
       <div class="rounded-lg font-bold ring-1 mt-5 ring-red-300 bg-red-100 p-3 text-center" v-if="errorMessage">
         Error: <span class="underline">{{ errorMessage }}</span>
       </div>
     </form>
 
     <div class="prose mt-4 max-w-prose mx-auto gap-3 px-4">
+      <p class="inline-block font-bold">What</p>
       <p class="inline-block mb-4">
-        (pr)esent-me is an experiment to try to give the author of a Pull Request a better way to convey
+        <code>present-me</code> is an experiment to try to give the author of a Pull Request a better way to convey
         why a changeset looks the way that it does, and how the folks reading and reviewing it should approach it.
       </p>
-      <p class="inline-block font-bold mb-4">How it works</p>
+      <p class="inline-block font-bold">How</p>
       <p class="mb-4">
-        <code>present-me</code> uses a PR review's comments (and their respective diff) to create a single
-        "post", or "slides."
+        <code>present-me</code> uses a PR review's comments (and their respective diff) to create
+        slideshow-like presentation, in the order that the comments are desired to appear, and only the
+        diffs that are annotated with comments, leaving all other changes out of mind.
       </p>
-      <p class="">
+      <p class="mb-2">
         These are all valid URLs to query for:
-        <ul class="list-disc">
-          <li class="text-sm">
-            <strong>Fully qualified Pull Request Review URL (the permalink from Github)</strong> :: <br />
-            <code class="text-xs">https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746</code>
-          </li>
-          <li class="text-sm">
-            <strong>Dropping the Protocl (https is implicit)</strong> :: <br />
-            <code class="text-xs">github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746</code>
-          </li>
-          <li class="text-sm">
-            <strong>Dropping the domain (https://github.com is implicit)</strong> :: <br />
-            <code class="text-xs">stanistan/invoice-proxy/pull/3#pullrequestreview-625362746</code>
-          </li>
-          <li class="text-sm">
-            <strong>Dropping the URL fragment... This will attempt to find the first PR review by the author</strong> :: <br />
-            <code class="text-xs">stanistan/invoice-proxy/pull/3</code>
-          </li>
-        </ul>
       </p>
+      <ul class="list-disc ml-4 mb-4">
+        <li v-for="(u, idx) in validURLs" class="text-sm">
+          <strong>{{ u.why }}</strong> :: <br />
+          <a href="#" @click="goTo(u.url)" class="text-xs underline">{{ u.url }}</a>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -79,23 +70,55 @@ onMounted(() => {
   console.log(searchBox.value.focus());
 })
 
+async function goTo(url) {
+  searchBox.value.value = url;
+  await executeSearch();
+}
+
+async function executeSearch() {
+  formDisabled.value = true;
+  errorMessage.value = "";
+  setTimeout(async function() {
+    const { data, error } = await useFetch('/api/search', {
+      params: { search: searchBox.value.value },
+      server: false,
+      initialCache: false,
+      transform: v => JSON.parse(v)
+    });
+
+    if (error.value) {
+      const errorData = JSON.parse(error.value.data)
+      errorMessage.value = errorData.msg;
+      formDisabled.value = false;
+    } else {
+      const params = data.value;
+      await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
+    }
+
+  }, 1000);
+}
+
 async function submit(e) {
   e.preventDefault();
-  formDisabled.value = true;
-  const { data, error } = await useFetch('/api/search', {
-    params: { search: searchBox.value.value },
-    server: false,
-    initialCache: false,
-    transform: v => JSON.parse(v)
-  });
-
-  if (error.value) {
-    const errorData = JSON.parse(error.value.data)
-    errorMessage.value = errorData.msg;
-    formDisabled.value = false;
-  } else {
-    const params = data.value;
-    await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
-  }
+  await executeSearch();
 }
+
+const validURLs = [
+  {
+    why: 'Fully qualified Pull Request Review URL (the permalink from Github)',
+    url: 'https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746',
+  },
+  {
+    why: 'Dropping the Protocol (https is implicit)',
+    url: 'github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746'
+  },
+  {
+    why: 'Dropping the domain (https://github.com is implicit)',
+    url: 'stanistan/invoice-proxy/pull/3#pullrequestreview-625362746'
+  },
+  {
+    why: 'Dropping the URL fragment... will attempt to find the first Review by the PR author',
+    url: 'stanistan/invoice-proxy/pull/3'
+  }
+];
 </script>
