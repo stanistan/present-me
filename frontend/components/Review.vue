@@ -1,14 +1,12 @@
 <template>
   <div class="">
-    <div class="flex flex-row p-3 mx-auto place-content-center">
-      <div class="flex-none text-5xl font-extrabold text-right py-3 xl:max-w-2xl md:max-w-md lg:max-w-xl">
+    <div class="flex flex-col lg:flex-row p-3 mx-auto place-content-center">
+      <div class="flex-none text-md lg:text-5xl font-extrabold text-center lg:text-right py-3 xl:max-w-2xl md:max-w-md lg:max-w-xl">
         <span>(#{{ model.pr.number }})</span>
-        <span class="bg-clip-text text-transparent bg-gradient-to-r underline from-pink-600 to-violet-900">
-          {{ model.pr.title }}
-        </span>
+        <GradientText>{{ model.pr.title }}</GradientText>
       </div>
       <div class="flex-none xl:max-w-prose md:max-w-md lg:max-w-lg prose">
-        <div class="m-3 p-3 bg-gray-50 rounded h-full border">
+        <div class="md:m-3 p-3 bg-gray-50 rounded h-full border">
           <div v-if="model.pr.body" v-html="prBody"></div>
           <div v-if="model.review.body" v-html="reviewBody"></div>
         </div>
