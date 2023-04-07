@@ -27,6 +27,9 @@
           go
         </button>
       </div>
+      <div class="animate-pulse mx-auto text-center text-4xl py-4 font-bold" v-if="formDisabled">
+        Loading...
+      </div>
       <div class="rounded-lg font-bold ring-1 mt-5 ring-red-300 bg-red-100 p-3 text-center" v-if="errorMessage">
         Error: <span class="underline">{{ errorMessage }}</span>
       </div>
@@ -74,21 +77,25 @@ async function goTo(url) {
 
 async function executeSearch() {
   formDisabled.value = true;
-  const { data, error } = await useFetch('/api/search', {
-    params: { search: searchBox.value.value },
-    server: false,
-    initialCache: false,
-    transform: v => JSON.parse(v)
-  });
+  errorMessage.value = "";
+  setTimeout(async function() {
+    const { data, error } = await useFetch('/api/search', {
+      params: { search: searchBox.value.value },
+      server: false,
+      initialCache: false,
+      transform: v => JSON.parse(v)
+    });
 
-  if (error.value) {
-    const errorData = JSON.parse(error.value.data)
-    errorMessage.value = errorData.msg;
-    formDisabled.value = false;
-  } else {
-    const params = data.value;
-    await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
-  }
+    if (error.value) {
+      const errorData = JSON.parse(error.value.data)
+      errorMessage.value = errorData.msg;
+      formDisabled.value = false;
+    } else {
+      const params = data.value;
+      await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
+    }
+
+  }, 1000);
 }
 
 async function submit(e) {
