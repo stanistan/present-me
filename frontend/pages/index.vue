@@ -1,10 +1,13 @@
 <template>
-  <div class="mx-auto max-w-4xl">
-    <div class="text-5xl font-extrabold text-center py-3">
-      <GradientText>[pr]esent-me</GradientText>
+  <div class="mx-auto">
+
+    <div class="py-10 mb-10 bg-gray-100 border border-gray-200">
+    <div class="text-5xl flex flex-col font-extrabold text-center py-3 h-[30vh]">
+       <span class="flex-grow"></span>
+      <GradientText class="flex-none">[pr]esent-me</GradientText>
     </div>
 
-    <form @submit="submit" class="mt-4 mx-auto text-lg">
+    <form @submit="submit" class="my-4 mx-auto text-lg max-w-3xl ">
       <div class="mx-2 flex flex-row
         rounded bg-white shadow-md
         p-2 gap-2
@@ -34,8 +37,9 @@
         Error: <span class="underline">{{ errorMessage }}</span>
       </div>
     </form>
+    </div>
 
-    <div class="prose mt-4 max-w-prose mx-auto gap-3 px-4">
+    <div class="prose max-w-prose mx-auto gap-3 px-4">
       <p class="inline-block font-bold">What</p>
       <p class="inline-block mb-4">
         <code>present-me</code> is an experiment to try to give the author of a Pull Request a better way to convey
