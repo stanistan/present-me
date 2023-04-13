@@ -61,6 +61,9 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: 'present-me'
+});
 
 const searchBox = ref(),
       formDisabled = ref(false),
