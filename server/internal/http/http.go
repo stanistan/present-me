@@ -32,6 +32,18 @@ type Route struct {
 	Handler        Handler
 }
 
+func GET(prefix string, handler Handler) Route {
+	return Route{
+		Method:  "GET",
+		Prefix:  prefix,
+		Handler: handler,
+	}
+}
+
+func Routes(rs ...Route) []Route {
+	return rs
+}
+
 // JSONResponse represents our JSON with response code.
 type JSONResponse struct {
 	Code int
