@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
+
+type Request = http.Request
 
 // Handler is a function that can output a JSONResponse
 type Handler func(*http.Request) (*JSONResponse, error)
@@ -28,6 +30,18 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type Route struct {
 	Method, Prefix string
 	Handler        Handler
+}
+
+func GET(prefix string, handler Handler) Route {
+	return Route{
+		Method:  "GET",
+		Prefix:  prefix,
+		Handler: handler,
+	}
+}
+
+func Routes(rs ...Route) []Route {
+	return rs
 }
 
 // JSONResponse represents our JSON with response code.

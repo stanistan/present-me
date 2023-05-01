@@ -5,14 +5,17 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 )
 
 type ServeConfig struct {
 	// Port describes the port this server runs on.
-	Port     string `default:"8080" env:"PORT"`
-	Hostname string `default:"localhost" env:"HOSTNAME"`
+	Port               string        `default:"8080" env:"PORT"`
+	Hostname           string        `default:"localhost" env:"HOSTNAME"`
+	ServerReadTimeout  time.Duration `default:"5s"`
+	ServerWriteTimeout time.Duration `default:"10s"`
 
 	// Serve desides if we're running in proxy mode (for development)
 	// or if we are going to be serving the content from the static directory
