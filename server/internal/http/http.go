@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
+
+type Request = http.Request
 
 // Handler is a function that can output a JSONResponse
 type Handler func(*http.Request) (*JSONResponse, error)

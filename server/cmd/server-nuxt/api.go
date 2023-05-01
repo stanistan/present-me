@@ -1,23 +1,22 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/pkg/errors"
 
 	pm "github.com/stanistan/present-me"
+	"github.com/stanistan/present-me/internal/http"
 )
 
-var apiRoutes []Route = []Route{
+var apiRoutes []http.Route = []http.Route{
 	{
 		"GET", "/ping",
-		func(_ *http.Request) (*JSONResponse, error) {
-			return OKResponse(map[string]any{"ping": "pong"}), nil
+		func(_ *http.Request) (*http.JSONResponse, error) {
+			return http.OKResponse(map[string]any{"ping": "pong"}), nil
 		},
 	},
 	{
 		"GET", "/search",
-		func(r *http.Request) (*JSONResponse, error) {
+		func(r *http.Request) (*http.JSONResponse, error) {
 			ctx := r.Context()
 			gh, ok := GHFromContext(ctx)
 			if !ok || gh == nil {
@@ -31,7 +30,7 @@ var apiRoutes []Route = []Route{
 
 			_, err = params.EnsureReviewID(ctx, gh)
 			if err != nil {
-				return &JSONResponse{
+				return &http.JSONResponse{
 					Code: 404,
 					Data: map[string]string{
 						"msg": "No review id",
@@ -39,12 +38,12 @@ var apiRoutes []Route = []Route{
 				}, nil
 			}
 
-			return OKResponse(params), nil
+			return http.OKResponse(params), nil
 		},
 	},
 	{
 		"GET", "/review",
-		func(r *http.Request) (*JSONResponse, error) {
+		func(r *http.Request) (*http.JSONResponse, error) {
 			var (
 				ctx    = r.Context()
 				values = r.URL.Query()
@@ -70,7 +69,7 @@ var apiRoutes []Route = []Route{
 				return nil, errors.Wrap(err, "error fetching model")
 			}
 
-			return OKResponse(model), nil
+			return http.OKResponse(model), nil
 		},
 	},
 }
