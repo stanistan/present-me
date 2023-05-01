@@ -10,7 +10,8 @@ import (
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/peterbourgon/diskv/v3"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
+
+	"github.com/stanistan/present-me/internal/log"
 )
 
 type Cache struct {
@@ -51,7 +52,7 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	}
 
 	if !forceRefresh {
-		ok, err := c.Read(p.Key, into, ttl)
+		ok, err := c.Read(ctx, p.Key, into, ttl)
 		if err != nil {
 			return err
 		}
@@ -74,7 +75,7 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	return nil
 }
 
-func (c *Cache) Read(key any, into any, ttl time.Duration) (bool, error) {
+func (c *Cache) Read(ctx context.Context, key any, into any, ttl time.Duration) (bool, error) {
 	if c.disabled {
 		return false, nil
 	}
@@ -86,7 +87,7 @@ func (c *Cache) Read(key any, into any, ttl time.Duration) (bool, error) {
 
 	bytes, err := c.d.Read(k)
 	if err != nil {
-		log.Warn().Err(err).Msg("")
+		log.Ctx(ctx).Warn().Err(err).Msg("")
 		return false, nil // FILE MISSING, Do a check here:)
 	}
 
@@ -96,7 +97,7 @@ func (c *Cache) Read(key any, into any, ttl time.Duration) (bool, error) {
 	}
 
 	if storedAt == nil || time.Since(*storedAt) > ttl {
-		log.Printf("data expired for %v", key)
+		log.Ctx(ctx).Info().Msgf("data expired for %v", key)
 		return false, nil
 	}
 
@@ -127,7 +128,7 @@ type CacheOpts struct {
 	CacheMaxSizeKB uint64 `name:"cache-max-size" env:"DISK_CACHE_MAX_SIZE_KB" default:"1024"`
 }
 
-func NewCache(opts CacheOpts) *Cache {
+func NewCache(ctx context.Context, opts CacheOpts) *Cache {
 	if !opts.Enabled {
 		return &Cache{disabled: true}
 	}
@@ -137,7 +138,7 @@ func NewCache(opts CacheOpts) *Cache {
 		CacheSizeMax: opts.CacheMaxSizeKB * 1024,
 	}
 
-	log.Info().Msgf("initializing cache basePath=%s size=%d", cacheOpts.BasePath, cacheOpts.CacheSizeMax)
+	log.Ctx(ctx).Info().Msgf("initializing cache basePath=%s size=%d", cacheOpts.BasePath, cacheOpts.CacheSizeMax)
 	return &Cache{d: diskv.New(cacheOpts)}
 }
 

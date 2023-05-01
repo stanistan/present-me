@@ -7,7 +7,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/hlog"
 
 	pm "github.com/stanistan/present-me"
 	"github.com/stanistan/present-me/internal/cache"
@@ -18,6 +18,7 @@ func main() {
 	_ = kong.Parse(&config)
 
 	config.Configure()
+	log := config.Logger()
 
 	gh, err := config.GH()
 	if err != nil {
@@ -28,8 +29,12 @@ func main() {
 
 	// 1. Register API routes & middleware
 	api := r.PathPrefix("/api").Subrouter()
-	api.Use(githubMiddleware(gh))
-	api.Use(cacheMiddleware)
+	api.Use(
+		hlog.NewHandler(log),
+		githubMiddleware(gh),
+		cacheMiddleware,
+	)
+
 	for _, r := range apiRoutes {
 		api.
 			Handle(r.Prefix, r.Handler).
@@ -46,8 +51,8 @@ func main() {
 	// 3. Init server
 	s := &http.Server{
 		Addr:         config.Address(),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  config.ServerReadTimeout,
+		WriteTimeout: config.ServerWriteTimeout,
 		Handler:      r,
 	}
 
