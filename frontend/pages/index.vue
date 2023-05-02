@@ -13,8 +13,8 @@
         p-2 gap-2
         border border-violet-100
         ">
-        <input ref="searchBox" :disabled="formDisabled"
-          name="search" type="text"
+        <input :disabled="formDisabled"
+          name="search" type="text" :value="searchQuery"
           placeholder="$org/$repo/pull/$pull#pullrequestreview-$review"
           class="flex-grow px-4 font-mono
           focus:ring-none
@@ -25,21 +25,26 @@
           class="
             rounded p-4 px-6 text-lg font-bold bg-gradient-to-b from-purple-700 to-purple-800
             hover:from-purple-600 hover:to-purple-700
+            active:from-purple-600 active:to-purple-300
+            disabled:from-purple-200 disabled:to-purple-300 disabled:border-gray-100
             border border-gray-600 hover:border-gray-400
             text-white shadow-md">
-          go
+          <span v-if="formDisabled" class="animate-pulse">
+            ...
+          </span>
+          <span v-else>
+            go
+          </span>
         </button>
-      </div>
-      <div class="animate-pulse mx-auto text-center text-4xl py-4 font-bold" v-if="formDisabled">
-        Loading...
-      </div>
-      <div class="rounded-lg font-bold ring-1 mt-5 ring-red-300 bg-red-100 p-3 text-center" v-if="errorMessage">
-        Error: <span class="underline">{{ errorMessage }}</span>
       </div>
     </form>
     </div>
 
     <div class="prose max-w-prose mx-auto gap-3 px-4">
+      <div class="rounded-lg font-bold ring-1 my-5 ring-red-300 bg-red-100 p-3 text-center" v-if="errorMessage">
+        Error: <span class="underline">{{ errorMessage }}</span>
+      </div>
+
       <p class="inline-block font-bold">What</p>
       <p class="inline-block mb-4">
         <code>present-me</code> is an experiment to try to give the author of a Pull Request a better way to convey
@@ -69,16 +74,12 @@ useHead({
   title: 'present-me'
 });
 
-const searchBox = ref(),
-      formDisabled = ref(false),
-      errorMessage = ref("");
-
-onMounted(() => {
-  console.log(searchBox.value.focus());
-})
+const formDisabled = ref(false),
+  errorMessage = ref(""),
+  searchQuery = ref("");
 
 async function goTo(url) {
-  searchBox.value.value = url;
+  searchQuery.value = url;
   await executeSearch();
 }
 
@@ -87,7 +88,7 @@ async function executeSearch() {
   errorMessage.value = "";
   setTimeout(async function() {
     const { data, error } = await useFetch('/api/search', {
-      params: { search: searchBox.value.value },
+      params: { search: searchQuery.value },
       server: false,
       initialCache: false,
       transform: v => JSON.parse(v)
@@ -101,8 +102,7 @@ async function executeSearch() {
       const params = data.value;
       await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
     }
-
-  }, 1000);
+  }, 2000);
 }
 
 async function submit(e) {
