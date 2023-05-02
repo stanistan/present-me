@@ -14,7 +14,7 @@
         border border-violet-100
         ">
         <input :disabled="formDisabled"
-          name="search" type="text" :value="searchQuery"
+          name="search" type="text" v-model="searchQuery"
           placeholder="$org/$repo/pull/$pull#pullrequestreview-$review"
           class="flex-grow px-4 font-mono
           focus:ring-none
