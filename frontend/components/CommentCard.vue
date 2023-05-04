@@ -8,35 +8,35 @@
     </div>
     <div class="flex flex-col md:flex-row max-h-[95vh] bg-gray-50">
       <div class="p-3 flex-none md:w-2/5 text-md markdown">
-        <div v-html="commentBody"></div>
+        <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
-        <pre class=""><code class="language-diff">{{ comment.diff_hunk }}</code></pre>
+        <pre class=""><code ref="code" class="language-diff">{{ diffNoFirstLine }}</code></pre>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import showdown from 'showdown';
-
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
-const converter = new showdown.Converter();
-converter.setFlavor('github');
+const code = ref('code');
 
 const props = defineProps({
   comment: { type: Object, required: true },
-  idx: { type: String, required: true }
+  idx: { type: Number, required: true }
 });
 
 const commentBody = computed(() => {
-  const replaced = props.comment.body.replace(/^\s*\d+\.\s*/, '');
-  return converter.makeHtml(replaced);
+ return props.comment.body.replace(/^\s*\d+\.\s*/, '');
+});
+
+const diffNoFirstLine = computed(() => {
+  return props.comment.diff_hunk.split("\n").slice(1).join("\n");
 });
 
 onMounted(() => {
-  hljs.highlightAll();
+  hljs.highlightElement(code.value);
 });
 </script>
