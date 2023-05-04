@@ -82,7 +82,8 @@
       </p>
       <ul class="list-disc ml-4 mb-4">
         <li
-          v-for="(u, idx) in validURLs"
+          v-for="u in validURLs" 
+          :key="u.url"
           class="text-sm"
         >
           <strong>{{ u.why }}</strong> :: <br>

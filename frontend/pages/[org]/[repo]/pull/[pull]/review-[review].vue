@@ -25,7 +25,7 @@
       </div>
     </div>
     <div v-else>
-      <Review :model="data" />
+      <ReviewPage :model="data" />
     </div>
   </div>
 </template>

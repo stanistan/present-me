@@ -7,20 +7,19 @@
       </div>
       <div class="flex-none xl:max-w-prose md:max-w-md lg:max-w-lg prose">
         <div class="md:m-3 p-3 bg-gray-50 rounded h-full border">
-          <div
-            v-if="model.pr.body"
-            v-html="prBody"
-          />
-          <div
-            v-if="model.review.body"
-            v-html="reviewBody"
-          />
+          <MarkdownHTML v-if="model.pr.body">
+            {{ model.pr.body }}
+          </MarkdownHTML>
+          <MarkdownHTML v-if="model.review.body">
+            {{ model.review.body }}
+          </MarkdownHTML>
         </div>
       </div>
     </div>
     <div class="gap-3">
-      <Comment
+      <CommentCard
         v-for="(comment, idx) in model.comments"
+        :key="idx"
         :comment="comment"
         :idx="idx + 1"
       />
@@ -29,20 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import showdown from 'showdown';
-
-const converter = new showdown.Converter();
-converter.setFlavor('github');
-
-const props = defineProps({
+defineProps({
   model: { type: Object, required: true }
-});
-
-const prBody = computed(() => {
-  return converter.makeHtml(props.model.pr.body);
-});
-
-const reviewBody = computed(() => {
-  return converter.makeHtml(props.model.review.body);
 });
 </script>
