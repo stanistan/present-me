@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps([
-  "message"
-]);
+defineProps({
+  message: { type: String, required: true },
+});
 </script>

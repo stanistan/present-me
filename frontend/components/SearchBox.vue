@@ -39,6 +39,10 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps(['modelValue', 'errorMessage', 'disabled']);
-const emits = defineEmits(['update:modelValue', 'submit']);
+defineProps({
+  modelValue: { type: String, default: "" }, 
+  errorMessage: { type: String, default: "" }, 
+  disabled: { type: Boolean, default: false }
+});
+defineEmits(['update:modelValue', 'submit']);
 </script>
