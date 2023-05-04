@@ -7,13 +7,23 @@
       </div>
       <div class="flex-none xl:max-w-prose md:max-w-md lg:max-w-lg prose">
         <div class="md:m-3 p-3 bg-gray-50 rounded h-full border">
-          <div v-if="model.pr.body" v-html="prBody"></div>
-          <div v-if="model.review.body" v-html="reviewBody"></div>
+          <div
+            v-if="model.pr.body"
+            v-html="prBody"
+          />
+          <div
+            v-if="model.review.body"
+            v-html="reviewBody"
+          />
         </div>
       </div>
     </div>
     <div class="gap-3">
-      <Comment v-for="(comment, idx) in model.comments" :comment="comment" :idx="idx + 1" />
+      <Comment
+        v-for="(comment, idx) in model.comments"
+        :comment="comment"
+        :idx="idx + 1"
+      />
     </div>
   </div>
 </template>

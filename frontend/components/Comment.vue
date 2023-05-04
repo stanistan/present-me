@@ -8,7 +8,7 @@
     </div>
     <div class="flex flex-col md:flex-row max-h-[95vh] bg-gray-50">
       <div class="p-3 flex-none md:w-2/5 text-md markdown">
-        <div v-html="commentBody"></div>
+        <div v-html="commentBody" />
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
         <pre class=""><code class="language-diff">{{ comment.diff_hunk }}</code></pre>
