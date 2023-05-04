@@ -19,6 +19,7 @@ lint:
         packages:
           - eslint-plugin-vue@9.11.0
           - '@typescript-eslint/parser@5.59.2'
+          - '@nuxtjs/eslint-config-typescript@0.1.0'
   disabled:
     - actionlint
     - git-diff-check

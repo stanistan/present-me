@@ -7,7 +7,7 @@ linux {
 }
 
 darwin {
-  source = "https://trunk.io/releases/${version}/trunk-${version}-linux-x86_64.tar.gz"
+  source = "https://trunk.io/releases/${version}/trunk-${version}-darwin-x86_64.tar.gz"
 }
 
 version "1.9.1" {
