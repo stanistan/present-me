@@ -9,9 +9,3 @@ linux {
 darwin {
   source = "https://trunk.io/releases/${version}/trunk-${version}-darwin-x86_64.tar.gz"
 }
-
-version "1.9.1" {
-  auto-version {
-    github-release = "getzola/zola"
-  }
-}
