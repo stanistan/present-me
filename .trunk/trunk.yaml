@@ -17,9 +17,9 @@ lint:
   enabled:
     - eslint@8.39.0:
         packages:
-          - eslint-plugin-vue@9.11.0
+          - '@nuxtjs/eslint-config-typescript@12.0.0'
           - '@typescript-eslint/parser@5.59.2'
-          - '@nuxtjs/eslint-config-typescript@0.1.0'
+          - eslint-plugin-vue@9.11.0
   disabled:
     - actionlint
     - git-diff-check
@@ -34,7 +34,7 @@ lint:
     - yamllint
 runtimes:
   enabled:
-    - node@18.12.1
+    - node@19.6.0
 actions:
   enabled:
     - git-blame-ignore-revs
