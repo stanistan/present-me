@@ -30,4 +30,5 @@ jobs:
     - name: lint-vue
       run: |-
         cd frontend
+        yarn install
         yarn lint
