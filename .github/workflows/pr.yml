@@ -1,4 +1,4 @@
-name: Go
+name: Pull Request
 
 on:
   push:
@@ -17,7 +17,18 @@ jobs:
       run: |-
         cd server
         go test ./...
-    - name: lint
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Init Hermit
+      run: ./bin/hermit env -r >> $GITHUB_ENV
+    - name: lint-golang
       run: |-
         cd server
         golangci-lint run
+    - name: lint-vue
+      run: |-
+        cd frontend
+        yarn 
+        yarn lint

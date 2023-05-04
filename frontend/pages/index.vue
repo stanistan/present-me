@@ -16,7 +16,9 @@
       <code>present-me</code> is an experiment to try to give the author of a Pull Request a better way to convey
       why a changeset looks the way that it does, and how the folks reading and reviewing it should approach it.
       </p>
-      <p class="inline-block font-bold">How</p>
+      <p class="inline-block font-bold">
+        How
+      </p>
       <p class="mb-4">
       <code>present-me</code> uses a PR review's comments (and their respective diff) to create
       slideshow-like presentation, in the order that the comments are desired to appear, and only the
@@ -26,9 +28,17 @@
       These are all valid URLs to query for:
       </p>
       <ul class="list-disc ml-4 mb-4">
-        <li v-for="(u, idx) in validURLs" class="text-sm">
-          <strong>{{ u.why }}</strong> :: <br />
-          <a href="#" @click="goTo(u.url)" class="text-xs underline">{{ u.url }}</a>
+        <li
+          v-for="u in validURLs" 
+          :key="u.url"
+          class="text-sm"
+        >
+          <strong>{{ u.why }}</strong> :: <br>
+          <a
+            href="#"
+            class="text-xs underline"
+            @click="goTo(u.url)"
+          >{{ u.url }}</a>
         </li>
       </ul>
     </div>
