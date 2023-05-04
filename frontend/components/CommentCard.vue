@@ -11,18 +11,13 @@
         <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
-        <pre class=""><code ref="code" class="language-diff">{{ diffNoFirstLine }}</code></pre>
+        <DiffBlock :content="comment.diff_hunk" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css';
-
-const code = ref('code');
-
 const props = defineProps({
   comment: { type: Object, required: true },
   idx: { type: Number, required: true }
@@ -30,13 +25,5 @@ const props = defineProps({
 
 const commentBody = computed(() => {
  return props.comment.body.replace(/^\s*\d+\.\s*/, '');
-});
-
-const diffNoFirstLine = computed(() => {
-  return props.comment.diff_hunk.split("\n").slice(1).join("\n");
-});
-
-onMounted(() => {
-  hljs.highlightElement(code.value);
 });
 </script>

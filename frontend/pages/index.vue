@@ -8,60 +8,15 @@
         </GradientText>
       </div>
 
-      <form
-        class="my-4 mx-auto text-lg max-w-3xl "
-        @submit="submit"
-      >
-        <div
-          class="mx-2 flex flex-row
-        rounded bg-white shadow-md
-        p-2 gap-2
-        border border-violet-100
-        "
-        >
-          <input
-            v-model="searchQuery"
-            :disabled="formDisabled"
-            name="search"
-            type="text"
-            placeholder="$org/$repo/pull/$pull#pullrequestreview-$review"
-            class="flex-grow px-4 font-mono
-          focus:ring-none
-          rounded overflow-hidden inline-block"
-          >
-          <button
-            type="submit"
-            :disabled="formDisabled"
-            class="
-            rounded p-4 px-6 text-lg font-bold bg-gradient-to-b from-purple-700 to-purple-800
-            hover:from-purple-600 hover:to-purple-700
-            active:from-purple-600 active:to-purple-300
-            disabled:from-purple-200 disabled:to-purple-300 disabled:border-gray-100
-            border border-gray-600 hover:border-gray-400
-            text-white shadow-md"
-          >
-            <span
-              v-if="formDisabled"
-              class="animate-pulse"
-            >
-              ...
-            </span>
-            <span v-else>
-              go
-            </span>
-          </button>
-        </div>
-      </form>
+      <SearchBox
+        v-model="query"
+        :error-message="errorMessage"
+        :disabled="searchDisabled"
+        @submit="search"
+      />
     </div>
 
-    <div class="prose max-w-prose mx-auto gap-3 px-4">
-      <div
-        v-if="errorMessage"
-        class="rounded-lg font-bold ring-1 my-5 ring-red-300 bg-red-100 p-3 text-center"
-      >
-        Error: <span class="underline">{{ errorMessage }}</span>
-      </div>
-
+    <div class="prose max-w-prose mx-auto px-4">
       <p class="inline-block font-bold">
         What
       </p>
@@ -103,40 +58,44 @@ useHead({
   title: 'present-me'
 });
 
-const formDisabled = ref(false),
-  errorMessage = ref(""),
-  searchQuery = ref("");
+const query = ref(''),
+  errorMessage = ref(''),
+  searchDisabled = ref(false);
 
-async function goTo(url) {
-  searchQuery.value = url;
-  await executeSearch();
+function searchLoading() {
+  searchDisabled.value = true;
+  errorMessage.value = '';
 }
 
-async function executeSearch() {
-  formDisabled.value = true;
-  errorMessage.value = "";
+function searchError(msg) {
+  searchDisabled.value = false;
+  errorMessage.value = msg;
+}
+
+async function search() {
+  //
+  searchLoading();
+
   setTimeout(async function() {
     const { data, error } = await useFetch('/api/search', {
-      params: { search: searchQuery.value },
+      params: { search: query.value },
       server: false,
       initialCache: false,
       transform: v => JSON.parse(v)
     });
 
     if (error.value) {
-      const errorData = JSON.parse(error.value.data)
-      errorMessage.value = errorData.msg;
-      formDisabled.value = false;
+      searchError(JSON.parse(error.value.data).msg);
     } else {
       const params = data.value;
       await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
     }
-  }, 2000);
+  }, 1000);
 }
 
-async function submit(e) {
-  e.preventDefault();
-  await executeSearch();
+async function goTo(url) {
+  query.value = url;
+  await search();
 }
 
 const validURLs = [
