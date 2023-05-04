@@ -35,32 +35,4 @@
 <script setup lang="ts">
 const props = defineProps(['modelValue', 'errorMessage', 'disabled']);
 const emits = defineEmits(['update:modelValue', 'submit']);
-
-
-/*
-async function executeSearch() {
-  formDisabled.value = true;
-  errorMessage.value = "";
-  setTimeout(async function() {
-    errorMessage.value = "failed with pretend.";
-      formDisabled.value = false;
-
-    const { data, error } = await useFetch('/api/search', {
-      params: { search: props.searchQuery.value },
-      server: false,
-      initialCache: false,
-      transform: v => JSON.parse(v)
-    });
-
-    if (error.value) {
-      const errorData = JSON.parse(error.value.data)
-      errorMessage.value = errorData.msg;
-      formDisabled.value = false;
-    } else {
-      const params = data.value;
-      await navigateTo(`${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`);
-    }
-  }, 2000);
-}*/
-
 </script>
