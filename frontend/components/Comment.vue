@@ -28,7 +28,7 @@ converter.setFlavor('github');
 
 const props = defineProps({
   comment: { type: Object, required: true },
-  idx: { type: String, required: true }
+  idx: { type: Number, required: true }
 });
 
 const commentBody = computed(() => {
