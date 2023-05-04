@@ -11,7 +11,10 @@
         <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
-        <pre class=""><code ref="code" class="language-diff">{{ diffNoFirstLine }}</code></pre>
+        <pre class=""><code
+ref="code"
+                            class="language-diff"
+        >{{ diffNoFirstLine }}</code></pre>
       </div>
     </div>
   </div>
