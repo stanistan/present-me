@@ -179,6 +179,14 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*Review
 	group.Go(func() error {
 		comments, err := g.ListComments(ctx, r)
 		if err == nil {
+			for idx, comment := range comments {
+				diff, err := generateDiff(comment)
+				if err != nil {
+					return err
+				}
+				comment.DiffHunk = &diff
+				comments[idx] = comment
+			}
 			model.Comments = comments
 		}
 		return err
