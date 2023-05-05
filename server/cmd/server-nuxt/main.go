@@ -11,16 +11,17 @@ import (
 
 	pm "github.com/stanistan/present-me"
 	"github.com/stanistan/present-me/internal/cache"
+	"github.com/stanistan/present-me/internal/github"
 )
 
 func main() {
 	var config pm.Config
 	_ = kong.Parse(&config)
 
-	config.Configure()
 	log := config.Logger()
+	diskCache := config.Cache(context.TODO())
 
-	gh, err := config.GH()
+	gh, err := config.GithubClient()
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not configure GH client")
 	}
@@ -32,7 +33,7 @@ func main() {
 	api.Use(
 		hlog.NewHandler(log),
 		githubMiddleware(gh),
-		cacheMiddleware,
+		cacheMiddleware(diskCache),
 	)
 
 	for _, r := range apiRoutes {
@@ -65,16 +66,16 @@ type ghCtxKey int
 
 var ghCtxValue ghCtxKey
 
-func ContextWithGH(ctx context.Context, gh *pm.GH) context.Context {
+func ContextWithGH(ctx context.Context, gh *github.Client) context.Context {
 	return context.WithValue(ctx, ghCtxValue, gh)
 }
 
-func GHFromContext(ctx context.Context) (*pm.GH, bool) {
-	v, ok := ctx.Value(ghCtxValue).(*pm.GH)
+func GHFromContext(ctx context.Context) (*github.Client, bool) {
+	v, ok := ctx.Value(ghCtxValue).(*github.Client)
 	return v, ok
 }
 
-func githubMiddleware(g *pm.GH) func(http.Handler) http.Handler {
+func githubMiddleware(g *github.Client) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := ContextWithGH(r.Context(), g)
@@ -83,12 +84,15 @@ func githubMiddleware(g *pm.GH) func(http.Handler) http.Handler {
 	}
 }
 
-func cacheMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := cache.ContextWithOptions(r.Context(), &cache.Options{
-			TTL:          10 * time.Minute,
-			ForceRefresh: r.URL.Query().Get("refresh") == "1",
+func cacheMiddleware(c *cache.Cache) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := cache.ContextWithCache(r.Context(), c)
+			ctx = cache.ContextWithOptions(ctx, &cache.Options{
+				TTL:          10 * time.Minute,
+				ForceRefresh: r.URL.Query().Get("refresh") == "1",
+			})
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+	}
 }

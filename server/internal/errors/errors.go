@@ -1,4 +1,4 @@
-package presentme
+package errors
 
 import (
 	"fmt"
@@ -24,6 +24,8 @@ func (e *Error) Error() string {
 func (e *Error) Unwrap() error {
 	return e.Cause
 }
+
+var WithStack = errors.WithStack
 
 func WrapGithubErr(e error, msg string, args ...interface{}) error {
 	if e == nil {
