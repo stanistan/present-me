@@ -20,33 +20,58 @@ import 'prismjs/components/prism-go';
 import 'prismjs/plugins/diff-highlight/prism-diff-highlight';
 import 'prismjs/plugins/diff-highlight/prism-diff-highlight.css';
 
-// import 'prismjs/themes/prism.css';
-
 const code = ref('code');
 onMounted(() => {
   Prism.highlightElement(code.value);
 });
 
 const props = defineProps({ 
-  content: { 
-    type: String,
-    default: ""
+  comment: { 
+    type: Object,
+    required: true,
   },
-  filename: {
-    type: String,
-    default: ""
-  }
 });
 
 // drop the first line of the diff since it's a diff hunk header
 const diff = computed(() => {
-  return props.content.split("\n").slice(1).join("\n");
+  const comment = props.comment;
+
+  // let's get the lines first...
+  const lines = comment.diff_hunk.split("\n");
+
+  // the first line has metadata in it from the diff hunk...
+  // and we can get the starting line that's expected to be there
+  // from it...
+  const startCountingAt = parseInt(lines.shift().match(/@@ -(\d+),/)[1], 10);
+
+  // desiredRange 
+  const 
+    desiredStartLine = comment.start_line === undefined
+      ? comment.line - 4
+      : comment.start_line - (!startCountingAt ? 1 : 0),
+    desiredEndLine = comment.line,
+    outputDiff;
+
+  let lineNumber = startCountingAt;
+  lines.forEach(line => {
+    if (lineNumber >= desiredStartLine && lineNumber <= desiredEndLine) {
+      outputDiff.push(line);
+    }
+
+    if (comment.side == "LEFT" && !line.startsWith("+")) {
+      lineNumber++;
+    } else if (comment.side == "RIGHT" && !line.startsWith("-")) {
+      lineNumber++;
+    }
+  });
+
+  return outputDiff.join("\n");
 });
 
 // we grab the file extension and map it to the diff-language
 const languageMap = { rs: 'rust' };
 const language = computed(() => {
-  const pieces = props.filename.split('.');
+  const pieces = props.comment.path.split('.');
   const lang = pieces[pieces.length - 1];
   return `diff-highlight language-diff-${languageMap[lang] || lang}`;
 });

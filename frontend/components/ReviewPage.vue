@@ -18,7 +18,7 @@
     </div>
     <div class="gap-3">
       <CommentCard
-        v-for="(comment, idx) in model.comments"
+        v-for="(comment, idx) in model.comments.slice(0, 4)"
         :key="idx"
         :comment="comment"
         :idx="idx + 1"
