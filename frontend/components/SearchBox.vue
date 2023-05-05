@@ -1,14 +1,9 @@
 <template>
-  <form 
-    class="my-4 mx-auto text-lg max-w-3xl "
-    @submit.prevent="$emit('submit')"
-  >
+  <form class="my-4 mx-auto text-lg max-w-3xl " @submit.prevent="$emit('submit')">
     <ErrorMessage :message="errorMessage" />
     <div class="mx-2 flex flex-row rounded bg-white shadow-md p-2 gap-2 border border-violet-100">
       <input 
-        :disabled="disabled"
-        :value="modelValue"
-        name="search"
+        :disabled="disabled" :value="modelValue" name="search"
         type="text" 
         placeholder="$org/$repo/pull/$pull#pullrequestreview-$review" 
         class="flex-grow px-4 font-mono focus:ring-none rounded overflow-hidden inline-block"
@@ -24,10 +19,7 @@
                       border border-gray-600 hover:border-gray-400
                       text-white shadow-md"
       >
-        <span
-          v-if="disabled"
-          class="animate-pulse"
-        >
+        <span v-if="disabled" class="animate-pulse">
           ...
         </span>
         <span v-else>
