@@ -11,7 +11,7 @@
         <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
-        <DiffBlock :content="comment.diff_hunk" />
+        <DiffBlock :content="comment.diff_hunk" :filename="comment.path" />
       </div>
     </div>
   </div>
