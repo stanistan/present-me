@@ -9,6 +9,8 @@ import (
 	"github.com/google/go-github/v52/github"
 	"github.com/rs/zerolog/log"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/errors"
 )
@@ -155,30 +157,65 @@ func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullR
 }
 
 func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
+	model := &ReviewModel{Params: r}
+	group, ctx := errgroup.WithContext(ctx)
 
-	pull, err := g.GetPullRequest(ctx, r)
+	group.Go(func() error {
+		pull, err := g.GetPullRequest(ctx, r)
+		if err == nil {
+			model.PR = pull
+		}
+		return err
+	})
+
+	group.Go(func() error {
+		review, err := g.GetReview(ctx, r)
+		if err == nil {
+			model.Review = review
+		}
+		return err
+	})
+
+	group.Go(func() error {
+		comments, err := g.ListComments(ctx, r)
+		if err == nil {
+			model.Comments = comments
+		}
+		return err
+	})
+
+	group.Go(func() error {
+		files, err := g.ListFiles(ctx, r)
+		if err == nil {
+			filesByPath := map[string]ReviewFile{}
+			for _, f := range files {
+				filesByPath[*f.Filename] = ReviewFile{
+					IsAnnotated: false,
+					File:        f,
+				}
+			}
+
+			model.Files = filesByPath
+		}
+		return err
+	})
+
+	err := group.Wait()
 	if err != nil {
 		return nil, err
 	}
 
-	review, err := g.GetReview(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	sort.Slice(model.Comments, func(i, j int) bool {
+		path := *model.Comments[i].Path
+		if file, exists := model.Files[path]; exists {
+			model.Files[path] = ReviewFile{
+				File:        file.File,
+				IsAnnotated: true,
+			}
+		}
 
-	comments, err := g.ListComments(ctx, r)
-	if err != nil {
-		return nil, err
-	}
-
-	annotatedFiles := map[string]struct{}{}
-	sort.Slice(comments, func(i, j int) bool {
-
-		annotatedFiles[*comments[i].Path] = struct{}{}
-		annotatedFiles[*comments[j].Path] = struct{}{}
-
-		c1, c1Ok := orderOf(*comments[i].Body)
-		c2, c2Ok := orderOf(*comments[j].Body)
+		c1, c1Ok := orderOf(*model.Comments[i].Body)
+		c2, c2Ok := orderOf(*model.Comments[j].Body)
 		if !c1Ok && !c2Ok {
 			return false
 		} else if !c1Ok {
@@ -189,25 +226,5 @@ func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewMode
 		return c1 < c2
 	})
 
-	files, err := g.ListFiles(ctx, r)
-	if err != nil {
-		return nil, err
-	}
-
-	filesByPath := map[string]ReviewFile{}
-	for _, f := range files {
-		_, ok := annotatedFiles[*f.Filename]
-		filesByPath[*f.Filename] = ReviewFile{
-			IsAnnotated: ok,
-			File:        f,
-		}
-	}
-
-	return &ReviewModel{
-		Params:   r,
-		PR:       pull,
-		Review:   review,
-		Comments: comments,
-		Files:    filesByPath,
-	}, nil
+	return model, nil
 }
