@@ -15,17 +15,17 @@ import (
 	"github.com/stanistan/present-me/internal/errors"
 )
 
-type GHOpts struct {
-	AppID          int64        `name:"app_id" env:"GH_APP_ID" required:""`
-	InstallationID int64        `name:"installation_id" env:"GH_INSTALLATION_ID" required:""`
-	PrivateKey     GHPrivateKey `embed:"" prefix:"pk-" required:""`
+type ClientOptions struct {
+	AppID          int64      `name:"app_id" env:"GH_APP_ID" required:""`
+	InstallationID int64      `name:"installation_id" env:"GH_INSTALLATION_ID" required:""`
+	PrivateKey     PrivateKey `embed:"" prefix:"pk-" required:""`
 }
 
-type GHPrivateKey struct {
+type PrivateKey struct {
 	File string `name:"file" env:"GH_PK_FILE"`
 }
 
-func (o *GHOpts) HTTPClient() (*http.Client, error) {
+func (o *ClientOptions) HTTPClient() (*http.Client, error) {
 	var (
 		itr http.RoundTripper
 		err error
@@ -46,21 +46,21 @@ func (o *GHOpts) HTTPClient() (*http.Client, error) {
 	return &http.Client{Transport: itr}, nil
 }
 
-type GH struct {
+type Client struct {
 	c *github.Client
 }
 
-func NewGH(opts GHOpts) (*GH, error) {
+func New(opts ClientOptions) (*Client, error) {
 	c, err := opts.HTTPClient()
 	if err != nil {
 		return nil, err
 	}
 
-	return &GH{c: github.NewClient(c)}, nil
+	return &Client{c: github.NewClient(c)}, nil
 }
 
-func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFile, error) {
-	var fs []*github.CommitFile
+func (g *Client) ListFiles(ctx context.Context, r *ReviewParams) ([]*CommitFile, error) {
+	var fs []*CommitFile
 	return fs, cache.Ctx(ctx).Apply(ctx, &fs, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "files",
@@ -73,8 +73,8 @@ func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFi
 	})
 }
 
-func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullRequest, error) {
-	var pr *github.PullRequest
+func (g *Client) GetPullRequest(ctx context.Context, r *ReviewParams) (*PullRequest, error) {
+	var pr *PullRequest
 	return pr, cache.Apply(ctx, &pr, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "pr",
@@ -87,8 +87,8 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 	})
 }
 
-func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRequestReview, error) {
-	var reviews []*github.PullRequestReview
+func (g *Client) ListReviews(ctx context.Context, r *ReviewParams) ([]*PullRequestReview, error) {
+	var reviews []*PullRequestReview
 	return reviews, cache.Apply(ctx, &reviews, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "reviews",
@@ -101,8 +101,8 @@ func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRe
 	})
 }
 
-func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullRequestReview, error) {
-	var review *github.PullRequestReview
+func (g *Client) GetReview(ctx context.Context, r *ReviewParams) (*PullRequestReview, error) {
+	var review *PullRequestReview
 	return review, cache.Apply(ctx, &review, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "review",
@@ -115,8 +115,8 @@ func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullReques
 	})
 }
 
-func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
-	var cs []*github.PullRequestComment
+func (g *Client) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
+	var cs []*PullRequestComment
 	return cs, cache.Apply(ctx, &cs, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "review-comments",
@@ -129,8 +129,8 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 	})
 }
 
-func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
-	var cs []*github.PullRequestComment
+func (g *Client) ListComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
+	var cs []*PullRequestComment
 	err := cache.Apply(ctx, &cs, cache.Provider{
 		DataKey: cache.DataKey{
 			Prefix:  "pull-comments",
@@ -145,7 +145,7 @@ func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullR
 		return nil, err
 	}
 
-	var ret []*github.PullRequestComment
+	var ret []*PullRequestComment
 	for _, c := range cs {
 		if c.PullRequestReviewID == nil || *c.PullRequestReviewID != r.ReviewID {
 			continue
@@ -156,7 +156,7 @@ func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullR
 	return ret, nil
 }
 
-func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
+func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
 	model := &ReviewModel{Params: r}
 	group, ctx := errgroup.WithContext(ctx)
 

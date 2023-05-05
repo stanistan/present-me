@@ -95,11 +95,11 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 	}, nil
 }
 
-func (r *ReviewParams) Model(ctx context.Context, g *GH) (*ReviewModel, error) {
+func (r *ReviewParams) Model(ctx context.Context, g *Client) (*ReviewModel, error) {
 	return g.FetchReviewModel(ctx, r)
 }
 
-func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *GH) (bool, error) {
+func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *Client) (bool, error) {
 	if r.ReviewID != 0 {
 		return false, nil
 	}

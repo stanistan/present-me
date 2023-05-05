@@ -3,22 +3,20 @@ package github
 import (
 	"regexp"
 	"strconv"
-
-	"github.com/google/go-github/v52/github"
 )
 
 type ReviewModel struct {
 	Params *ReviewParams `json:"params"`
 
-	PR       *github.PullRequest          `json:"pr"`
-	Review   *github.PullRequestReview    `json:"review"`
-	Comments []*github.PullRequestComment `json:"comments"`
-	Files    map[string]ReviewFile        `json:"files"`
+	PR       *PullRequest          `json:"pr"`
+	Review   *PullRequestReview    `json:"review"`
+	Comments []*PullRequestComment `json:"comments"`
+	Files    map[string]ReviewFile `json:"files"`
 }
 
 type ReviewFile struct {
-	IsAnnotated bool               `json:"isAnnotated"`
-	File        *github.CommitFile `json:"file"`
+	IsAnnotated bool        `json:"isAnnotated"`
+	File        *CommitFile `json:"file"`
 }
 
 var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)

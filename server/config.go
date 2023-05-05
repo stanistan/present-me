@@ -13,12 +13,12 @@ import (
 
 type Config struct {
 	ServeConfig
-	DiskCache cache.CacheOpts `embed:"" prefix:"disk-cache-"`
-	Github    github.GHOpts   `embed:"" prefix:"gh-"`
+	DiskCache cache.CacheOpts      `embed:"" prefix:"disk-cache-"`
+	Github    github.ClientOptions `embed:"" prefix:"gh-"`
 }
 
-func (c *Config) GH() (*github.GH, error) {
-	g, err := github.NewGH(c.Github)
+func (c *Config) GithubClient() (*github.Client, error) {
+	g, err := github.New(c.Github)
 	return g, errors.WithStack(err)
 }
 

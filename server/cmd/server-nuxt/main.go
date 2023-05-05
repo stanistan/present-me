@@ -21,7 +21,7 @@ func main() {
 	log := config.Logger()
 	diskCache := config.Cache(context.TODO())
 
-	gh, err := config.GH()
+	gh, err := config.GithubClient()
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not configure GH client")
 	}
@@ -66,16 +66,16 @@ type ghCtxKey int
 
 var ghCtxValue ghCtxKey
 
-func ContextWithGH(ctx context.Context, gh *github.GH) context.Context {
+func ContextWithGH(ctx context.Context, gh *github.Client) context.Context {
 	return context.WithValue(ctx, ghCtxValue, gh)
 }
 
-func GHFromContext(ctx context.Context) (*github.GH, bool) {
-	v, ok := ctx.Value(ghCtxValue).(*github.GH)
+func GHFromContext(ctx context.Context) (*github.Client, bool) {
+	v, ok := ctx.Value(ghCtxValue).(*github.Client)
 	return v, ok
 }
 
-func githubMiddleware(g *github.GH) func(http.Handler) http.Handler {
+func githubMiddleware(g *github.Client) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := ContextWithGH(r.Context(), g)
