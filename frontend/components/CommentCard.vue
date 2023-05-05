@@ -11,7 +11,7 @@
         <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
       </div>
       <div class="flex-grow overflow-scroll text-sm border-l">
-        <DiffBlock :content="comment.diff_hunk" :filename="comment.path" />
+        <DiffBlock :comment="comment" />
       </div>
     </div>
   </div>
@@ -24,6 +24,6 @@ const props = defineProps({
 });
 
 const commentBody = computed(() => {
- return props.comment.body.replace(/^\s*\d+\.\s*/, '');
+  return props.comment.body.replace(/^\s*\d+\.\s*/, '');
 });
 </script>

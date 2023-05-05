@@ -60,8 +60,11 @@ func NewGH(opts GHOpts) (*GH, error) {
 func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFile, error) {
 	var fs []*github.CommitFile
 	return fs, cache.Apply(ctx, &fs, dc.Provider{
-		Key: []interface{}{r.Owner, r.Repo, r.Number, "files"},
-		Fetch: func() (interface{}, error) {
+		DataKey: dc.DataKey{
+			Prefix:  "files",
+			Hashing: []any{r.Owner, r.Repo, r.Number},
+		},
+		Fetch: func() (any, error) {
 			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
 			return d, WrapGithubErr(err, "call to ListFiles failed")
 		},
@@ -71,8 +74,11 @@ func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFi
 func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullRequest, error) {
 	var pr *github.PullRequest
 	return pr, cache.Apply(ctx, &pr, dc.Provider{
-		Key: []interface{}{r.Owner, r.Repo, r.Number, "pr"},
-		Fetch: func() (interface{}, error) {
+		DataKey: dc.DataKey{
+			Prefix:  "pr",
+			Hashing: []any{r.Owner, r.Repo, r.Number},
+		},
+		Fetch: func() (any, error) {
 			pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
 			return pr, WrapGithubErr(err, "call to GetPullRequest failed")
 		},
@@ -82,8 +88,11 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRequestReview, error) {
 	var reviews []*github.PullRequestReview
 	return reviews, cache.Apply(ctx, &reviews, dc.Provider{
-		Key: []interface{}{r.Owner, r.Repo, r.Number, "reviews"},
-		Fetch: func() (interface{}, error) {
+		DataKey: dc.DataKey{
+			Prefix:  "reviews",
+			Hashing: []any{r.Owner, r.Repo, r.Number},
+		},
+		Fetch: func() (any, error) {
 			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Number, nil)
 			return reviews, WrapGithubErr(err, "call to ListReviews failed")
 		},
@@ -93,8 +102,11 @@ func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRe
 func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullRequestReview, error) {
 	var review *github.PullRequestReview
 	return review, cache.Apply(ctx, &review, dc.Provider{
-		Key: []interface{}{r, "review"},
-		Fetch: func() (interface{}, error) {
+		DataKey: dc.DataKey{
+			Prefix:  "review",
+			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
+		},
+		Fetch: func() (any, error) {
 			review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
 			return review, WrapGithubErr(err, "call to GetReview failed")
 		},
@@ -104,15 +116,46 @@ func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullReques
 func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
 	var cs []*github.PullRequestComment
 	return cs, cache.Apply(ctx, &cs, dc.Provider{
-		Key: []interface{}{r, "review-comments"},
-		Fetch: func() (interface{}, error) {
+		DataKey: dc.DataKey{
+			Prefix:  "review-comments",
+			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
+		},
+		Fetch: func() (any, error) {
 			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
 			return cs, WrapGithubErr(err, "call to ListReviewComments failed")
 		},
 	})
 }
 
+func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
+	var cs []*github.PullRequestComment
+	err := cache.Apply(ctx, &cs, dc.Provider{
+		DataKey: dc.DataKey{
+			Prefix:  "pull-comments",
+			Hashing: []any{r.Owner, r.Repo, r.Number},
+		},
+		Fetch: func() (any, error) {
+			cs, _, err := g.c.PullRequests.ListComments(ctx, r.Owner, r.Repo, r.Number, nil)
+			return cs, WrapGithubErr(err, "call to ListComments failed")
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var ret []*github.PullRequestComment
+	for _, c := range cs {
+		if c.PullRequestReviewID == nil || *c.PullRequestReviewID != r.ReviewID {
+			continue
+		}
+		ret = append(ret, c)
+	}
+
+	return ret, nil
+}
+
 func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
+
 	pull, err := g.GetPullRequest(ctx, r)
 	if err != nil {
 		return nil, err
@@ -123,7 +166,7 @@ func (g *GH) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewMode
 		return nil, err
 	}
 
-	comments, err := g.ListReviewComments(ctx, r)
+	comments, err := g.ListComments(ctx, r)
 	if err != nil {
 		return nil, err
 	}
