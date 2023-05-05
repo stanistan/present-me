@@ -32,3 +32,15 @@ jobs:
         cd frontend
         yarn 
         yarn lint
+
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Init Hermit
+      run: ./bin/hermit env -r >> $GITHUB_ENV
+    - name: generate
+      run: |-
+        cd frontend
+        yarn
+        yarn generate
