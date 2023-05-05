@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"time"
@@ -24,8 +25,13 @@ type Options struct {
 	ForceRefresh bool
 }
 
+type DataKey struct {
+	Prefix  string
+	Hashing any
+}
+
 type Provider struct {
-	Key   any
+	DataKey
 	Fetch func() (any, error)
 }
 
@@ -52,7 +58,7 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	}
 
 	if !forceRefresh {
-		ok, err := c.Read(ctx, p.Key, into, ttl)
+		ok, err := c.Read(ctx, p.DataKey, into, ttl)
 		if err != nil {
 			return err
 		}
@@ -66,7 +72,7 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 		return err
 	}
 
-	err = c.Write(p.Key, data)
+	err = c.Write(p.DataKey, data)
 	if err != nil {
 		return err
 	}
@@ -75,7 +81,7 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	return nil
 }
 
-func (c *Cache) Read(ctx context.Context, key any, into any, ttl time.Duration) (bool, error) {
+func (c *Cache) Read(ctx context.Context, key DataKey, into any, ttl time.Duration) (bool, error) {
 	if c.disabled {
 		return false, nil
 	}
@@ -104,7 +110,7 @@ func (c *Cache) Read(ctx context.Context, key any, into any, ttl time.Duration) 
 	return true, nil
 }
 
-func (c *Cache) Write(key interface{}, data interface{}) error {
+func (c *Cache) Write(key DataKey, data any) error {
 	if c.disabled {
 		return nil
 	}
@@ -147,16 +153,16 @@ type Value struct {
 	Data json.RawMessage
 }
 
-func Key(data interface{}) (string, error) {
-	hash, err := hashstructure.Hash(data, hashstructure.FormatV2, nil)
+func Key(k DataKey) (string, error) {
+	hash, err := hashstructure.Hash(k.Hashing, hashstructure.FormatV2, nil)
 	if err != nil {
 		return "", err
 	}
 
-	return strconv.FormatUint(hash, 10), nil
+	return fmt.Sprintf("%s-%s.json", k.Prefix, strconv.FormatUint(hash, 10)), nil
 }
 
-func Marshal(data interface{}) ([]byte, error) {
+func Marshal(data any) ([]byte, error) {
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
 		return nil, err

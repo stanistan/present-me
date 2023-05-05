@@ -6,3 +6,4 @@
 .hermit/node/cache/*
 server/static
 !.trunk
+data/
