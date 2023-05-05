@@ -1,5 +1,5 @@
 <template>
-  <pre class="bg-gray-100"><code ref="code" class="diff-highlight" :class="language">{{ diff }}</code></pre>
+  <pre class="bg-gray-100"><code ref="code" :class="language">{{ diff }}</code></pre>
 </template>
 
 <script setup lang="ts">
@@ -48,7 +48,7 @@ const languageMap = { rs: 'rust' };
 const language = computed(() => {
   const pieces = props.filename.split('.');
   const lang = pieces[pieces.length - 1];
-  return `language-diff-${languageMap[lang] || lang}`;
+  return `diff-highlight language-diff-${languageMap[lang] || lang}`;
 });
 </script>
 
