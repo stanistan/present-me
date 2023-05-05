@@ -50,7 +50,8 @@ const diff = computed(() => {
       ? comment.line - 4
       : comment.start_line - (!startCountingAt ? 1 : 0),
     desiredEndLine = comment.line,
-    outputDiff;
+    outputDiff = [];
+
 
   let lineNumber = startCountingAt;
   lines.forEach(line => {
