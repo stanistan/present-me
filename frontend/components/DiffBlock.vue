@@ -52,6 +52,7 @@ const diff = computed(() => {
     desiredEndLine = comment.line,
     outputDiff = [];
 
+
   let lineNumber = startCountingAt;
   lines.forEach(line => {
     if (lineNumber >= desiredStartLine && lineNumber <= desiredEndLine) {
