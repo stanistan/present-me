@@ -18,8 +18,8 @@ func main() {
 	var config pm.Config
 	_ = kong.Parse(&config)
 
-	config.Configure()
 	log := config.Logger()
+	diskCache := config.Cache(context.TODO())
 
 	gh, err := config.GH()
 	if err != nil {
@@ -33,7 +33,7 @@ func main() {
 	api.Use(
 		hlog.NewHandler(log),
 		githubMiddleware(gh),
-		cacheMiddleware,
+		cacheMiddleware(diskCache),
 	)
 
 	for _, r := range apiRoutes {
@@ -84,12 +84,15 @@ func githubMiddleware(g *github.GH) func(http.Handler) http.Handler {
 	}
 }
 
-func cacheMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := cache.ContextWithOptions(r.Context(), &cache.Options{
-			TTL:          10 * time.Minute,
-			ForceRefresh: r.URL.Query().Get("refresh") == "1",
+func cacheMiddleware(c *cache.Cache) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := cache.ContextWithCache(r.Context(), c)
+			ctx = cache.ContextWithOptions(ctx, &cache.Options{
+				TTL:          10 * time.Minute,
+				ForceRefresh: r.URL.Query().Get("refresh") == "1",
+			})
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+	}
 }

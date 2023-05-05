@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-github/v52/github"
 	"github.com/rs/zerolog/log"
 
-	dc "github.com/stanistan/present-me/internal/cache"
+	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/errors"
 )
 
@@ -57,12 +57,10 @@ func NewGH(opts GHOpts) (*GH, error) {
 	return &GH{c: github.NewClient(c)}, nil
 }
 
-var cache *dc.Cache
-
 func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFile, error) {
 	var fs []*github.CommitFile
-	return fs, cache.Apply(ctx, &fs, dc.Provider{
-		DataKey: dc.DataKey{
+	return fs, cache.Ctx(ctx).Apply(ctx, &fs, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "files",
 			Hashing: []any{r.Owner, r.Repo, r.Number},
 		},
@@ -75,8 +73,8 @@ func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFi
 
 func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullRequest, error) {
 	var pr *github.PullRequest
-	return pr, cache.Apply(ctx, &pr, dc.Provider{
-		DataKey: dc.DataKey{
+	return pr, cache.Apply(ctx, &pr, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "pr",
 			Hashing: []any{r.Owner, r.Repo, r.Number},
 		},
@@ -89,8 +87,8 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 
 func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRequestReview, error) {
 	var reviews []*github.PullRequestReview
-	return reviews, cache.Apply(ctx, &reviews, dc.Provider{
-		DataKey: dc.DataKey{
+	return reviews, cache.Apply(ctx, &reviews, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "reviews",
 			Hashing: []any{r.Owner, r.Repo, r.Number},
 		},
@@ -103,8 +101,8 @@ func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRe
 
 func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullRequestReview, error) {
 	var review *github.PullRequestReview
-	return review, cache.Apply(ctx, &review, dc.Provider{
-		DataKey: dc.DataKey{
+	return review, cache.Apply(ctx, &review, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "review",
 			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
 		},
@@ -117,8 +115,8 @@ func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullReques
 
 func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
 	var cs []*github.PullRequestComment
-	return cs, cache.Apply(ctx, &cs, dc.Provider{
-		DataKey: dc.DataKey{
+	return cs, cache.Apply(ctx, &cs, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "review-comments",
 			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
 		},
@@ -131,8 +129,8 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 
 func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullRequestComment, error) {
 	var cs []*github.PullRequestComment
-	err := cache.Apply(ctx, &cs, dc.Provider{
-		DataKey: dc.DataKey{
+	err := cache.Apply(ctx, &cs, cache.Provider{
+		DataKey: cache.DataKey{
 			Prefix:  "pull-comments",
 			Hashing: []any{r.Owner, r.Repo, r.Number},
 		},
