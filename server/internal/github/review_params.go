@@ -1,4 +1,4 @@
-package presentme
+package github
 
 import (
 	"context"

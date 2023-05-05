@@ -7,17 +7,18 @@ import (
 	"github.com/rs/zerolog"
 
 	dc "github.com/stanistan/present-me/internal/cache"
+	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/present-me/internal/log"
 )
 
 type Config struct {
 	ServeConfig
-	DiskCache dc.CacheOpts `embed:"" prefix:"disk-cache-"`
-	Github    GHOpts       `embed:"" prefix:"gh-"`
+	DiskCache dc.CacheOpts  `embed:"" prefix:"disk-cache-"`
+	Github    github.GHOpts `embed:"" prefix:"gh-"`
 }
 
-func (c *Config) GH() (*GH, error) {
-	g, err := NewGH(c.Github)
+func (c *Config) GH() (*github.GH, error) {
+	g, err := github.NewGH(c.Github)
 	return g, errors.WithStack(err)
 }
 

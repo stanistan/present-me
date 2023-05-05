@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/pkg/errors"
 
-	pm "github.com/stanistan/present-me"
+	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/present-me/internal/http"
 )
 
@@ -22,7 +22,7 @@ var apiRoutes = http.Routes(
 			return nil, errors.New("missing github context")
 		}
 
-		params, err := pm.ReviewParamsFromURL(r.URL.Query().Get("search"))
+		params, err := github.ReviewParamsFromURL(r.URL.Query().Get("search"))
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ var apiRoutes = http.Routes(
 			return nil, errors.New("missing github context")
 		}
 
-		params, err := pm.ReviewParamsFromMap(pm.ReviewParamsMap{
+		params, err := github.ReviewParamsFromMap(github.ReviewParamsMap{
 			Owner:  values.Get("org"),
 			Repo:   values.Get("repo"),
 			Number: values.Get("pull"),

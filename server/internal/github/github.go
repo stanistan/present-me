@@ -1,4 +1,4 @@
-package presentme
+package github
 
 import (
 	"context"
@@ -7,10 +7,10 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v52/github"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 
 	dc "github.com/stanistan/present-me/internal/cache"
+	"github.com/stanistan/present-me/internal/errors"
 )
 
 type GHOpts struct {
@@ -57,6 +57,8 @@ func NewGH(opts GHOpts) (*GH, error) {
 	return &GH{c: github.NewClient(c)}, nil
 }
 
+var cache *dc.Cache
+
 func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFile, error) {
 	var fs []*github.CommitFile
 	return fs, cache.Apply(ctx, &fs, dc.Provider{
@@ -66,7 +68,7 @@ func (g *GH) ListFiles(ctx context.Context, r *ReviewParams) ([]*github.CommitFi
 		},
 		Fetch: func() (any, error) {
 			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
-			return d, WrapGithubErr(err, "call to ListFiles failed")
+			return d, errors.WrapGithubErr(err, "call to ListFiles failed")
 		},
 	})
 }
@@ -80,7 +82,7 @@ func (g *GH) GetPullRequest(ctx context.Context, r *ReviewParams) (*github.PullR
 		},
 		Fetch: func() (any, error) {
 			pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
-			return pr, WrapGithubErr(err, "call to GetPullRequest failed")
+			return pr, errors.WrapGithubErr(err, "call to GetPullRequest failed")
 		},
 	})
 }
@@ -94,7 +96,7 @@ func (g *GH) ListReviews(ctx context.Context, r *ReviewParams) ([]*github.PullRe
 		},
 		Fetch: func() (any, error) {
 			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Number, nil)
-			return reviews, WrapGithubErr(err, "call to ListReviews failed")
+			return reviews, errors.WrapGithubErr(err, "call to ListReviews failed")
 		},
 	})
 }
@@ -108,7 +110,7 @@ func (g *GH) GetReview(ctx context.Context, r *ReviewParams) (*github.PullReques
 		},
 		Fetch: func() (any, error) {
 			review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
-			return review, WrapGithubErr(err, "call to GetReview failed")
+			return review, errors.WrapGithubErr(err, "call to GetReview failed")
 		},
 	})
 }
@@ -122,7 +124,7 @@ func (g *GH) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*github
 		},
 		Fetch: func() (any, error) {
 			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
-			return cs, WrapGithubErr(err, "call to ListReviewComments failed")
+			return cs, errors.WrapGithubErr(err, "call to ListReviewComments failed")
 		},
 	})
 }
@@ -136,7 +138,7 @@ func (g *GH) ListComments(ctx context.Context, r *ReviewParams) ([]*github.PullR
 		},
 		Fetch: func() (any, error) {
 			cs, _, err := g.c.PullRequests.ListComments(ctx, r.Owner, r.Repo, r.Number, nil)
-			return cs, WrapGithubErr(err, "call to ListComments failed")
+			return cs, errors.WrapGithubErr(err, "call to ListComments failed")
 		},
 	})
 	if err != nil {

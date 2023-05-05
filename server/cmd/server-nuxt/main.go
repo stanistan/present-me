@@ -11,6 +11,7 @@ import (
 
 	pm "github.com/stanistan/present-me"
 	"github.com/stanistan/present-me/internal/cache"
+	"github.com/stanistan/present-me/internal/github"
 )
 
 func main() {
@@ -65,16 +66,16 @@ type ghCtxKey int
 
 var ghCtxValue ghCtxKey
 
-func ContextWithGH(ctx context.Context, gh *pm.GH) context.Context {
+func ContextWithGH(ctx context.Context, gh *github.GH) context.Context {
 	return context.WithValue(ctx, ghCtxValue, gh)
 }
 
-func GHFromContext(ctx context.Context) (*pm.GH, bool) {
-	v, ok := ctx.Value(ghCtxValue).(*pm.GH)
+func GHFromContext(ctx context.Context) (*github.GH, bool) {
+	v, ok := ctx.Value(ghCtxValue).(*github.GH)
 	return v, ok
 }
 
-func githubMiddleware(g *pm.GH) func(http.Handler) http.Handler {
+func githubMiddleware(g *github.GH) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := ContextWithGH(r.Context(), g)
