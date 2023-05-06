@@ -13,17 +13,18 @@ import (
 
 type Config struct {
 	ServeConfig
+	Log       log.Config           `embed:"" prefix:"log-"`
 	DiskCache cache.CacheOpts      `embed:"" prefix:"disk-cache-"`
 	Github    github.ClientOptions `embed:"" prefix:"gh-"`
 }
 
-func (c *Config) GithubClient() (*github.Client, error) {
-	g, err := github.New(c.Github)
+func (c *Config) GithubClient(ctx context.Context) (*github.Client, error) {
+	g, err := github.New(ctx, c.Github)
 	return g, errors.WithStack(err)
 }
 
 func (c *Config) Logger() zerolog.Logger {
-	return log.NewLogger()
+	return log.NewLogger(c.Log)
 }
 
 func (c *Config) Cache(ctx context.Context) *cache.Cache {

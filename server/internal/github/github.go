@@ -25,14 +25,14 @@ type PrivateKey struct {
 	File string `name:"file" env:"GH_PK_FILE"`
 }
 
-func (o *ClientOptions) HTTPClient() (*http.Client, error) {
+func (o *ClientOptions) HTTPClient(ctx context.Context) (*http.Client, error) {
 	var (
 		itr http.RoundTripper
 		err error
 	)
 
 	if o.PrivateKey.File != "" {
-		log.Info().Msgf("reading pk at path=%s", o.PrivateKey.File)
+		log.Ctx(ctx).Info().Msgf("reading pk at path=%s", o.PrivateKey.File)
 		itr, err = ghinstallation.NewKeyFromFile(http.DefaultTransport, o.AppID, o.InstallationID, o.PrivateKey.File)
 	} else {
 		itr = http.DefaultTransport
@@ -42,7 +42,7 @@ func (o *ClientOptions) HTTPClient() (*http.Client, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	log.Info().Msg("github client initialized")
+	log.Ctx(ctx).Info().Msg("github client initialized")
 	return &http.Client{Transport: itr}, nil
 }
 
@@ -50,8 +50,8 @@ type Client struct {
 	c *github.Client
 }
 
-func New(opts ClientOptions) (*Client, error) {
-	c, err := opts.HTTPClient()
+func New(ctx context.Context, opts ClientOptions) (*Client, error) {
+	c, err := opts.HTTPClient(ctx)
 	if err != nil {
 		return nil, err
 	}

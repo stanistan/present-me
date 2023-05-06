@@ -2,14 +2,26 @@ package log
 
 import (
 	"context"
+	"io"
 	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-func NewLogger() zerolog.Logger {
-	return zerolog.New(os.Stdout).With().Timestamp().Logger()
+type Config struct {
+	Output string `required:"" enum:"json,console" default:"json" env:"LOG_OUTPUT"`
+}
+
+func NewLogger(opts Config) zerolog.Logger {
+	var writeTo io.Writer
+	if opts.Output == "console" {
+		writeTo = zerolog.ConsoleWriter{Out: os.Stdout}
+	} else {
+		writeTo = os.Stdout
+	}
+
+	return zerolog.New(writeTo).With().Timestamp().Logger()
 }
 
 func Ctx(ctx context.Context) *zerolog.Logger {

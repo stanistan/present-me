@@ -15,13 +15,18 @@ import (
 )
 
 func main() {
-	var config pm.Config
+	var (
+		config pm.Config
+	)
+
 	_ = kong.Parse(&config)
 
 	log := config.Logger()
-	diskCache := config.Cache(context.TODO())
+	ctx := log.WithContext(context.Background())
 
-	gh, err := config.GithubClient()
+	diskCache := config.Cache(ctx)
+
+	gh, err := config.GithubClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not configure GH client")
 	}
