@@ -8,13 +8,19 @@ See https://present-me.stanistan.dev for a demo.
 
 ### Prerequisites
 
+#### Hermit
+
+This project uses [hermit](https://cashapp.github.io/hermit/) for dependency management. 
+
+Once you have hermit running, the `bin/` directory of this repo should be added to your ENV/PATH.
+
 #### Bootstrap
 
 ```sh
 prmectl bootstrap
 ```
 
-Make sure you've run  before anything else!
+Make sure you've run this before anything else!
 
 #### `server/.env`
 
