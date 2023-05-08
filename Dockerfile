@@ -1,8 +1,9 @@
 FROM node:19.6-alpine as frontend
 
 WORKDIR /app
-COPY frontend/package.json frontend/yarn.lock ./
-RUN yarn install
+COPY frontend/.yarn/* /app/.yarn/
+COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
+RUN yarn 
 COPY frontend /app
 RUN yarn run generate
 
