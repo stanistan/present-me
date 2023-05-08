@@ -20,5 +20,6 @@
   "dependencies": {
     "prismjs": "^1.29.0",
     "showdown": "^2.1.0"
-  }
+  },
+  "packageManager": "yarn@3.5.1"
 }
