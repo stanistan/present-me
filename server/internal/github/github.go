@@ -32,9 +32,10 @@ func (o *ClientOptions) HTTPClient(ctx context.Context) (*http.Client, error) {
 	)
 
 	if o.PrivateKey.File != "" {
-		log.Ctx(ctx).Info().Msgf("reading pk at path=%s", o.PrivateKey.File)
+		log.Ctx(ctx).Info().Str("path", o.PrivateKey.File).Msg("reading private key")
 		itr, err = ghinstallation.NewKeyFromFile(http.DefaultTransport, o.AppID, o.InstallationID, o.PrivateKey.File)
 	} else {
+		log.Ctx(ctx).Info().Msg("using default transport for gh client")
 		itr = http.DefaultTransport
 	}
 
@@ -42,7 +43,7 @@ func (o *ClientOptions) HTTPClient(ctx context.Context) (*http.Client, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	log.Ctx(ctx).Info().Msg("github client initialized")
+	log.Ctx(ctx).Info().Msg("successfully initialized github client")
 	return &http.Client{Transport: itr}, nil
 }
 

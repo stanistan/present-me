@@ -30,6 +30,10 @@ type DataKey struct {
 	Hashing any
 }
 
+func (k *DataKey) String() string {
+	return fmt.Sprintf("%s-%v", k.Prefix, k.Hashing)
+}
+
 type Provider struct {
 	DataKey
 	Fetch func() (any, error)
@@ -103,7 +107,7 @@ func (c *Cache) Read(ctx context.Context, key DataKey, into any, ttl time.Durati
 	}
 
 	if storedAt == nil || time.Since(*storedAt) > ttl {
-		log.Ctx(ctx).Info().Msgf("data expired for %v", key)
+		log.Ctx(ctx).Info().Str("key", key.String()).Msg("data expired")
 		return false, nil
 	}
 
