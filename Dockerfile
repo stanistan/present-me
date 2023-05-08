@@ -1,7 +1,8 @@
 FROM node:19.6-alpine as frontend
+RUN corepack enable
 
 WORKDIR /app
-COPY frontend/.yarn/* /app/.yarn/
+COPY frontend/.yarn .yarn/
 COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
 RUN yarn 
 COPY frontend /app
