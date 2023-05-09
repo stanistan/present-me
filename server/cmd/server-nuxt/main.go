@@ -15,17 +15,17 @@ import (
 )
 
 func main() {
-	var (
-		config pm.Config
-	)
-
+	var config pm.Config
 	_ = kong.Parse(&config)
 
+	// 0. Standard Deps
+	// - logger,
+	// - ctx withLogger
+	// - disk cache
+	// - github client
 	log := config.Logger()
 	ctx := log.WithContext(context.Background())
-
 	diskCache := config.Cache(ctx)
-
 	gh, err := config.GithubClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not configure GH client")
@@ -62,6 +62,7 @@ func main() {
 		Handler:      r,
 	}
 
+	log.Info().Str("address", config.Address()).Msg("starting server")
 	if err := s.ListenAndServe(); err != nil {
 		log.Fatal().Err(err).Msg("failed to start server")
 	}
