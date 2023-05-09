@@ -9,8 +9,8 @@
       </div>
 
       <SearchBox
-        v-model="query" @submit="search"
-        :error-message="errorMessage" :disabled="searchDisabled"
+        v-model="query" :error-message="errorMessage"
+        :disabled="searchDisabled" @submit="search"
       />
     </div>
 
@@ -40,8 +40,8 @@
         >
           <strong>{{ u.why }}</strong> :: <br>
           <a
-            @click="goTo(u.url)" href="#"
-            class="text-xs underline"
+            href="#" class="text-xs underline"
+            @click="goTo(u.url)"
           >{{ u.url }}</a>
         </li>
       </ul>
