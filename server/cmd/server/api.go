@@ -17,7 +17,7 @@ var apiRoutes = http.Routes(
 	// GET /search finds a review based on input.
 	http.GET("/search", func(r *http.Request) (*http.JSONResponse, error) {
 		ctx := r.Context()
-		gh, ok := GHFromContext(ctx)
+		gh, ok := github.Ctx(ctx)
 		if !ok || gh == nil {
 			return nil, errors.New("missing github context")
 		}
@@ -47,7 +47,7 @@ var apiRoutes = http.Routes(
 			values = r.URL.Query()
 		)
 
-		gh, ok := GHFromContext(ctx)
+		gh, ok := github.Ctx(ctx)
 		if !ok || gh == nil {
 			return nil, errors.New("missing github context")
 		}

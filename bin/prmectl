@@ -3,27 +3,26 @@ set -euo pipefail
 
 # We ensure that we're running in the project directory
 # assuming that this script is in a single level sudirectory
-# out from the PROJECT base.
+# out from the PROJECT base...
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 PROJECT_DIR="$SCRIPT_DIR/../"
 cd "$PROJECT_DIR"
 
 usage() {
-  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '$1' -N | grep -v '\*'
+  echo "Commands: "
+  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '- prmectl $1' -N | grep -v '\*'
 }
 
 case "$1" in
   bootstrap)
-    # 1. Make sure everything is installed!
+    # 1. Hermit has dependencies in this directory.
     hermit install
-    corepack enable # 1.1 this installs yarn
-
-    # 3. Install node package dependencies to get started!.
+    # 2. Corepack installs yarn, then we get all of our frontend/ deps
+    corepack enable
     pushd frontend
-    yarn install
+    yarn
     popd
-
-    # 4. Install go / server dependencies
+    # 3. Get all of our server/ deps
     pushd server
     go mod download
     popd
@@ -39,8 +38,9 @@ case "$1" in
     yarn generate
     cd ../server
     (rm static || true) && ln -s ../frontend/.output/public static
+    # shellcheck disable=SC2046,SC2002
     exec env $(cat .env | xargs) \
-      go run ./cmd/server-nuxt
+      go run ./cmd/server
     ;;
   start-frontend)
     cd frontend
@@ -51,13 +51,15 @@ case "$1" in
     # shellcheck disable=SC2046,SC2002
     exec env $(cat .env | xargs) \
       go run github.com/cespare/reflex -d none -s -- \
-      go run ./cmd/server-nuxt --serve=proxy
+      go run ./cmd/server --serve=proxy
     ;;
   help)
     usage
     ;;
   *)
     echo "invalid option: $1"
+    echo
+    usage
     exit 1
     ;;
 esac
