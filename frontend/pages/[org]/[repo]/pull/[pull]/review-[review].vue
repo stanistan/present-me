@@ -34,8 +34,10 @@
 useHead({
   title: 'present-me',
 });
+
 const route = useRoute();
 const { pending, data, error } = await useFetch('/api/review', {
+  lazy: true,
   params: route.params,
   server: false,
   initialCache: false,
