@@ -1,20 +1,14 @@
 <template>
-  <div class="mx-auto">
-    <div class="bg-gradient-to-b from-gray-800 to-black text-white font-mono text-sm text-center py-2 shadow">
+  <div>
+    <TopBar>
       {{ $route.params.org }}/{{ $route.params.repo }}/pull/{{ $route.params.pull }}/review-{{ $route.params.review }}
-    </div>
-    <div
-      v-if="pending"
-      class="py-10"
-    >
-      <div class="animate-pulse mx-auto text-center text-4xl font-bold">
+    </TopBar>
+    <div v-if="pending" class="flex flex-col items-stretch">
+      <div class="animate-pulse mx-auto text-center text-4xl pt-10 font-bold ">
         <GradientText>Loading...</GradientText>
       </div>
     </div>
-    <div
-      v-else-if="error"
-      class="mx-auto max-w-3xl py-10"
-    >
+    <div v-else-if="error" class="mx-auto max-w-3xl py-10">
       <div class="bg-orange-100 px-2 pb-2">
         <div class="text-xs text-center underline py-4">
           {{ error }}
@@ -24,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div v-else>
+    <div v-else class="mx-auto max-w-screen-2xl">
       <ReviewPage :model="data" />
     </div>
   </div>
@@ -34,8 +28,10 @@
 useHead({
   title: 'present-me',
 });
+
 const route = useRoute();
 const { pending, data, error } = await useFetch('/api/review', {
+  lazy: true,
   params: route.params,
   server: false,
   initialCache: false,

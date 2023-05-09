@@ -9,10 +9,8 @@
       </div>
 
       <SearchBox
-        v-model="query"
-        :error-message="errorMessage"
-        :disabled="searchDisabled"
-        @submit="search"
+        v-model="query" :error-message="errorMessage"
+        :disabled="searchDisabled" @submit="search"
       />
     </div>
 
@@ -37,14 +35,12 @@
       </p>
       <ul class="list-disc ml-4 mb-4">
         <li
-          v-for="u in validURLs" 
-          :key="u.url"
+          v-for="u in validURLs" :key="u.url" 
           class="text-sm"
         >
           <strong>{{ u.why }}</strong> :: <br>
           <a
-            href="#"
-            class="text-xs underline"
+            href="#" class="text-xs underline"
             @click="goTo(u.url)"
           >{{ u.url }}</a>
         </li>
@@ -73,7 +69,6 @@ function searchError(msg) {
 }
 
 async function search() {
-  //
   searchLoading();
 
   setTimeout(async function() {
