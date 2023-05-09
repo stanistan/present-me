@@ -8,19 +8,12 @@
         <slot name="title" />
       </div>
     </div>
-    <div class="flex flex-col md:flex-row max-h-[95vh] bg-gray-50">
-      <div class="p-3 flex-none md:w-2/5 text-md markdown">
-        <slot name="left" />
-      </div>
-      <div class="flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0">
-        <slot name="right" />
-      </div>
-    </div>
+    <slot class="bg-gray-50" name="body" />
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps({
-  badge: { type: Number, required: true },
+  badge: { type: Number, default: 0 },
 });
 </script>
