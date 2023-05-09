@@ -9,7 +9,8 @@ PROJECT_DIR="$SCRIPT_DIR/../"
 cd "$PROJECT_DIR"
 
 usage() {
-  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '$1' -N | grep -v '\*'
+  echo "Commands: "
+  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '- prmectl $1' -N | grep -v '\*'
 }
 
 case "$1" in
@@ -39,7 +40,7 @@ case "$1" in
     (rm static || true) && ln -s ../frontend/.output/public static
     # shellcheck disable=SC2046,SC2002
     exec env $(cat .env | xargs) \
-      go run ./cmd/server-nuxt
+      go run ./cmd/server
     ;;
   start-frontend)
     cd frontend
@@ -50,13 +51,15 @@ case "$1" in
     # shellcheck disable=SC2046,SC2002
     exec env $(cat .env | xargs) \
       go run github.com/cespare/reflex -d none -s -- \
-      go run ./cmd/server-nuxt --serve=proxy
+      go run ./cmd/server --serve=proxy
     ;;
   help)
     usage
     ;;
   *)
     echo "invalid option: $1"
+    echo
+    usage
     exit 1
     ;;
 esac

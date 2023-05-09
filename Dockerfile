@@ -13,7 +13,7 @@ WORKDIR /app
 COPY server/go.mod server/go.sum ./
 RUN go mod download
 COPY server /app
-RUN go build -o server ./cmd/server-nuxt
+RUN go build -o server ./cmd/server
 
 FROM scratch as prod
 COPY --from=backend /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
