@@ -1,29 +1,45 @@
 <template>
-  <div class="">
-    <div class="flex flex-col lg:flex-row p-3 mx-auto place-content-center">
-      <div class="flex-none text-md lg:text-5xl font-extrabold text-center lg:text-right py-3 xl:max-w-2xl md:max-w-md lg:max-w-xl">
-        <span>(#{{ model.pr.number }})</span>
-        <GradientText>{{ model.pr.title }}</GradientText>
-      </div>
-      <div class="flex-none xl:max-w-prose md:max-w-md lg:max-w-lg prose">
-        <div class="md:m-3 p-3 bg-gray-50 rounded h-full border">
-          <MarkdownHTML v-if="model.pr.body">
-            {{ model.pr.body }}
-          </MarkdownHTML>
+  <div class="gap-3">
+    <ComponentCard>
+      <template #title>
+        <div class="text-md text-xl font-extrabold">
+          <span>(#{{ model.pr.number }})</span>&nbsp;
+          <GradientText>{{ model.pr.title }}</GradientText>
+        </div>
+      </template>
+      <template #left>
+        <MarkdownHTML v-if="model.pr.body">
+        {{ model.pr.body }}
+        </MarkdownHTML>
+      </template>
+      <template #right>
+        <div class="px-4 py-4">
+          <ul class="list-disc px-4 mb-4 text-xs">
+            <li class="prose">
+              <strong>Author</strong> :: 
+              <NuxtLink class="underline" :href="model.pr.user.html_url">{{ model.pr.user.login }}</NuxtLink>
+            </li>
+            <li>
+              <strong>Source</strong> ::
+              <NuxtLink class="underline" :href="model.pr.html_url">{{ model.pr.html_url }}</NuxtLink>
+            </li>
+            <li>
+              <strong>Review by</strong> :: 
+              <NuxtLink class="underline" :href="model.review.user.html_url">{{ model.review.user.login }}</NuxtLink>
+            </li>
+          </ul>
           <MarkdownHTML v-if="model.review.body">
-            {{ model.review.body }}
+          {{ model.review.body }}
           </MarkdownHTML>
         </div>
-      </div>
-    </div>
-    <div class="gap-3">
-      <CommentCard
+      </template>
+    </ComponentCard>
+    <CommentCard
         v-for="(comment, idx) in model.comments"
         :key="idx"
         :comment="comment"
         :idx="idx + 1"
-      />
-    </div>
+        />
   </div>
 </template>
 
