@@ -7,12 +7,7 @@
           <GradientText>{{ model.pr.title }}</GradientText>
         </div>
       </template>
-      <template #left>
-        <MarkdownHTML v-if="model.pr.body">
-          {{ model.pr.body }}
-        </MarkdownHTML>
-      </template>
-      <template #right>
+      <template #body>
         <div class="px-4 py-4">
           <ul class="list-disc px-4 mb-4 text-xs">
             <li class="prose">
@@ -34,9 +29,9 @@
               </NuxtLink>
             </li>
           </ul>
-          <MarkdownHTML v-if="model.review.body">
-            {{ model.review.body }}
-          </MarkdownHTML>
+          <div class="markdown">
+            <MarkdownHTML>{{ body }}</MarkdownHTML>
+          </div>
         </div>
       </template>
     </ComponentCard>
@@ -50,7 +45,14 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
   model: { type: Object, required: true }
 });
+
+const body = computed(() => {
+  return [ props.model.pr.body, props.model.review.body ]
+    .filter(x => x.length > 0)
+    .join("\n\n---\n\n")
+});
+
 </script>
