@@ -33,7 +33,7 @@ const props = defineProps({
 });
 
 // we grab the file extension and map it to the diff-language
-const languageMap = { rs: 'rust' };
+const languageMap = { rs: 'rust', vue: 'html' };
 const language = computed(() => {
   const pieces = props.comment.path.split('.');
   const lang = pieces[pieces.length - 1];
