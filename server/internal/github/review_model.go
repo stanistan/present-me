@@ -48,7 +48,10 @@ func generateDiff(comment *PullRequestComment) (string, error) {
 	}
 
 	// 3. what is our range?
-	endLine, startLine, auto := diffRange(comment)
+	endLine, startLine, auto, err := diffRange(comment)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
 
 	// 4. configure out scanner
 	scanner := &diffScanner{

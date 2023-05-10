@@ -184,6 +184,10 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*Review
 				comment := comments[idx]
 				diff, err := generateDiff(comment)
 				if err != nil {
+					// TODO(stanistan):
+					// consider logging the warning here, and not mutating the diff as well,
+					// or _also_ returning the fact that there's an error warning in the API
+					// response.
 					return err
 				}
 				comment.DiffHunk = &diff
