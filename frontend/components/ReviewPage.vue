@@ -30,7 +30,9 @@
             </li>
           </ul>
           <div class="markdown">
-            <MarkdownHTML v-if="body.length">{{ body }}</MarkdownHTML>
+            <MarkdownHTML v-if="body.length">
+              {{ body }}
+            </MarkdownHTML>
           </div>
         </div>
       </template>

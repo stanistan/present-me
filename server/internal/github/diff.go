@@ -12,8 +12,6 @@ type diffScanner struct {
 	countLinesNotStartingWith string
 
 	start, end int
-
-	err error
 }
 
 type diffChunk struct {
