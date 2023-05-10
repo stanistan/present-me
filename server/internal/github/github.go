@@ -180,7 +180,8 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*Review
 	group.Go(func() error {
 		comments, err := g.ListComments(ctx, r)
 		if err == nil {
-			for idx, comment := range comments {
+			for idx, _ := range comments {
+				comment := comments[idx]
 				diff, err := generateDiff(comment)
 				if err != nil {
 					return err
