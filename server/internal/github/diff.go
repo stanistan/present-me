@@ -134,17 +134,31 @@ func (m *diffHunkMetadata) countConfig(side string) (int, string, error) {
 	}
 }
 
-func diffRange(c *PullRequestComment) (int, int, bool) {
-	var (
-		endLine = *c.Line
-	)
+func diffRange(c *PullRequestComment) (int, int, bool, error) {
+
 	// - endLine is the line that the comment is on or after,
 	// - startLine is the beginning line that we'll include in our diff,
 	//   and it looks like github defaults to 4 lines included if there is
 	//   no `StartLine`.
-	if c.StartLine == nil {
-		return endLine, endLine - 3, true
+	var endLine int
+	if c.Line != nil {
+		endLine = *c.Line
+	} else if c.OriginalLine != nil {
+		endLine = *c.OriginalLine
+	} else {
+		return 0, 0, false, fmt.Errorf("invalid nil line")
 	}
 
-	return endLine, *c.StartLine, false
+	var startLine int
+	var auto bool
+	if c.StartLine != nil {
+		startLine = *c.StartLine
+	} else if c.OriginalStartLine != nil {
+		startLine = *c.OriginalStartLine
+	} else {
+		startLine = endLine - 3
+		auto = true
+	}
+
+	return endLine, startLine, auto, nil
 }
