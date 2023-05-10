@@ -10,41 +10,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Init Hermit
-      run: ./bin/hermit env -r >> $GITHUB_ENV
+    - uses: actions/checkout@v3
+    - uses: cashapp/activate-hermit@v1
     - name: test
-      run: |-
-        cd server
-        go test ./...
+      run: cd server && go test ./...
 
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Init Hermit
-      run: ./bin/hermit env -r >> $GITHUB_ENV
+    - uses: actions/checkout@v3
+    - uses: cashapp/activate-hermit@v1
     - name: shellcheck
-      run: |-
-        shellcheck bin/prmectl
+      run:  shellcheck bin/prmectl
     - name: lint-golang
-      run: |-
-        cd server
-        golangci-lint run
+      run: cd server && golangci-lint run
     - name: lint-vue
-      run: |-
-        cd frontend
-        yarn 
-        yarn lint
+      run: cd frontend && yarn && yarn lint
 
   generate:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Init Hermit
-      run: ./bin/hermit env -r >> $GITHUB_ENV
+    - uses: actions/checkout@v3
+    - uses: cashapp/activate-hermit@v1
     - name: generate
-      run: |-
-        cd frontend
-        yarn
-        yarn generate
+      run: cd frontend && yarn && yarn generate
