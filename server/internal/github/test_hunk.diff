@@ -1,0 +1,28 @@
+@@ -185,28 +180,8 @@ func (d *SyncIstio) Run(ctx context.Context) error {
+ 	return nil
+ }
+ 
+-type ManagementType string
+-
+-const (
+-	// Ignored indicates we are not managing this service
+-	Ignored = ManagementType("ignore")
+-	// DependencyOnly indicates we are only tracking the service for use as
+-	// a dependency
+-	DependencyOnly = ManagementType("dependency-only")
+-	// Full indicates we are managing the service (including dependencies,
+-	// egress, etc.)
+-	Full = ManagementType("full")
+-)
+-
+-var (
+-	// DependencyManagementTypes contains the list of management types that
+-	// will control whether a service will be included as a dependency
+-	DependencyManagementTypes = map[ManagementType]bool{Full: true, DependencyOnly: true}
+-)
+-
+ type serviceContext struct {
+-	Management ManagementType
+-	Actions    *util.StringSet
++	Actions *util.StringSet
+ }

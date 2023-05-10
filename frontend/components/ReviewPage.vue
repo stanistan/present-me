@@ -30,7 +30,9 @@
             </li>
           </ul>
           <div class="markdown">
-            <MarkdownHTML>{{ body }}</MarkdownHTML>
+            <MarkdownHTML v-if="body.length">
+              {{ body }}
+            </MarkdownHTML>
           </div>
         </div>
       </template>
@@ -50,9 +52,9 @@ const props = defineProps({
 });
 
 const body = computed(() => {
-  return [ props.model.pr.body, props.model.review.body ]
-    .filter(x => x.length > 0)
-    .join("\n\n---\n\n")
+ return  [ props.model.pr.body, props.model.review.body ]
+    .filter(x => x && x.length > 0)
+    .join("\n\n---\n\n");
 });
 
 </script>

@@ -24,4 +24,13 @@
   .markdown hr {
     @apply mb-2;
   }
+  .markdown a {
+    @apply text-blue-500 underline;
+  }
+  .markdown a:hover {
+    @apply text-blue-400;
+  }
+  .markdown code {
+    @apply border rounded bg-gray-50 p-1;
+  }
 }
