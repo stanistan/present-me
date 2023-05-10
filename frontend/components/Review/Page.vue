@@ -9,26 +9,7 @@
       </template>
       <template #body>
         <div class="px-4 py-4">
-          <ul class="list-disc px-4 mb-4 text-xs">
-            <li class="prose">
-              <strong>Author</strong> :: 
-              <NuxtLink class="underline" :href="model.pr.user.html_url">
-                {{ model.pr.user.login }}
-              </NuxtLink>
-            </li>
-            <li>
-              <strong>Source</strong> ::
-              <NuxtLink class="underline" :href="model.pr.html_url">
-                {{ model.pr.html_url }}
-              </NuxtLink>
-            </li>
-            <li>
-              <strong>Review by</strong> :: 
-              <NuxtLink class="underline" :href="model.review.user.html_url">
-                {{ model.review.user.login }}
-              </NuxtLink>
-            </li>
-          </ul>
+          <Review-MetadataList :model="model" />
           <div class="markdown">
             <MarkdownHTML v-if="body.length">
               {{ body }}
@@ -56,5 +37,4 @@ const body = computed(() => {
     .filter(x => x && x.length > 0)
     .join("\n\n---\n\n");
 });
-
 </script>

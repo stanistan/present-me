@@ -3,9 +3,11 @@
 </template>
 
 <script setup lang="ts">
+// We do manual Prism-ing
 import Prism from 'prismjs';
 Prism.manual = true;
 
+// these are the supported languages in general
 import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-toml';
 import 'prismjs/components/prism-diff';
@@ -17,6 +19,7 @@ import 'prismjs/components/prism-scss';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-go';
 
+// this gets us the fancier diff-highlighting
 import 'prismjs/plugins/diff-highlight/prism-diff-highlight';
 import 'prismjs/plugins/diff-highlight/prism-diff-highlight.css';
 
