@@ -42,13 +42,44 @@ Make sure you've run this before anything else!
 
 #### `server/.env`
 
-This assumes you have a `.env` in the server directory.
+This assumes you have a `.env` in the `server` directory.
 
 ```
 PORT=8080
-GH_APP_ID=
-GH_INSTALLATION_ID=
-GH_PK_FILE=path-to-cert.pem
+GH_APP_ID=0
+GH_INSTALLATION_ID=0
+LOG_OUTPUT=console
+DISK_CACHE_ENABLED=true
+DISK_CACHE_BASE_PATH=../data
+DISK_CACHE_MAX_SIZE=10000
+```
+
+N.B. Not having the ID, InstallationID, and PK file will use the public GH API and be subject 
+to those rate limits. Enabling the `DISK_CACHE` helps alleviate those. You can check out
+the cached files in `data/` to see what the responses look like.
+
+Full options: 
+
+```
+go run ./cmd/server --help
+Usage: server --serve="static" --log-output="json" --gh-app_id=INT-64 --gh-installation_id=INT-64
+
+Flags:
+  -h, --help                                     Show context-sensitive help.
+      --port="8080"                              ($PORT)
+      --hostname="localhost"                     ($HOSTNAME)
+      --server-read-timeout=5s
+      --server-write-timeout=10s
+      --serve="static"
+      --static-dir="./static"
+      --proxy-address="http://localhost:3000"
+      --log-output="json"                        ($LOG_OUTPUT)
+      --disk-cache-enabled                       ($DISK_CACHE_ENABLED)
+      --disk-cache-base-path=STRING              ($DISK_CACHE_BASE_PATH)
+      --disk-cache-cache-max-size=1024           ($DISK_CACHE_MAX_SIZE_KB)
+      --gh-app_id=INT-64                         ($GH_APP_ID)
+      --gh-installation_id=INT-64                ($GH_INSTALLATION_ID)
+      --gh-pk-file=STRING                        ($GH_PK_FILE)
 ```
 
 #### Development
