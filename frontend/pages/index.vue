@@ -96,19 +96,19 @@ async function goTo(url) {
 const validURLs = [
   {
     why: 'Fully qualified Pull Request Review URL (the permalink from Github)',
-    url: 'https://github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746',
+    url: 'https://github.com/stanistan/present-me/pull/56#pullrequestreview-1419621494',
   },
   {
     why: 'Dropping the Protocol (https is implicit)',
-    url: 'github.com/stanistan/invoice-proxy/pull/3#pullrequestreview-625362746'
+    url: 'github.com/stanistan/present-me/pull/56#pullrequestreview-1419621494'
   },
   {
     why: 'Dropping the domain (https://github.com is implicit)',
-    url: 'stanistan/invoice-proxy/pull/3#pullrequestreview-625362746'
+    url: 'stanistan/present-me/pull/56#pullrequestreview-1419621494'
   },
   {
     why: 'Dropping the URL fragment... will attempt to find the first Review by the PR author',
-    url: 'stanistan/invoice-proxy/pull/3'
+    url: 'stanistan/present-me/pull/56'
   }
 ];
 </script>
