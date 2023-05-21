@@ -24,12 +24,12 @@ const metadata = computed(() => {
     { 
       heading: "Pull Request",
       text: props.model.pr.html_url, 
-      href: props.model.pr.hrml_url,
+      href: props.model.pr.html_url,
     },
     { 
       heading: "Pull Request Review",
       text: props.model.review.html_url, 
-      href: props.model.review.hrml_url,
+      href: props.model.review.html_url,
     },
     { 
       heading: "Review Author",
