@@ -25,10 +25,6 @@
 </template>
 
 <script setup lang="ts">
-useHead({
-  title: 'present-me',
-});
-
 const route = useRoute();
 const { pending, data, error } = await useFetch('/api/review', {
   lazy: true,
