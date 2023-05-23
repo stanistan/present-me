@@ -50,10 +50,6 @@
 </template>
 
 <script setup lang="ts">
-useHead({
-  title: 'present-me'
-});
-
 const query = ref(''),
   errorMessage = ref(''),
   searchDisabled = ref(false);
