@@ -33,6 +33,6 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-          VERSON_SHA=${{ github.sha }}
+          VERSION_SHA=${{ github.sha }}
     - name: Image digest
       run: echo ${{ steps.build_push.outputs.digest }}
