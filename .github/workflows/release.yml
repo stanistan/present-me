@@ -22,8 +22,6 @@ jobs:
       uses: docker/metadata-action@v3.6.0
       with:
         images: stanistan/present-me
-        build-args: |
-          VERSON_SHA=${{ github.sha }}
         tags: |
           type=semver,pattern=v{{version}}
     - name: Build and push Docker image
