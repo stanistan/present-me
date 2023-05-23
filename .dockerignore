@@ -10,6 +10,7 @@ server/.env
 frontend/node_modules
 frontend/.output
 frontend/dist
+frontend/version.json
 frontend/.pnp.*
 frontend/.yarn/*
 !frontend/.yarn/patches
