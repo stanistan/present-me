@@ -8,7 +8,7 @@ RUN yarn
 COPY frontend /app
 
 ARG VERSION_SHA
-RUN echo "{ \"ref\": \"$VERSION_SHA\" }" > /app/version.json
+RUN echo "{ \"rev\": \"$VERSION_SHA\" }" > /app/version.json
 RUN yarn run generate
 
 FROM golang:1.20-alpine as server 
