@@ -19,7 +19,7 @@
       </div>
     </div>
     <div v-else class="mx-auto max-w-screen-2xl">
-      <ReviewPage :model="data" />
+      <ReviewPageContent :model="data" />
     </div>
   </div>
 </template>
