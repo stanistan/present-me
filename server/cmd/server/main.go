@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,9 +15,16 @@ import (
 	"github.com/stanistan/present-me/internal/github"
 )
 
+var (
+	version = "development"
+)
+
 func main() {
 	var config pm.Config
-	_ = kong.Parse(&config)
+	_ = kong.Parse(&config,
+		kong.Name("present-me"),
+		kong.UsageOnError(),
+		kong.Description(fmt.Sprintf("build version: %s", version)))
 
 	// 0. Standard Deps
 	// - logger,

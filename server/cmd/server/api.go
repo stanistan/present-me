@@ -9,6 +9,11 @@ import (
 
 var apiRoutes = http.Routes(
 
+	// GET /version returns the embeded version of the server/client
+	http.GET("/version", func(_ *http.Request) (*http.JSONResponse, error) {
+		return http.OKResponse(map[string]any{"version": version}), nil
+	}),
+
 	// GET /ping is just for basic API functionality.
 	http.GET("/ping", func(_ *http.Request) (*http.JSONResponse, error) {
 		return http.OKResponse(map[string]any{"ping": "pong"}), nil
