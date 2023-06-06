@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col justify-content-center">
     <div class="flex-grow">
       <slot />
     </div>
@@ -17,6 +17,7 @@
     </div>
   </div>
 </template>
+
 <script type="ts" setup>
 import * as v from '../version.json';
 </script>

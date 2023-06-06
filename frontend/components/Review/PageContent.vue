@@ -2,7 +2,7 @@
   <div class="gap-3">
     <ComponentCard>
       <template #title>
-        <div class="text-md text-xl font-extrabold">
+        <div class="text-xl font-extrabold">
           <span>(#{{ model.pr.number }})</span>&nbsp;
           <GradientText>{{ model.pr.title }}</GradientText>
         </div>
