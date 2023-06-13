@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full" @keyup.left="left">
     <div class="flex-grow"></div>
     <div class="flex-0"> 
 
@@ -30,7 +30,11 @@
       </div>
 
       <div v-for="(c, i) in model.comments">
-        <SlideCard :comment="c" :idx="i+1" v-if="i==current-2"/>
+        <SlideCard :comment="c" :idx="i+1" v-if="i+2==current"/>
+      </div>
+
+      <div v-if="current===model.comments.length+2" class="text-center font-bold">
+        FIN
       </div>
     </div>
     <div class="flex-grow"></div>
@@ -42,5 +46,40 @@ const props = defineProps({
   model: { type: Object, required: true }
 });
 
-const current = ref(1);
+function onKeyUp(e) {
+  if (e.defaultPrevented) {
+    return;
+  }
+
+  const totalSlides = props.model.comments.length + 3;
+  var next = current.value;
+
+  switch (e.key) {
+    case "ArrowLeft": 
+      next = (next - 1) % totalSlides;
+      break;
+    case "ArrowRight":
+    case "Space":
+      next = (next + 1) % totalSlides;
+      break;
+  }
+
+
+  if (next < 0) {
+    next = totalSlides - 1; 
+  }
+
+  current.value = next;
+}
+
+onMounted(() => {
+  window.addEventListener('keyup', onKeyUp);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keyup', onKeyUp);
+});
+
+const current = ref(0);
+
 </script>
