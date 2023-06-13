@@ -1,7 +1,7 @@
 <template>
-  <div class="markdown" v-if="body.length">
+  <div v-if="body.length" class="markdown">
     <MarkdownHTML>
-    {{ body }}
+      {{ body }}
     </MarkdownHTML>
   </div>
 </template>

@@ -11,7 +11,9 @@
           </NuxtLink> 
         </div>
         <div class="my-4">
-          <NuxtLink :href="'https://github.com/stanistan/present-me/commit/' + v.rev">({{ v. rev }})</NuxtLink>
+          <NuxtLink :href="'https://github.com/stanistan/present-me/commit/' + v.rev">
+            ({{ v. rev }})
+          </NuxtLink>
         </div>
       </footer>
     </div>

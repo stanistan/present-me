@@ -1,8 +1,7 @@
 <template>
   <div class="flex flex-col h-full" @keyup.left="left">
-    <div class="flex-grow"></div>
-    <div class="flex-0"> 
-
+    <div class="flex-grow" />
+    <div class="flex-0">
       <div v-if="current==0">
         <div class="text-6xl font-extrabold text-center"> 
           <span>(#{{ model.pr.number }})</span>&nbsp;
@@ -15,29 +14,32 @@
 
       <div v-if="current===1">
         <ComponentCard> 
-        <template #title>
-          <div class="text-xl font-extrabold">
-            <span>(#{{ model.pr.number }})</span>&nbsp;
-            <GradientText>{{ model.pr.title }}</GradientText>
-          </div>
-        </template>
-        <template #body>
-          <div class="px-4 py-4">
-            <BodyMarkdown :model="model" />
-          </div>
-        </template>
+          <template #title>
+            <div class="text-xl font-extrabold">
+              <span>(#{{ model.pr.number }})</span>&nbsp;
+              <GradientText>{{ model.pr.title }}</GradientText>
+            </div>
+          </template>
+          <template #body>
+            <div class="px-4 py-4">
+              <BodyMarkdown :model="model" />
+            </div>
+          </template>
         </ComponentCard>
       </div>
 
-      <div v-for="(c, i) in model.comments">
-        <SlideCard :comment="c" :idx="i+1" v-if="i+2==current"/>
+      <div v-for="(c, i) in model.comments" :key="i">
+        <SlideCard
+          v-if="i+2==current" :comment="c"
+          :idx="i+1"
+        />
       </div>
 
       <div v-if="current===model.comments.length+2" class="text-center font-bold">
         FIN
       </div>
     </div>
-    <div class="flex-grow"></div>
+    <div class="flex-grow" />
   </div>
 </template>
 
@@ -52,7 +54,7 @@ function onKeyUp(e) {
   }
 
   const totalSlides = props.model.comments.length + 3;
-  var next = current.value;
+  let next = current.value;
 
   switch (e.key) {
     case "ArrowLeft": 
