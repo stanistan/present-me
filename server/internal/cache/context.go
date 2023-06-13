@@ -31,7 +31,3 @@ func Ctx(ctx context.Context) *Cache {
 
 	return v
 }
-
-func Apply(ctx context.Context, into any, p Provider) error {
-	return Ctx(ctx).Apply(ctx, into, p)
-}
