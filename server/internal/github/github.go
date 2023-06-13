@@ -61,87 +61,69 @@ func New(ctx context.Context, opts ClientOptions) (*Client, error) {
 }
 
 func (g *Client) ListFiles(ctx context.Context, r *ReviewParams) ([]*CommitFile, error) {
-	var fs []*CommitFile
-	return fs, cache.Ctx(ctx).Apply(ctx, &fs, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "files",
-			Hashing: []any{r.Owner, r.Repo, r.Number},
-		},
-		Fetch: func() (any, error) {
+	return cache.Apply(
+		ctx,
+		cache.DataKeyFor("files", r.Owner, r.Repo, r.Number),
+		func() ([]*CommitFile, error) {
 			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Number, nil)
 			return d, errors.WrapGithubErr(err, "call to ListFiles failed")
 		},
-	})
+	)
 }
 
 func (g *Client) GetPullRequest(ctx context.Context, r *ReviewParams) (*PullRequest, error) {
-	var pr *PullRequest
-	return pr, cache.Apply(ctx, &pr, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "pr",
-			Hashing: []any{r.Owner, r.Repo, r.Number},
-		},
-		Fetch: func() (any, error) {
+	return cache.Apply(
+		ctx,
+		cache.DataKeyFor("pr", r.Owner, r.Repo, r.Number),
+		func() (*PullRequest, error) {
 			pr, _, err := g.c.PullRequests.Get(ctx, r.Owner, r.Repo, r.Number)
 			return pr, errors.WrapGithubErr(err, "call to GetPullRequest failed")
 		},
-	})
+	)
 }
 
 func (g *Client) ListReviews(ctx context.Context, r *ReviewParams) ([]*PullRequestReview, error) {
-	var reviews []*PullRequestReview
-	return reviews, cache.Apply(ctx, &reviews, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "reviews",
-			Hashing: []any{r.Owner, r.Repo, r.Number},
-		},
-		Fetch: func() (any, error) {
+	return cache.Apply(
+		ctx,
+		cache.DataKeyFor("reviews", r.Owner, r.Repo, r.Number),
+		func() ([]*PullRequestReview, error) {
 			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Number, nil)
 			return reviews, errors.WrapGithubErr(err, "call to ListReviews failed")
 		},
-	})
+	)
 }
 
 func (g *Client) GetReview(ctx context.Context, r *ReviewParams) (*PullRequestReview, error) {
-	var review *PullRequestReview
-	return review, cache.Apply(ctx, &review, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "review",
-			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
-		},
-		Fetch: func() (any, error) {
+	return cache.Apply(
+		ctx,
+		cache.DataKeyFor("review", r.Owner, r.Repo, r.Number, r.ReviewID),
+		func() (*PullRequestReview, error) {
 			review, _, err := g.c.PullRequests.GetReview(ctx, r.Owner, r.Repo, r.Number, r.ReviewID)
 			return review, errors.WrapGithubErr(err, "call to GetReview failed")
 		},
-	})
+	)
 }
 
 func (g *Client) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
-	var cs []*PullRequestComment
-	return cs, cache.Apply(ctx, &cs, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "review-comments",
-			Hashing: []any{r.Owner, r.Repo, r.Number, r.ReviewID},
-		},
-		Fetch: func() (any, error) {
+	return cache.Apply(
+		ctx,
+		cache.DataKeyFor("review-comments", r.Owner, r.Repo, r.Number, r.ReviewID),
+		func() ([]*PullRequestComment, error) {
 			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Number, r.ReviewID, nil)
 			return cs, errors.WrapGithubErr(err, "call to ListReviewComments failed")
 		},
-	})
+	)
 }
 
 func (g *Client) ListComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
-	var cs []*PullRequestComment
-	err := cache.Apply(ctx, &cs, cache.Provider{
-		DataKey: cache.DataKey{
-			Prefix:  "pull-comments",
-			Hashing: []any{r.Owner, r.Repo, r.Number},
-		},
-		Fetch: func() (any, error) {
+	cs, err := cache.Apply(
+		ctx,
+		cache.DataKeyFor("pull-comments", r.Owner, r.Repo, r.Number),
+		func() ([]*PullRequestComment, error) {
 			cs, _, err := g.c.PullRequests.ListComments(ctx, r.Owner, r.Repo, r.Number, nil)
 			return cs, errors.WrapGithubErr(err, "call to ListComments failed")
 		},
-	})
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -4,13 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/peterbourgon/diskv/v3"
-	"github.com/pkg/errors"
 
 	"github.com/stanistan/present-me/internal/log"
 )
@@ -30,31 +28,31 @@ type DataKey struct {
 	Hashing any
 }
 
+func DataKeyFor(prefix string, hashing ...any) DataKey {
+	return DataKey{
+		Prefix:  prefix,
+		Hashing: hashing,
+	}
+}
+
 func (k *DataKey) String() string {
 	return fmt.Sprintf("%s-%v", k.Prefix, k.Hashing)
 }
 
-type Provider struct {
+type Provider[T any] struct {
 	DataKey
-	Fetch func() (any, error)
+	Fetch func() (T, error)
 }
 
-func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
-	// This probably needs to be checked a bit better, but
-	// this is ok for now.
-	//
-	// We ensure that we can write the data to the pointer/
-	// interface that was passed in.
-	v := reflect.ValueOf(into).Elem()
-	if !v.CanSet() {
-		return errors.New("cannot set value here")
-	}
-
+func Apply[T any](ctx context.Context, k DataKey, f func() (T, error)) (T, error) {
 	var (
+		out          T
 		ttl          time.Duration
 		forceRefresh bool
 	)
 
+	c := Ctx(ctx)
+	p := Provider[T]{DataKey: k, Fetch: f}
 	opts, ok := OptionsFromContext(ctx)
 	if ok {
 		ttl = opts.TTL
@@ -62,27 +60,26 @@ func (c *Cache) Apply(ctx context.Context, into any, p Provider) error {
 	}
 
 	if !forceRefresh {
-		ok, err := c.Read(ctx, p.DataKey, into, ttl)
+		ok, err := c.Read(ctx, p.DataKey, &out, ttl)
 		if err != nil {
-			return err
+			return out, err
 		}
 		if ok {
-			return nil
+			return out, nil
 		}
 	}
 
 	data, err := p.Fetch()
 	if err != nil {
-		return err
+		return out, err
 	}
 
 	err = c.Write(p.DataKey, data)
 	if err != nil {
-		return err
+		return out, err
 	}
 
-	v.Set(reflect.ValueOf(data))
-	return nil
+	return data, nil
 }
 
 func (c *Cache) Read(ctx context.Context, key DataKey, into any, ttl time.Duration) (bool, error) {
@@ -180,7 +177,7 @@ func Marshal(data any) ([]byte, error) {
 	return bytes, nil
 }
 
-func Unmarshal(bytes []byte, into interface{}) (*time.Time, error) {
+func Unmarshal(bytes []byte, into any) (*time.Time, error) {
 	var value Value
 	if err := json.Unmarshal(bytes, &value); err != nil {
 		return nil, err
