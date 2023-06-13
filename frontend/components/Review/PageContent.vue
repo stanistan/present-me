@@ -2,7 +2,7 @@
   <div class="gap-3">
     <ComponentCard>
       <template #title>
-        <div class="text-md text-xl font-extrabold">
+        <div class="text-xl font-extrabold">
           <span>(#{{ model.pr.number }})</span>&nbsp;
           <GradientText>{{ model.pr.title }}</GradientText>
         </div>
@@ -10,11 +10,7 @@
       <template #body>
         <div class="px-4 py-4">
           <Review-MetadataList :model="model" />
-          <div class="markdown">
-            <MarkdownHTML v-if="body.length">
-              {{ body }}
-            </MarkdownHTML>
-          </div>
+          <BodyMarkdown :model="model" />
         </div>
       </template>
     </ComponentCard>
@@ -28,13 +24,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   model: { type: Object, required: true }
-});
-
-const body = computed(() => {
- return  [ props.model.pr.body, props.model.review.body ]
-    .filter(x => x && x.length > 0)
-    .join("\n\n---\n\n");
 });
 </script>
