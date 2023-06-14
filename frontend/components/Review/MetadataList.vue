@@ -15,27 +15,41 @@ const props = defineProps({
 });
 
 const metadata = computed(() => {
+
+  const { model } = props;
+  const { pr, review, params } = model;
+  const permalink = `/${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`;
   return [
     { 
       heading: "Author", 
-      text: props.model.pr.user.login, 
-      href: props.model.pr.user.html_url,
+      text: pr.user.login, 
+      href: pr.user.html_url,
     },
     { 
       heading: "Pull Request",
-      text: props.model.pr.html_url, 
-      href: props.model.pr.html_url,
+      text: pr.html_url, 
+      href: pr.html_url,
     },
     { 
       heading: "Pull Request Review",
-      text: props.model.review.html_url, 
-      href: props.model.review.html_url,
+      text: review.html_url, 
+      href: review.html_url,
     },
     { 
       heading: "Review Author",
-      text: props.model.review.user.login, 
-      href: props.model.review.user.html_url,
+      text: review.user.login, 
+      href: review.user.html_url,
     },
+    {
+      heading: "Permalink",
+      text: permalink,
+      href: permalink
+    },
+    { 
+      heading: "Slides Permalink",
+      text: `${permalink}/slides`,
+      href: `${permalink}/slides`,
+    }
   ];
 });
 </script>
