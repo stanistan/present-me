@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full" @keyup.left="left">
     <div class="flex-grow" />
-    <div class="flex-0">
+    <div class="flex-0 max-w-screen-2xl mx-auto">
       <div v-if="current==0">
         <div class="text-6xl font-extrabold text-center"> 
           <span>(#{{ model.pr.number }})</span>&nbsp;
