@@ -10,7 +10,7 @@
         </div>
       </template>
     </ComponentCard>
-    <div class="max-w-2xl mx-auto text-center">
+    <div class="max-w-[80%] mx-auto markdown">
       <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
     </div>
   </div>
