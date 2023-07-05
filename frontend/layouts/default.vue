@@ -7,7 +7,7 @@
       <footer class="pt-3 pb-5 font-mono text-xs flex flex-row">
         <div class="flex-none px-3">
           <NuxtLink :href="'https://github.com/stanistan/present-me/commit/' + v.rev">
-          ({{ v. rev }})
+          ({{ revision }})
           </NuxtLink>
         </div>
         <div class="flex-grow"></div>
@@ -23,4 +23,5 @@
 
 <script type="ts" setup>
 import * as v from '../version.json';
+const revision = v.rev.slice(0, 7);
 </script>
