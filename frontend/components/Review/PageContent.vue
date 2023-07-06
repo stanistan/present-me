@@ -1,5 +1,8 @@
 <template>
   <div class="gap-3">
+    <div class="pt-4">
+          <Review-MetadataList :model="model" />
+    </div>
     <ComponentCard>
       <template #title>
         <div class="text-xl font-extrabold">
@@ -9,7 +12,6 @@
       </template>
       <template #body>
         <div class="px-4 py-4">
-          <Review-MetadataList :model="model" />
           <BodyMarkdown :model="model" />
         </div>
       </template>
