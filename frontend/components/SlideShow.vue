@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-col h-full" @keyup.left="left">
     <div class="flex-grow" />
-    <div class="flex-0 max-w-screen-2xl mx-auto">
+    <div class="flex-0 max-w-[2200px] mx-auto">
       <div v-if="current==0">
         <div class="text-6xl font-extrabold text-center"> 
           <span>(#{{ model.pr.number }})</span>&nbsp;
           <GradientText>{{ model.pr.title }}</GradientText>
         </div>
-        <div class="mx-auto w-1/2 mt-8">
+        <div class="mx-auto mt-8">
           <Review-MetadataList :model="model" />
         </div>
       </div>
@@ -52,6 +52,8 @@ function onKeyUp(e) {
   if (e.defaultPrevented) {
     return;
   }
+
+  e.preventDefault();
 
   const totalSlides = props.model.comments.length + 3;
   let next = current.value;

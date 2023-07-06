@@ -6,7 +6,7 @@
 
   .markdown {
     p {
-      @apply mb-2;
+      @apply mb-3;
       &:last-child {
         @apply mb-0;
       }
@@ -41,7 +41,7 @@
     }
 
     code {
-      @apply border rounded bg-gray-50 p-1;
+      @apply border rounded-lg bg-zinc-50 p-1;
     }
 
     ul {
