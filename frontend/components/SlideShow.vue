@@ -2,7 +2,6 @@
   <div class="flex flex-col h-full" @keyup.left="left">
     <div class="flex-grow" />
     <div class="flex-0 max-w-[2200px] mx-auto">
-
       <div v-if="current==0">
         <div class="text-6xl font-extrabold text-center"> 
           <span>(#{{ model.pr.number }})</span>&nbsp;
@@ -39,7 +38,6 @@
       <div v-if="current===model.comments.length+2" class="text-center font-bold">
         FIN
       </div>
-
     </div>
     <div class="flex-grow" />
   </div>

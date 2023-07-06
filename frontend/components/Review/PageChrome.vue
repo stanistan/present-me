@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 defineProps({
-  height: { type: String }
+  height: { type: String, default: "" }
 });
 const route = useRoute();
 const { pending, data, error } = await useFetch('/api/review', {

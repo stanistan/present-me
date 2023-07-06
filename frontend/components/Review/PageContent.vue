@@ -1,7 +1,7 @@
 <template>
   <div class="gap-3">
     <div class="pt-4">
-          <Review-MetadataList :model="model" />
+      <Review-MetadataList :model="model" />
     </div>
     <ComponentCard>
       <template #title>

@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-for="m in metadata" :key="m.heading" class="grid grid-cols-2 gap-4 text-xs font-mono">
+    <div
+      v-for="m in metadata" :key="m.heading"
+      class="grid grid-cols-2 gap-4 text-xs font-mono"
+    >
       <div class="text-right p-1">
         <NuxtLink class="underline hover:no-underline" :href="m.href">
           {{ m.text }}
