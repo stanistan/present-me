@@ -30,7 +30,6 @@
         slideshow-like presentation, in the order that the comments are desired to appear, and only the
         diffs that are annotated with comments, leaving all other changes out of mind.
       </p>
-
       <details>
         <summary class="italic">
           Example urls and reviews...
@@ -97,22 +96,21 @@ async function goTo(url) {
   await search();
 }
 
+// the building blocks of what we're building up here...
+// easy to change to another example later on.
+const implicit = 'stanistan/present-me/pull/76';
+const review = '1494150314';
+
+// and the building up.
+const noDomain = `${implicit}#pullrequestreview-${review}`;
+const noProtocol = `github.com/${noDomain}`;
+const fqr = `https://${noProtocol}`;
+
+
 const validURLs = [
-  {
-    why: 'Fully qualified Pull Request Review URL (the permalink from Github)',
-    url: 'https://github.com/stanistan/present-me/pull/56#pullrequestreview-1419621494',
-  },
-  {
-    why: 'Dropping the Protocol (https is implicit)',
-    url: 'github.com/stanistan/present-me/pull/56#pullrequestreview-1419621494'
-  },
-  {
-    why: 'Dropping the domain (https://github.com is implicit)',
-    url: 'stanistan/present-me/pull/56#pullrequestreview-1419621494'
-  },
-  {
-    why: 'Dropping the URL fragment... will attempt to find the first Review by the PR author',
-    url: 'stanistan/present-me/pull/56'
-  }
+  { why: 'Fully qualified Pull Request Review URL (the permalink from Github)', url: fqr },
+  { why: 'Dropping the Protocol (https is implicit)', url: noProtocol },
+  { why: 'Dropping the domain (https://github.com is implicit)', url: noDomain },
+  { why: 'Dropping the URL fragment... will attempt to find the first Review by the PR author', url: implicit }
 ];
 </script>
