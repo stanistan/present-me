@@ -30,21 +30,29 @@
         slideshow-like presentation, in the order that the comments are desired to appear, and only the
         diffs that are annotated with comments, leaving all other changes out of mind.
       </p>
-      <p class="mb-2">
-        These are all valid URLs to query for:
-      </p>
-      <ul class="list-disc ml-4 mb-4">
-        <li
-          v-for="u in validURLs" :key="u.url" 
-          class="text-sm"
-        >
-          <strong>{{ u.why }}</strong> :: <br>
-          <a
-            href="#" class="text-xs underline"
-            @click="goTo(u.url)"
-          >{{ u.url }}</a>
-        </li>
-      </ul>
+
+      <details>
+        <summary class="italic">
+          Example urls and reviews...
+        </summary>
+        <div class="my-2">
+          <p class="mb-2">
+            These are all valid URLs to query for:
+          </p>
+          <ul class="list-disc ml-4 mb-4">
+            <li
+              v-for="u in validURLs" :key="u.url" 
+              class="text-sm"
+            >
+              <strong>{{ u.why }}</strong> :: <br>
+              <a
+                href="#" class="text-xs underline"
+                @click="goTo(u.url)"
+              >{{ u.url }}</a>
+            </li>
+          </ul>
+        </div>
+      </details>
     </div>
   </div>
 </template>
