@@ -6,17 +6,19 @@
           {{ error }}
         </div>
         <div class="bg-white p-4 text-center border border-orange-200 rounded">
-          <button @click="handleError" class="underline hover:no-underline">go home</button>
+          <button class="underline hover:no-underline" @click="handleError">
+            go home
+          </button>
         </div>
       </div>
     </div>
   </NuxtLayout>
 </template>
 
-<script setup>
-const props = defineProps({
-  error: Object
-})
+<script setup lang="ts">
+defineProps({
+  error: { type: Object, required: true }
+});
 
 const handleError = () => clearError({ redirect: '/' })
 </script>
