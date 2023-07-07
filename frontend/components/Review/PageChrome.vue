@@ -2,14 +2,8 @@
   <div>
     <TopBar>
       {{ $route.params.org }}/{{ $route.params.repo }}#{{ $route.params.pull }} 
-      <div class="inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs">
-        <ReviewLink
-          v-if="data" :params="data.params"
-          to="cards"
-        /> | <ReviewLink
-          v-if="data" :params="data.params"
-          to="slides"
-        />
+      <div v-if="data" class="inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs">
+        <ReviewLink :params="data.params" to="cards" /> | <ReviewLink :params="data.params" to="slides" />
       </div>
     </TopBar>
     <div class="relative" :class="height">
