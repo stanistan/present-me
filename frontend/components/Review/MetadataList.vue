@@ -25,7 +25,6 @@ const metadata = computed(() => {
 
   const { model } = props;
   const { pr, review, params } = model;
-  const permalink = `/${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`;
   return [
     { 
       heading: "Author", 
@@ -34,24 +33,14 @@ const metadata = computed(() => {
     },
     { 
       heading: "Pull Request",
-      text: pr.html_url, 
+      text: `${params.owner}/${params.repo}/pull/${params.number}`,
       href: pr.html_url,
     },
     { 
-      heading: "Pull Request Review",
-      text: review.html_url, 
+      heading: "Review",
+      text: `#review-${review.id}`,
       href: review.html_url,
     },
-    {
-      heading: "Post",
-      text: permalink,
-      href: permalink
-    },
-    { 
-      heading: "Slides",
-      text: `${permalink}/slides`,
-      href: `${permalink}/slides`,
-    }
   ];
 });
 </script>
