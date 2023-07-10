@@ -9,15 +9,19 @@ Prism.manual = true;
 
 // these are the supported languages in general
 import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-toml';
+import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-diff';
+import 'prismjs/components/prism-docker';
+import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-markdown';
 import 'prismjs/components/prism-markup-templating';
 import 'prismjs/components/prism-php';
-import 'prismjs/components/prism-scss';
 import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-sass';
+import 'prismjs/components/prism-scss';
+import 'prismjs/components/prism-toml';
+import 'prismjs/components/prism-yaml';
 
 // this gets us the fancier diff-highlighting
 import 'prismjs/plugins/diff-highlight/prism-diff-highlight';
@@ -36,7 +40,7 @@ const props = defineProps({
 });
 
 // we grab the file extension and map it to the diff-language
-const languageMap = { rs: 'rust', vue: 'html' };
+const languageMap = { rs: 'rust', vue: 'html', Dockerfile: 'docker' };
 const language = computed(() => {
   const pieces = props.comment.path.split('.');
   const lang = pieces[pieces.length - 1];
