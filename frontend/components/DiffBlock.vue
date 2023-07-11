@@ -40,12 +40,39 @@ const props = defineProps({
 });
 
 // we grab the file extension and map it to the diff-language
-const languageMap = { rs: 'rust', vue: 'html', Dockerfile: 'docker' };
+const languageMap = { 
+  rs: 'rust', 
+  vue: 'html', 
+  Dockerfile: 'docker' 
+};
+
+function basename(str, sep) {
+  return str.substr(str.lastIndexOf(sep) + 1);
+}
+
+function detectedLanguage(path) {
+  // basename and split on extension...
+  const base = basename(path, '/');
+  const pieces = base.split('.');
+  const ext = pieces[pieces.length - 1];
+
+
+  // if there's an extension go the standard path
+  if (pieces.length > 1) {
+    return languageMap[ext] || ext;
+  }
+
+  if (base === 'Dockerfile') {
+    return 'docker';
+  }
+
+  return 'bash';
+}
+
 const language = computed(() => {
-  const pieces = props.comment.path.split('.');
-  const lang = pieces[pieces.length - 1];
-  return `diff-highlight language-diff-${languageMap[lang] || lang}`;
+  return `diff-highlight language-diff-${detectedLanguage(props.comment.path)}`;
 });
+
 </script>
 
 <style type="text/css">
