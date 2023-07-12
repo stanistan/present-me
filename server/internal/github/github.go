@@ -172,6 +172,7 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*Review
 					// response.
 					return err
 				}
+
 				comment.DiffHunk = &diff
 				comments[idx] = comment
 			}

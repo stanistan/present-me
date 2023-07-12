@@ -2,14 +2,13 @@ package github
 
 import (
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
+
+	"github.com/stanistan/present-me/internal/github/diff"
 )
 
 type diffScanner struct {
-	countFrom                 int
-	countLinesNotStartingWith string
+	hunkRange diff.HunkRange
 
 	start, end int
 }
@@ -41,8 +40,8 @@ func (p *diffScanner) filter(lines []string, auto bool) []string {
 		chunk  []string
 		chunks []diffChunk
 
-		lineNo     = p.countFrom
-		lastPrefix string
+		lineNo     = p.hunkRange.StartingAt
+		lastPrefix = "BANANA" // sentinel
 
 		pushChunk = func() {
 			if len(chunk) > 0 {
@@ -76,7 +75,7 @@ func (p *diffScanner) filter(lines []string, auto bool) []string {
 		lastPrefix = prefix
 
 		// track if we're moving forward to the desired place
-		if !strings.HasPrefix(line, p.countLinesNotStartingWith) {
+		if !strings.HasPrefix(line, p.hunkRange.IgnorePrefix) {
 			lineNo++
 		}
 	}
@@ -90,7 +89,7 @@ func (p *diffScanner) filter(lines []string, auto bool) []string {
 
 	for chunkIdx >= 0 {
 		chunk := chunks[chunkIdx]
-		if auto && len(out) >= 3 && !chunk.isUseful(p.countLinesNotStartingWith) {
+		if auto && len(out) >= 3 && !chunk.isUseful(p.hunkRange.IgnorePrefix) {
 			break
 		}
 
@@ -101,39 +100,6 @@ func (p *diffScanner) filter(lines []string, auto bool) []string {
 	return out
 }
 
-var diffHunkPrefixRegexp = regexp.MustCompile(`^@@ -(\d+),\d+ \+(\d+),\d+ @@`)
-
-func diffHunkPrefix(hunk string) (diffHunkMetadata, error) {
-	meta := diffHunkMetadata{}
-	m := diffHunkPrefixRegexp.FindStringSubmatch(hunk)
-	if m == nil {
-		return meta, fmt.Errorf("could not parse hunk prefix")
-	}
-
-	meta.Left, _ = strconv.Atoi(m[1])
-	meta.Right, _ = strconv.Atoi(m[2])
-	return meta, nil
-}
-
-type diffHunkMetadata struct {
-	Left, Right int
-}
-
-func (m *diffHunkMetadata) countConfig(side string) (int, string, error) {
-	// - using the meta, we can see what the first line of the hunk is.
-	// - depending on if we're doing LEFT or RIGHT, it means we will
-	//   count (or not) specific lines when deciding which ones to include
-	//   or not.
-	switch side {
-	case "LEFT":
-		return m.Left, "+", nil
-	case "RIGHT":
-		return m.Right, "-", nil
-	default:
-		return 0, "", fmt.Errorf("side should be one of LEFT/RIGHT got %s", side)
-	}
-}
-
 func diffRange(c *PullRequestComment) (int, int, bool, error) {
 
 	// - endLine is the line that the comment is on or after,
@@ -141,20 +107,20 @@ func diffRange(c *PullRequestComment) (int, int, bool, error) {
 	//   and it looks like github defaults to 4 lines included if there is
 	//   no `StartLine`.
 	var endLine int
-	if c.Line != nil {
-		endLine = *c.Line
-	} else if c.OriginalLine != nil {
+	if c.OriginalLine != nil {
 		endLine = *c.OriginalLine
+	} else if c.Line != nil {
+		endLine = *c.Line
 	} else {
 		return 0, 0, false, fmt.Errorf("invalid nil line")
 	}
 
 	var startLine int
 	var auto bool
-	if c.StartLine != nil {
-		startLine = *c.StartLine
-	} else if c.OriginalStartLine != nil {
+	if c.OriginalStartLine != nil {
 		startLine = *c.OriginalStartLine
+	} else if c.StartLine != nil {
+		startLine = *c.StartLine
 	} else {
 		startLine = endLine - 3
 		auto = true
