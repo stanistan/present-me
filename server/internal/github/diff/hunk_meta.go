@@ -11,14 +11,12 @@ var (
 )
 
 type HunkRange struct {
-	StartingAt   int
-	NumLines     int
-	IgnorePrefix string
+	StartingAt, NumLines int
+	IgnorePrefix         string
 }
 
 type HunkMeta struct {
 	Original, New HunkRange
-	ParsedFrom    string
 }
 
 func ParseHunkMeta(hunk string) (HunkMeta, error) {
@@ -34,9 +32,8 @@ func ParseHunkMeta(hunk string) (HunkMeta, error) {
 	r2, _ := strconv.Atoi(m[4])
 
 	return HunkMeta{
-		Original:   HunkRange{StartingAt: l1, NumLines: l2, IgnorePrefix: "+"},
-		New:        HunkRange{StartingAt: r1, NumLines: r2, IgnorePrefix: "-"},
-		ParsedFrom: m[0],
+		Original: HunkRange{StartingAt: l1, NumLines: l2, IgnorePrefix: "+"},
+		New:      HunkRange{StartingAt: r1, NumLines: r2, IgnorePrefix: "-"},
 	}, nil
 }
 
