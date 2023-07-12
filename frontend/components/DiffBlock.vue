@@ -32,18 +32,18 @@ onMounted(() => {
   Prism.highlightElement(code.value);
 });
 
-const props = defineProps({ 
-  comment: { 
+const props = defineProps({
+  comment: {
     type: Object,
     required: true,
   },
 });
 
 // we grab the file extension and map it to the diff-language
-const languageMap = { 
-  rs: 'rust', 
-  vue: 'html', 
-  Dockerfile: 'docker' 
+const languageMap = {
+  rs: 'rust',
+  vue: 'html',
+  Dockerfile: 'docker'
 };
 
 function basename(str, sep) {
@@ -216,7 +216,7 @@ pre[class*="language-"] {
 	cursor: help;
 }
 
-.token.prefix.inserted, 
+.token.prefix.inserted,
 .token.prefix.deleted,
 .token.prefix.unchanged {
   padding-right: 2em;

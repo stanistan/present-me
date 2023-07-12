@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/stanistan/present-me/internal/errors"
+	"github.com/stanistan/present-me/internal/github/diff"
 )
 
 type ReviewModel struct {
@@ -36,13 +37,13 @@ func orderOf(c string) (int, bool) {
 
 func generateDiff(comment *PullRequestComment) (string, error) {
 	// 1. we extract the metadata, we know which side we are going to be starting on.
-	meta, err := diffHunkPrefix(*comment.DiffHunk)
+	meta, err := diff.ParseHunkMeta(*comment.DiffHunk)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
 	// 2. how are we counting lines?
-	countFrom, countLinesNotStartingWith, err := meta.countConfig(*comment.Side)
+	hunkRange, err := meta.RangeForSide(*comment.Side)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -55,17 +56,12 @@ func generateDiff(comment *PullRequestComment) (string, error) {
 
 	// 4. configure out scanner
 	scanner := &diffScanner{
-		countFrom:                 countFrom,
-		countLinesNotStartingWith: countLinesNotStartingWith,
-		start:                     startLine,
-		end:                       endLine,
+		hunkRange: hunkRange,
+		start:     startLine,
+		end:       endLine,
 	}
 
 	// 5. filter our diff lines to only what's relevant for this comment
-	out := scanner.filter(
-		strings.Split(*comment.DiffHunk, "\n"),
-		auto,
-	)
-
+	out := scanner.filter(strings.Split(*comment.DiffHunk, "\n"), auto)
 	return strings.Join(out, "\n"), nil
 }
