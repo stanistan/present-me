@@ -13,16 +13,16 @@ func TestParseDiffHunkPrefix(t *testing.T) {
 		meta, err := diff.ParseHunkMeta("@@ -230,6 +200,9 @@ if (!defined $initial_reply_to && $prompting) {")
 		require.NoError(t, err)
 		require.Equal(t, diff.HunkMeta{
-			Original: diff.HunkRange{230, 6, "+"},
-			New:      diff.HunkRange{200, 9, "-"},
+			Original: diff.HunkRange{StartingAt: 230, NumLines: 6, IgnorePrefix: "+"},
+			New:      diff.HunkRange{StartingAt: 200, NumLines: 9, IgnorePrefix: "-"},
 		}, meta)
 	})
 	t.Run("succeeds", func(t *testing.T) {
 		meta, err := diff.ParseHunkMeta("@@ -0,6 +200,9 @@ if (!defined $initial_reply_to && $prompting) {")
 		require.NoError(t, err)
 		require.Equal(t, diff.HunkMeta{
-			Original: diff.HunkRange{0, 6, "+"},
-			New:      diff.HunkRange{200, 9, "-"},
+			Original: diff.HunkRange{StartingAt: 0, NumLines: 6, IgnorePrefix: "+"},
+			New:      diff.HunkRange{StartingAt: 200, NumLines: 9, IgnorePrefix: "-"},
 		}, meta)
 	})
 	t.Run("errs", func(t *testing.T) {
