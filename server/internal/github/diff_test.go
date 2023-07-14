@@ -1,48 +1,53 @@
 package github
 
 import (
-	_ "embed"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
-	"github.com/stanistan/present-me/internal/github/diff"
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseDiffHunkPrefix(t *testing.T) {
-	t.Run("first case", func(t *testing.T) {
-		meta, err := diff.ParseHunkMeta("@@ -230,6 +200,9 @@ if (!defined $initial_reply_to && $prompting) {")
-		require.NoError(t, err)
-		require.Equal(t, diff.HunkMeta{
-			Original: diff.HunkRange{StartingAt: 230, NumLines: 6, IgnorePrefix: "+"},
-			New:      diff.HunkRange{StartingAt: 200, NumLines: 9, IgnorePrefix: "-"},
-		}, meta)
-	})
-	t.Run("succeeds", func(t *testing.T) {
-		meta, err := diff.ParseHunkMeta("@@ -0,6 +200,9 @@ if (!defined $initial_reply_to && $prompting) {")
-		require.NoError(t, err)
-		require.Equal(t, diff.HunkMeta{
-			Original: diff.HunkRange{StartingAt: 0, NumLines: 6, IgnorePrefix: "+"},
-			New:      diff.HunkRange{StartingAt: 200, NumLines: 9, IgnorePrefix: "-"},
-		}, meta)
-	})
-	t.Run("errs", func(t *testing.T) {
-		_, err := diff.ParseHunkMeta("@@ -0,6 +a,9 @@ if (!defined $initial_reply_to && $prompting) {")
-		require.Error(t, err)
-	})
+const testDataDir = "testdata"
+
+func TestDiffGenerator(t *testing.T) {
+	testpaths, err := filepath.Glob(filepath.Join(testDataDir, "*.json"))
+	require.NoError(t, err)
+
+	for _, testpath := range testpaths {
+		_, filename := filepath.Split(testpath)
+		test := filename[:len(filename)-len(filepath.Ext(testpath))]
+
+		t.Run(test, func(t *testing.T) {
+			var (
+				data     = readFile(t, testpath)
+				input    = diffFile(t, test, "input")
+				expected = diffFile(t, test, "out")
+
+				comment PullRequestComment
+			)
+
+			err = json.Unmarshal(data, &comment)
+			require.NoError(t, err, "test data file is an invalid json PullRequestComment")
+			comment.DiffHunk = &input
+
+			diff, err := generateDiff(&comment)
+			require.NoError(t, err, "failed to generate diff")
+			require.Equal(t, expected, diff+"\n", "generated diff doesn't match expected output")
+		})
+	}
 }
 
-//go:embed test_hunk.diff
-var diffHunk string
+func diffFile(t *testing.T, name, suffix string) string {
+	t.Helper()
+	bs := readFile(t, filepath.Join(testDataDir, name+"."+suffix+".diff"))
+	return string(bs)
+}
 
-func TestParser(t *testing.T) {
-	right := "RIGHT"
-	line := 185
-	comment := &PullRequestComment{DiffHunk: &diffHunk, Side: &right, Line: &line}
-	diff, err := generateDiff(comment)
-	require.NoError(t, err)
-	require.Equal(t, ` type serviceContext struct {
--	Management ManagementType
--	Actions    *util.StringSet
-+	Actions *util.StringSet
- }`, diff)
+func readFile(t *testing.T, path string) []byte {
+	t.Helper()
+	bs, err := os.ReadFile(path)
+	require.NoError(t, err, "could not read required test file")
+	return bs
 }

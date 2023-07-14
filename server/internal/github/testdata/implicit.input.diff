@@ -1,7 +1,7 @@
 @@ -185,28 +180,8 @@ func (d *SyncIstio) Run(ctx context.Context) error {
  	return nil
  }
- 
+
 -type ManagementType string
 -
 -const (

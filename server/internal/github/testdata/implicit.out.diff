@@ -1,0 +1,5 @@
+ type serviceContext struct {
+-	Management ManagementType
+-	Actions    *util.StringSet
++	Actions *util.StringSet
+ }
