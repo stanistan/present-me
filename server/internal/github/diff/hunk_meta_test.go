@@ -1,7 +1,6 @@
 package diff
 
 import (
-	_ "embed"
 	"testing"
 
 	"github.com/stretchr/testify/require"
