@@ -11,6 +11,9 @@
         <slot />
       </div>
       <div class="flex-grow" />
+      <div class="flex-none pr-3">
+        <slot name="right" />
+      </div>
     </div>
   </div>
 </template>
