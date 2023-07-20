@@ -1,19 +1,19 @@
 <template>
-  <div class="flex flex-col h-full" @keyup.left="left">
+  <div class="bg-white flex flex-col h-full">
     <div class="flex-grow" />
     <div class="flex-0 max-w-[2200px] mx-auto">
       <div v-if="current==0">
-        <div class="text-6xl font-extrabold text-center"> 
+        <div class="text-6xl font-extrabold text-center">
           <span>(#{{ model.pr.number }})</span>&nbsp;
           <GradientText>{{ model.pr.title }}</GradientText>
         </div>
         <div class="mx-auto mt-8">
-          <Review-MetadataList :model="model" />
+          <ReviewMetadataList :model="model" />
         </div>
       </div>
 
       <div v-if="current===1">
-        <ComponentCard> 
+        <ComponentCard>
           <template #title>
             <div class="text-xl font-extrabold">
               <span>(#{{ model.pr.number }})</span>&nbsp;
@@ -48,18 +48,19 @@ const props = defineProps({
   model: { type: Object, required: true }
 });
 
-function onKeyUp(e) {
+const current = ref(0);
+const onKeyUp = (e: Event) => {
+
   if (e.defaultPrevented) {
     return;
   }
-
   e.preventDefault();
 
   const totalSlides = props.model.comments.length + 3;
-  let next = current.value;
 
+  let next = current.value;
   switch (e.key) {
-    case "ArrowLeft": 
+    case "ArrowLeft":
       next = (next - 1) % totalSlides;
       break;
     case "ArrowRight":
@@ -68,13 +69,12 @@ function onKeyUp(e) {
       break;
   }
 
-
   if (next < 0) {
-    next = totalSlides - 1; 
+    next = totalSlides - 1;
   }
 
   current.value = next;
-}
+};
 
 onMounted(() => {
   window.addEventListener('keyup', onKeyUp);
@@ -83,7 +83,4 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keyup', onKeyUp);
 });
-
-const current = ref(0);
-
 </script>

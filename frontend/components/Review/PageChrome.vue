@@ -5,6 +5,11 @@
       <div v-if="data" class="inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs">
         <ReviewLink :params="data.params" to="cards" :current="name" /> | <ReviewLink :params="data.params" to="slides" :current="name" />
       </div>
+      <template #right v-if="name=='slides'">
+        <button class="text-xs px-2 text-violet-300 hover:text-pink-300" @click="requestFullscreen">
+          :play:
+        </button>
+      </template>
     </TopBar>
     <div class="relative" :class="height">
       <div class="flex flex-col items-stretch" v-if="pending">
@@ -18,7 +23,9 @@
         </template>
         <code>{{ error.data }}</code>
       </ErrorBlock>
-      <slot v-else :data="data" name="default" />
+      <div v-else ref="content" class="h-full">
+        <slot :data="data" name="default" />
+      </div>
     </div>
   </div>
 </template>
@@ -28,6 +35,7 @@ defineProps({
   height: { type: String, default: "" },
   name: { type: String },
 });
+
 const route = useRoute();
 const { pending, data, error } = await useFetch('/api/review', {
   lazy: true,
@@ -36,4 +44,9 @@ const { pending, data, error } = await useFetch('/api/review', {
   initialCache: false,
   transform: v => JSON.parse(v),
 });
+
+const content = ref('content');
+const requestFullscreen = () => {
+  content.value.requestFullscreen();
+};
 </script>
