@@ -1,5 +1,5 @@
 <template>
-  <Review-PageChrome v-slot="data" height="h-[95vh]">  
+  <ReviewPageChrome v-slot="data" height="h-[95vh]" name="slides">
     <SlideShow :model="data.data" />
-  </Review-PageChrome>
+  </ReviewPageChrome>
 </template>
