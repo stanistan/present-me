@@ -1,5 +1,8 @@
 <template>
-  <NuxtLink class="hover:no-underline" :class="active" :href="href">
+  <NuxtLink
+    class="hover:no-underline" :class="active"
+    :href="href"
+  >
     {{ to }}
   </NuxtLink>
 </template>
