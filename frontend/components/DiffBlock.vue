@@ -46,16 +46,12 @@ const languageMap = {
   Dockerfile: 'docker'
 };
 
-function basename(str, sep) {
-  return str.substr(str.lastIndexOf(sep) + 1);
-}
-
-function detectedLanguage(path) {
+const basename = (str, sep) => str.substr(str.lastIndexOf(sep) + 1);
+const detectedLanguage = (path) => {
   // basename and split on extension...
   const base = basename(path, '/');
   const pieces = base.split('.');
   const ext = pieces[pieces.length - 1];
-
 
   // if there's an extension go the standard path
   if (pieces.length > 1) {
@@ -67,7 +63,7 @@ function detectedLanguage(path) {
   }
 
   return 'bash';
-}
+};
 
 const language = computed(() => {
   return `diff-highlight language-diff-${detectedLanguage(props.comment.path)}`;

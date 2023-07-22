@@ -61,20 +61,20 @@ const query = ref(''),
   errorMessage = ref(''),
   searchDisabled = ref(false);
 
-function searchLoading() {
+const searchLoading = () => {
   searchDisabled.value = true;
   errorMessage.value = '';
-}
+};
 
-function searchError(msg) {
+const searchError = (msg) => {
   searchDisabled.value = false;
   errorMessage.value = msg;
-}
+};
 
 async function search() {
   searchLoading();
 
-  setTimeout(async function() {
+  setTimeout(async () => {
     const { data, error } = await useFetch('/api/search', {
       params: { search: query.value },
       server: false,
