@@ -27,6 +27,6 @@
 
 <script setup lang="ts">
 defineProps({
-  model: { type: Object, required: true }
+  model: { type: Object, required: true },
 });
 </script>

@@ -19,10 +19,10 @@
 <script setup lang="ts">
 const props = defineProps({
   comment: { type: Object, required: true },
-  idx: { type: Number, required: true }
+  idx: { type: Number, required: true },
 });
 
 const commentBody = computed(() => {
-  return props.comment.body.replace(/^\s*\d+\.\s*/, '');
+  return props.comment.body.replace(/^\s*\d+\.\s*/, "");
 });
 </script>

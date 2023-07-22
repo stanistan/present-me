@@ -4,17 +4,24 @@
       <slot />
     </div>
     <div class="flex-none">
-      <footer class="pt-3 pb-5 max-w-screen-2xl mx-auto font-mono text-xs flex flex-row">
+      <footer
+        class="pt-3 pb-5 max-w-screen-2xl mx-auto font-mono text-xs flex flex-row"
+      >
         <div class="flex-none px-3">
-          <NuxtLink :href="'https://github.com/stanistan/present-me/commit/' + v.rev">
+          <NuxtLink
+            :href="'https://github.com/stanistan/present-me/commit/' + v.rev"
+          >
             ({{ revision }})
           </NuxtLink>
         </div>
         <div class="flex-grow" />
         <div class="flex-none px-3">
-          <NuxtLink href="https://github.com/stanistan/present-me" class="underline underline-offset-8 font-bold">
+          <NuxtLink
+            href="https://github.com/stanistan/present-me"
+            class="underline underline-offset-8 font-bold"
+          >
             <em>present-me</em> by stanistan
-          </NuxtLink> 
+          </NuxtLink>
         </div>
       </footer>
     </div>

@@ -8,7 +8,9 @@
         <div class="p-3 flex-none md:w-2/5 text-md markdown">
           <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
         </div>
-        <div class="flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0">
+        <div
+          class="flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0"
+        >
           <DiffBlock :comment="comment" />
         </div>
       </div>
@@ -19,10 +21,10 @@
 <script setup lang="ts">
 const props = defineProps({
   comment: { type: Object, required: true },
-  idx: { type: Number, required: true }
+  idx: { type: Number, required: true },
 });
 
 const commentBody = computed(() => {
-  return props.comment.body.replace(/^\s*\d+\.\s*/, '');
+  return props.comment.body.replace(/^\s*\d+\.\s*/, "");
 });
 </script>

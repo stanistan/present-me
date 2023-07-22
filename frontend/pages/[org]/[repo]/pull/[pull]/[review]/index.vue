@@ -1,7 +1,5 @@
 <template>
-  <div class="text-center">
-    redirecting...
-  </div>
+  <div class="text-center">redirecting...</div>
 </template>
 
 <script setup type="ts">
