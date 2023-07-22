@@ -3,13 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import showdown from 'showdown';
+import showdown from "showdown";
 
 const converter = new showdown.Converter();
-converter.setFlavor('github');
+converter.setFlavor("github");
 
 const slots = useSlots();
 const rendered = computed(() => {
-  return converter.makeHtml(slots['default']()[0].children);
+  return converter.makeHtml(slots.default()[0].children);
 });
 </script>

@@ -2,7 +2,7 @@
   <div class="bg-white flex flex-col h-full">
     <div class="flex-grow" />
     <div class="flex-0 max-w-[2200px] mx-auto">
-      <div v-if="current==0">
+      <div v-if="current == 0">
         <div class="text-6xl font-extrabold text-center">
           <span>(#{{ model.pr.number }})</span>&nbsp;
           <GradientText>{{ model.pr.title }}</GradientText>
@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <div v-if="current===1">
+      <div v-if="current === 1">
         <ComponentCard>
           <template #title>
             <div class="text-xl font-extrabold">
@@ -29,13 +29,13 @@
       </div>
 
       <div v-for="(c, i) in model.comments" :key="i">
-        <SlideCard
-          v-if="i+2==current" :comment="c"
-          :idx="i+1"
-        />
+        <SlideCard v-if="i + 2 == current" :comment="c" :idx="i + 1" />
       </div>
 
-      <div v-if="current===model.comments.length+2" class="text-center font-bold">
+      <div
+        v-if="current === model.comments.length + 2"
+        class="text-center font-bold"
+      >
         FIN
       </div>
     </div>
@@ -45,12 +45,11 @@
 
 <script setup lang="ts">
 const props = defineProps({
-  model: { type: Object, required: true }
+  model: { type: Object, required: true },
 });
 
 const current = ref(0);
 const onKeyUp = (e: Event) => {
-
   if (e.defaultPrevented) {
     return;
   }
@@ -77,10 +76,10 @@ const onKeyUp = (e: Event) => {
 };
 
 onMounted(() => {
-  window.addEventListener('keyup', onKeyUp);
+  window.addEventListener("keyup", onKeyUp);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keyup', onKeyUp);
+  window.removeEventListener("keyup", onKeyUp);
 });
 </script>
