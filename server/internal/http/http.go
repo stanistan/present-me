@@ -65,6 +65,7 @@ func ErrResponse(err error) *JSONResponse {
 }
 
 func (r *JSONResponse) Write(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
 	err := json.NewEncoder(w).Encode(r.Data)
 	if err != nil {

@@ -74,4 +74,27 @@ var apiRoutes = http.Routes(
 
 		return http.OKResponse(model), nil
 	}),
+
+	http.GET("/review2.json", func(r *http.Request) (*http.JSONResponse, error) {
+		var (
+			ctx    = r.Context()
+			values = r.URL.Query()
+		)
+
+		source := github.ReviewSource{
+			ReviewParamsMap: github.ReviewParamsMap{
+				Owner:  values.Get("org"),
+				Repo:   values.Get("repo"),
+				Number: values.Get("pull"),
+				Review: values.Get("review"),
+			},
+		}
+
+		review, err := source.GetReview(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "error fetching review")
+		}
+
+		return http.OKResponse(review), nil
+	}),
 )

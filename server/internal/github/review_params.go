@@ -55,7 +55,10 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 // struct model that corresponds to a map[string]string,
 // but named...
 type ReviewParamsMap struct {
-	Owner, Repo, Number, Review string
+	Owner  string `json:"owner"`
+	Repo   string `json:"repo"`
+	Number string `json:"pull"`
+	Review string `json:"review"`
 }
 
 func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
