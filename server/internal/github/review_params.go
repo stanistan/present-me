@@ -46,7 +46,7 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 	return ReviewParamsFromMap(ReviewParamsMap{
 		Owner:  pieces[1],
 		Repo:   pieces[2],
-		Number: pieces[4],
+		Pull:   pieces[4],
 		Review: strings.TrimPrefix(u.Fragment, "pullrequestreview-"),
 	})
 }
@@ -57,8 +57,17 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 type ReviewParamsMap struct {
 	Owner  string `json:"owner"`
 	Repo   string `json:"repo"`
-	Number string `json:"pull"`
+	Pull   string `json:"pull"`
 	Review string `json:"review"`
+}
+
+func NewReviewParamsMap(values url.Values) ReviewParamsMap {
+	return ReviewParamsMap{
+		Owner:  values.Get("org"),
+		Repo:   values.Get("repo"),
+		Pull:   values.Get("pull"),
+		Review: values.Get("review"),
+	}
 }
 
 func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
@@ -72,7 +81,7 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 		return nil, errors.New("missing repo")
 	}
 
-	numberVal := m.Number
+	numberVal := m.Pull
 	if numberVal == "" {
 		return nil, errors.New("missing number")
 	}

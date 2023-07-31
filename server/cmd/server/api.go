@@ -57,12 +57,9 @@ var apiRoutes = http.Routes(
 			return nil, errors.New("missing github context")
 		}
 
-		params, err := github.ReviewParamsFromMap(github.ReviewParamsMap{
-			Owner:  values.Get("org"),
-			Repo:   values.Get("repo"),
-			Number: values.Get("pull"),
-			Review: values.Get("review"),
-		})
+		params, err := github.ReviewParamsFromMap(
+			github.NewReviewParamsMap(values),
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "invalid params")
 		}
@@ -75,22 +72,12 @@ var apiRoutes = http.Routes(
 		return http.OKResponse(model), nil
 	}),
 
-	http.GET("/review2.json", func(r *http.Request) (*http.JSONResponse, error) {
-		var (
-			ctx    = r.Context()
-			values = r.URL.Query()
-		)
-
-		source := github.ReviewSource{
-			ReviewParamsMap: github.ReviewParamsMap{
-				Owner:  values.Get("org"),
-				Repo:   values.Get("repo"),
-				Number: values.Get("pull"),
-				Review: values.Get("review"),
-			},
+	http.GET("/review2", func(r *http.Request) (*http.JSONResponse, error) {
+		source := github.ReviewAPISource{
+			ReviewParamsMap: github.NewReviewParamsMap(r.URL.Query()),
 		}
 
-		review, err := source.GetReview(ctx)
+		review, err := source.GetReview(r.Context())
 		if err != nil {
 			return nil, errors.Wrap(err, "error fetching review")
 		}

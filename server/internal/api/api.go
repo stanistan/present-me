@@ -8,20 +8,20 @@ import "context"
 
 type MaybeLinked struct {
 	Text string `json:"text"`
-	HRef string `json:"href"`
+	HRef string `json:"href,omitempty"`
 }
 
 type CodeBlock struct {
 	Content  string `json:"content"`
 	Language string `json:"lang"`
-	IsDiff   bool   `json:"isDiff"`
+	IsDiff   bool   `json:"diff,omitempty"`
 }
 
 type Comment struct {
 	Number      int         `json:"number"`
 	Title       MaybeLinked `json:"title"`
 	Description string      `json:"description"`
-	CodeBlock   CodeBlock   `json:"codeBlock"`
+	CodeBlock   CodeBlock   `json:"code"`
 }
 
 type Review struct {
@@ -32,7 +32,11 @@ type Review struct {
 	// MetaData is :shrug:
 	// probably an author association, and other links
 	// that should be showing up in a place on the page.
-	MetaData map[string]any `json:"metaData"`
+	//
+	// This is mostly untyped since we're not sure
+	// what it would need to be for non-gh related items
+	// at the moment.
+	MetaData map[string]any `json:"meta,omitempty"`
 }
 
 type Source interface {

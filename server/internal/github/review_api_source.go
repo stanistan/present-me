@@ -9,13 +9,13 @@ import (
 	"github.com/stanistan/present-me/internal/errors"
 )
 
-type ReviewSource struct {
+type ReviewAPISource struct {
 	ReviewParamsMap ReviewParamsMap
 }
 
-var _ api.Source = &ReviewSource{}
+var _ api.Source = &ReviewAPISource{}
 
-func (s *ReviewSource) GetReview(ctx context.Context) (api.Review, error) {
+func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 	params, err := ReviewParamsFromMap(s.ReviewParamsMap)
 	if err != nil {
 		return api.Review{}, errors.WithStack(err)
