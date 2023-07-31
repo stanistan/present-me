@@ -13,7 +13,7 @@ import (
 type ReviewParams struct {
 	Owner    string `required:"" help:"owner or organization" json:"owner"`
 	Repo     string `required:"" help:"repository name" json:"repo"`
-	Number   int    `required:"" help:"pull request number" json:"number"`
+	Pull     int    `required:"" help:"pull request number" json:"pull"`
 	ReviewID int64  `required:"" help:"reviewID number" json:"review"`
 }
 
@@ -102,7 +102,7 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 	return &ReviewParams{
 		Owner:    owner,
 		Repo:     repo,
-		Number:   int(number),
+		Pull:     int(number),
 		ReviewID: reviewID,
 	}, nil
 }
