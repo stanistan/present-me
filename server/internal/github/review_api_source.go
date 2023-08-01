@@ -92,7 +92,7 @@ func transformComments(cs []*PullRequestComment) []api.Comment {
 				Text: *c.Path,
 				HRef: *c.HTMLURL,
 			},
-			Description: *c.Body,
+			Description: commentBody(*c.Body),
 			CodeBlock: api.CodeBlock{
 				IsDiff:   true,
 				Content:  *c.DiffHunk,
@@ -101,6 +101,10 @@ func transformComments(cs []*PullRequestComment) []api.Comment {
 		}
 	}
 	return out
+}
+
+func commentBody(s string) string {
+	return trimStartsWithNumber(s)
 }
 
 func detectLanguage(p string) string {
