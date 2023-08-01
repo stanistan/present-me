@@ -6,20 +6,39 @@ package api
 
 import "context"
 
-type MaybeLinked struct {
-	Text string `json:"text"`
-	HRef string `json:"href,omitempty"`
+// Source is anything that can give us a `Review` representation given a context.
+type Source interface {
+	GetReview(context.Context) (Review, error)
 }
 
-type LabelledLink struct {
-	MaybeLinked
-	Label string `json:"label"`
+// Review represents anything that we can present, it is explicitly agnostic
+// of data provider.
+//
+// This is not yet an exhaustive API description as when we add features, like
+// "files" this should have them.
+type Review struct {
+	// Title is the title of the review, as will be presented.
+	Title MaybeLinked `json:"title"`
+
+	// Body is a raw markdown description of the Review.
+	Body string `json:"body"`
+
+	// Comments are individual code block descriptions.
+	Comments []Comment `json:"comments"`
+
+	// Links are metadata links (with label, text, and href).
+	Links []LabelledLink `json:"links,omitempty"`
+
+	// MetaData is anything else that we might want to share.
+	MetaData map[string]any `json:"meta,omitempty"`
 }
 
-type CodeBlock struct {
-	Content  string `json:"content"`
-	Language string `json:"lang"`
-	IsDiff   bool   `json:"diff,omitempty"`
+var _ Source = &Review{}
+
+// GetReview for a Review will always return itself, and fullfil
+// the Source interface.
+func (r *Review) GetReview(_ context.Context) (Review, error) {
+	return *r, nil
 }
 
 type Comment struct {
@@ -29,35 +48,18 @@ type Comment struct {
 	CodeBlock   CodeBlock   `json:"code"`
 }
 
-type Review struct {
-	Title    MaybeLinked `json:"title"`
-	Body     string      `json:"body"`
-	Comments []Comment   `json:"comments"`
-
-	Links []LabelledLink `json:"links,omitempty"`
-
-	// MetaData is :shrug:
-	// probably an author association, and other links
-	// that should be showing up in a place on the page.
-	//
-	// This is mostly untyped since we're not sure
-	// what it would need to be for non-gh related items
-	// at the moment.
-	MetaData map[string]any `json:"meta,omitempty"`
+type CodeBlock struct {
+	Content  string `json:"content"`
+	Language string `json:"lang"`
+	IsDiff   bool   `json:"diff,omitempty"`
 }
 
-type Source interface {
-	GetReview(context.Context) (Review, error)
+type MaybeLinked struct {
+	Text string `json:"text"`
+	HRef string `json:"href,omitempty"`
 }
 
-var _ Source = &Review{}
-
-func (r *Review) GetReview(_ context.Context) (Review, error) {
-	return *r, nil
+type LabelledLink struct {
+	MaybeLinked
+	Label string `json:"label"`
 }
-
-// possible implemenations
-// 1. github pr review
-// 2. github pr and prme-id
-// 3. github pr and NO prme-id
-// 4. local, straight json API
