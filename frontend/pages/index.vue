@@ -67,7 +67,7 @@ const search = () => {
   searchLoading();
 
   setTimeout(async () => {
-    let { data, error } = await useFetch("/api/search", {
+    const { data, error } = await useFetch("/api/search", {
       params: { search: query.value },
       server: false,
       initialCache: false,
