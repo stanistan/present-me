@@ -11,12 +11,12 @@ var apiRoutes = http.Routes(
 
 	// GET /version returns the embeded version of the server/client
 	http.GET("/version", func(_ *http.Request) (*http.JSONResponse, error) {
-		return http.OKResponse(map[string]any{"version": version}), nil
+		return http.OKResponse(map[string]string{"version": version}), nil
 	}),
 
 	// GET /ping is just for basic API functionality.
 	http.GET("/ping", func(_ *http.Request) (*http.JSONResponse, error) {
-		return http.OKResponse(map[string]any{"ping": "pong"}), nil
+		return http.OKResponse(map[string]string{"ping": "pong"}), nil
 	}),
 
 	// GET /search finds a review based on input.
@@ -45,34 +45,8 @@ var apiRoutes = http.Routes(
 		return http.OKResponse(params), nil
 	}),
 
-	// GET /review hydrates the the full review.
+	// GET /review hydrates the the full review from github.
 	http.GET("/review", func(r *http.Request) (*http.JSONResponse, error) {
-		var (
-			ctx    = r.Context()
-			values = r.URL.Query()
-		)
-
-		gh, ok := github.Ctx(ctx)
-		if !ok || gh == nil {
-			return nil, errors.New("missing github context")
-		}
-
-		params, err := github.ReviewParamsFromMap(
-			github.NewReviewParamsMap(values),
-		)
-		if err != nil {
-			return nil, errors.Wrap(err, "invalid params")
-		}
-
-		model, err := params.Model(ctx, gh)
-		if err != nil {
-			return nil, errors.Wrap(err, "error fetching model")
-		}
-
-		return http.OKResponse(model), nil
-	}),
-
-	http.GET("/review2", func(r *http.Request) (*http.JSONResponse, error) {
 		source := github.ReviewAPISource{
 			ReviewParamsMap: github.NewReviewParamsMap(r.URL.Query()),
 		}

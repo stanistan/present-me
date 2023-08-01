@@ -44,7 +44,7 @@ defineProps({
 });
 
 const route = useRoute();
-const { pending, data, error } = await useFetch("/api/review2", {
+const { pending, data, error } = await useFetch("/api/review", {
   lazy: true,
   params: route.params,
   server: false,
