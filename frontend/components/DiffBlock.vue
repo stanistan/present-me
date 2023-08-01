@@ -1,7 +1,7 @@
 <template>
   <pre
     class="bg-gray-100"
-  ><code ref="code" :class="language">{{ comment.diff_hunk }}</code></pre>
+  ><code ref="block" :class="language">{{ code.content }}</code></pre>
 </template>
 
 <script setup lang="ts">
@@ -29,46 +29,24 @@ import "prismjs/components/prism-yaml";
 import "prismjs/plugins/diff-highlight/prism-diff-highlight";
 import "prismjs/plugins/diff-highlight/prism-diff-highlight.css";
 
-const code = ref("code");
+const block = ref("block");
 onMounted(() => {
-  Prism.highlightElement(code.value);
+  Prism.highlightElement(block.value);
 });
 
 const props = defineProps({
-  comment: {
+  code: {
     type: Object,
     required: true,
   },
 });
 
-// we grab the file extension and map it to the diff-language
-const languageMap = {
-  rs: "rust",
-  vue: "html",
-  Dockerfile: "docker",
-};
-
-const basename = (str, sep) => str.substr(str.lastIndexOf(sep) + 1);
-const detectedLanguage = (path) => {
-  // basename and split on extension...
-  const base = basename(path, "/");
-  const pieces = base.split(".");
-  const ext = pieces[pieces.length - 1];
-
-  // if there's an extension go the standard path
-  if (pieces.length > 1) {
-    return languageMap[ext] || ext;
-  }
-
-  if (base === "Dockerfile") {
-    return "docker";
-  }
-
-  return "bash";
-};
-
 const language = computed(() => {
-  return `diff-highlight language-diff-${detectedLanguage(props.comment.path)}`;
+  if (!props.code.diff) {
+    return `language-${props.code.lang}`;
+  }
+
+  return `diff-highlight language-diff-${props.code.lang}`;
 });
 </script>
 

@@ -13,7 +13,7 @@ import (
 type ReviewParams struct {
 	Owner    string `required:"" help:"owner or organization" json:"owner"`
 	Repo     string `required:"" help:"repository name" json:"repo"`
-	Number   int    `required:"" help:"pull request number" json:"number"`
+	Pull     int    `required:"" help:"pull request number" json:"pull"`
 	ReviewID int64  `required:"" help:"reviewID number" json:"review"`
 }
 
@@ -46,7 +46,7 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 	return ReviewParamsFromMap(ReviewParamsMap{
 		Owner:  pieces[1],
 		Repo:   pieces[2],
-		Number: pieces[4],
+		Pull:   pieces[4],
 		Review: strings.TrimPrefix(u.Fragment, "pullrequestreview-"),
 	})
 }
@@ -55,7 +55,19 @@ func ReviewParamsFromURL(i string) (*ReviewParams, error) {
 // struct model that corresponds to a map[string]string,
 // but named...
 type ReviewParamsMap struct {
-	Owner, Repo, Number, Review string
+	Owner  string `json:"owner"`
+	Repo   string `json:"repo"`
+	Pull   string `json:"pull"`
+	Review string `json:"review"`
+}
+
+func NewReviewParamsMap(values url.Values) ReviewParamsMap {
+	return ReviewParamsMap{
+		Owner:  values.Get("org"),
+		Repo:   values.Get("repo"),
+		Pull:   values.Get("pull"),
+		Review: values.Get("review"),
+	}
 }
 
 func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
@@ -69,7 +81,7 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 		return nil, errors.New("missing repo")
 	}
 
-	numberVal := m.Number
+	numberVal := m.Pull
 	if numberVal == "" {
 		return nil, errors.New("missing number")
 	}
@@ -90,7 +102,7 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 	return &ReviewParams{
 		Owner:    owner,
 		Repo:     repo,
-		Number:   int(number),
+		Pull:     int(number),
 		ReviewID: reviewID,
 	}, nil
 }

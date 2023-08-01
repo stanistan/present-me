@@ -17,7 +17,7 @@ type Handler func(*http.Request) (*JSONResponse, error)
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	response, err := h(r)
 	if err != nil {
-		log.Ctx(r.Context()).Error().Msgf("handler error: %s", err)
+		log.Ctx(r.Context()).Error().Msgf("error: %s", err)
 		response = ErrResponse(err)
 	}
 
@@ -65,6 +65,7 @@ func ErrResponse(err error) *JSONResponse {
 }
 
 func (r *JSONResponse) Write(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.Code)
 	err := json.NewEncoder(w).Encode(r.Data)
 	if err != nil {

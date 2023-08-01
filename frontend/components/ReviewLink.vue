@@ -13,7 +13,7 @@ const props = defineProps({
 
 const href = computed(() => {
   const { params, to } = props;
-  const permalink = `/${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`;
+  const permalink = `/${params.owner}/${params.repo}/pull/${params.pull}/review-${params.review}`;
   return to === 'cards' ? permalink : `${permalink}/slides`;
 });
 

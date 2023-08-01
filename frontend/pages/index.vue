@@ -71,7 +71,6 @@ const search = () => {
       params: { search: query.value },
       server: false,
       initialCache: false,
-      transform: (v) => JSON.parse(v),
     });
 
     if (error.value) {
@@ -79,7 +78,7 @@ const search = () => {
     } else {
       const params = data.value;
       await navigateTo(
-        `${params.owner}/${params.repo}/pull/${params.number}/review-${params.review}`,
+        `${params.owner}/${params.repo}/pull/${params.pull}/review-${params.review}`,
       );
     }
   }, 1000);

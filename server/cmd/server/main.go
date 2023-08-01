@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	version = "development"
+	version = "development" // dynamically linked
 )
 
 func main() {

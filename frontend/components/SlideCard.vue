@@ -1,28 +1,23 @@
 <template>
   <div>
-    <ComponentCard :badge="idx" title-class="">
+    <ComponentCard :badge="comment.number" title-class="">
       <template #title>
-        <code>{{ comment.path }}</code>
+        <code>{{ comment.title.text }}</code>
       </template>
       <template #body>
         <div class="overflow-scroll text-lg max-h-[70vh]">
-          <DiffBlock :comment="comment" />
+          <DiffBlock :code="comment.code" />
         </div>
       </template>
     </ComponentCard>
     <div class="max-w-[80%] mx-auto markdown">
-      <MarkdownHTML>{{ commentBody }}</MarkdownHTML>
+      <MarkdownHTML>{{ comment.description }}</MarkdownHTML>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   comment: { type: Object, required: true },
-  idx: { type: Number, required: true },
-});
-
-const commentBody = computed(() => {
-  return props.comment.body.replace(/^\s*\d+\.\s*/, "");
 });
 </script>
