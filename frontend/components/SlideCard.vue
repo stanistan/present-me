@@ -2,11 +2,11 @@
   <div>
     <ComponentCard :badge="idx" title-class="">
       <template #title>
-        <code>{{ comment.path }}</code>
+        <code>{{ comment.title.text }}</code>
       </template>
       <template #body>
         <div class="overflow-scroll text-lg max-h-[70vh]">
-          <DiffBlock :comment="comment" />
+          <DiffBlock :code="comment.code" />
         </div>
       </template>
     </ComponentCard>
@@ -23,6 +23,6 @@ const props = defineProps({
 });
 
 const commentBody = computed(() => {
-  return props.comment.body.replace(/^\s*\d+\.\s*/, "");
+  return props.comment.description.replace(/^\s*\d+\.\s*/, "");
 });
 </script>

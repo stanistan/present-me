@@ -1,7 +1,7 @@
 <template>
-  <ComponentCard :badge="idx">
+  <ComponentCard :badge="comment.number">
     <template #title>
-      <code>{{ comment.path }}</code>
+      <code>{{ comment.title.text }}</code>
     </template>
     <template #body>
       <div class="flex flex-col md:flex-row max-h-[95vh] bg-gray-50">
@@ -11,7 +11,7 @@
         <div
           class="flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0"
         >
-          <DiffBlock :comment="comment" />
+          <DiffBlock :code="comment.code" />
         </div>
       </div>
     </template>
@@ -21,10 +21,9 @@
 <script setup lang="ts">
 const props = defineProps({
   comment: { type: Object, required: true },
-  idx: { type: Number, required: true },
 });
 
 const commentBody = computed(() => {
-  return props.comment.body.replace(/^\s*\d+\.\s*/, "");
+  return props.comment.description.replace(/^\s*\d+\.\s*/, "");
 });
 </script>

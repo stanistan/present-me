@@ -6,8 +6,8 @@
         v-if="data"
         class="inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs"
       >
-        <ReviewLink :params="data.params" to="cards" :current="name" /> |
-        <ReviewLink :params="data.params" to="slides" :current="name" />
+        <ReviewLink :params="data.meta.params" to="cards" :current="name" /> |
+        <ReviewLink :params="data.meta.params" to="slides" :current="name" />
       </div>
       <template v-if="name == 'slides'" #right>
         <button
@@ -44,12 +44,11 @@ defineProps({
 });
 
 const route = useRoute();
-const { pending, data, error } = await useFetch("/api/review", {
+const { pending, data, error } = await useFetch("/api/review2", {
   lazy: true,
   params: route.params,
   server: false,
   initialCache: false,
-  transform: (v) => JSON.parse(v),
 });
 
 const content = ref("content");

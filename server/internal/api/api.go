@@ -11,6 +11,11 @@ type MaybeLinked struct {
 	HRef string `json:"href,omitempty"`
 }
 
+type LabelledLink struct {
+	MaybeLinked
+	Label string `json:"label"`
+}
+
 type CodeBlock struct {
 	Content  string `json:"content"`
 	Language string `json:"lang"`
@@ -28,6 +33,8 @@ type Review struct {
 	Title    MaybeLinked `json:"title"`
 	Body     string      `json:"body"`
 	Comments []Comment   `json:"comments"`
+
+	Links []LabelledLink `json:"links,omitempty"`
 
 	// MetaData is :shrug:
 	// probably an author association, and other links

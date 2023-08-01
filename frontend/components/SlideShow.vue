@@ -4,8 +4,7 @@
     <div class="flex-0 max-w-[2200px] mx-auto">
       <div v-if="current == 0">
         <div class="text-6xl font-extrabold text-center">
-          <span>(#{{ model.pr.number }})</span>&nbsp;
-          <GradientText>{{ model.pr.title }}</GradientText>
+          <GradientText>{{ model.title.text }}</GradientText>
         </div>
         <div class="mx-auto mt-8">
           <ReviewMetadataList :model="model" />
@@ -16,13 +15,16 @@
         <ComponentCard>
           <template #title>
             <div class="text-xl font-extrabold">
-              <span>(#{{ model.pr.number }})</span>&nbsp;
-              <GradientText>{{ model.pr.title }}</GradientText>
+              <GradientText>{{ model.title.text }}</GradientText>
             </div>
           </template>
           <template #body>
             <div class="px-4 py-4">
-              <BodyMarkdown :model="model" />
+              <div v-if="model.body.length" class="markdown">
+                <MarkdownHTML>
+                {{ model.body }}
+                </MarkdownHTML>
+              </div>
             </div>
           </template>
         </ComponentCard>

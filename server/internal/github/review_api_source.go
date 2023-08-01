@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/errors"
@@ -31,25 +32,53 @@ func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		return api.Review{}, errors.WithStack(err)
 	}
 
-	var body string
-	if model.PR.Body != nil {
-		body = body + *model.PR.Body
+	var body []string
+	if model.PR.Body != nil && *model.PR.Body != "" {
+		body = append(body, *model.PR.Body)
 	}
 
-	if model.Review.Body != nil {
-		body = body + *model.Review.Body
+	if model.Review.Body != nil && *model.Review.Body != "" {
+		body = append(body, *model.Review.Body)
 	}
 
 	return api.Review{
-		Body: body,
 		Title: api.MaybeLinked{
-			Text: *model.PR.Title,
+			Text: fmt.Sprintf("%s (#%d)", *model.PR.Title, *model.PR.Number),
 			HRef: *model.PR.Links.HTML.HRef,
 		},
-		Comments: transformComments(model.Comments),
+		Links: []api.LabelledLink{
+			{
+				Label: "Author",
+				MaybeLinked: api.MaybeLinked{
+					Text: *model.PR.User.Login,
+					HRef: *model.PR.User.HTMLURL,
+				},
+			},
+			{
+				Label: "Pull Request",
+				MaybeLinked: api.MaybeLinked{
+					Text: fmt.Sprintf(
+						"%s/%s/pull/%d",
+						params.Owner,
+						params.Repo,
+						params.Pull,
+					),
+					HRef: *model.PR.HTMLURL,
+				},
+			},
+			{
+				Label: "Review",
+				MaybeLinked: api.MaybeLinked{
+					Text: fmt.Sprintf("#review-%d", params.ReviewID),
+					HRef: *model.Review.HTMLURL,
+				},
+			},
+		},
 		MetaData: map[string]any{
 			"params": s.ReviewParamsMap,
 		},
+		Body:     strings.Join(body, "\n\n---\n\n"),
+		Comments: transformComments(model.Comments),
 	}, nil
 }
 
