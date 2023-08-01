@@ -40,7 +40,7 @@
 <script setup lang="ts">
 defineProps({
   height: { type: String, default: "" },
-  name: { type: String },
+  name: { type: String, required: true },
 });
 
 const route = useRoute();

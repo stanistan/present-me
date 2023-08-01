@@ -22,7 +22,7 @@
             <div class="px-4 py-4">
               <div v-if="model.body.length" class="markdown">
                 <MarkdownHTML>
-                {{ model.body }}
+                  {{ model.body }}
                 </MarkdownHTML>
               </div>
             </div>
