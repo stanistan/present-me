@@ -17,7 +17,8 @@ jobs:
   # the server binary, then tests, and linting.
   server:
     defaults:
-      working-directory: server
+      run:
+        working-directory: server
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -38,7 +39,8 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: frontend
+      run: 
+        working-directory: frontend
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
