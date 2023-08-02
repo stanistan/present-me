@@ -2,45 +2,54 @@ name: Pull Request
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+    - main 
   pull_request:
-    branches: [ main ]
+    branches: 
+    - main
 
 jobs:
+
+  # server: 
+  # can we run the server, is the API alright?
+  #
+  # Priority is to fail fast, so first can we compile and build 
+  # the server binary, then tests, and linting.
   server:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
+    - name: build-server
+      run: cd server && go build ./cmd/server
     - name: test
       run: cd server && go test ./...
     - name: lint
       run: cd server && golangci-lint run
-    - name: build
-      run: cd server && go build ./cmd/server
 
+  # frontend: describes the steps we take to 
+  # ensure that the nuxt application is buildable.
+  # 
+  # The priority here is to fail fast on critical things.
+  # 1. We can actually build the application
+  # 2. It typechecks & lints
   frontend:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: cashapp/activate-hermit@v1
-    - name: lint-vue
-      run: cd frontend && yarn && yarn lint
-    - name: typecheck
-      run: cd frontend && yarn nuxi typecheck
-  
-  shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: cashapp/activate-hermit@v1
-    - name: shellcheck bin/prmectl
-      run:  shellcheck bin/prmectl
-
-  generate:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
     - name: generate
       run: cd frontend && yarn && yarn generate
+    - name: lint-vue
+      run: cd frontend && yarn && yarn lint
+    - name: typecheck
+      run: cd frontend && yarn nuxi typecheck
+  
+  # prmectl: just make sure that it's going to be ok.
+  prmectl:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cashapp/activate-hermit@v1
+    - name: shellcheck bin/prmectl
+      run:  shellcheck bin/prmectl
