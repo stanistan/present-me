@@ -16,16 +16,18 @@ jobs:
   # Priority is to fail fast, so first can we compile and build 
   # the server binary, then tests, and linting.
   server:
+    defaults:
+      working-directory: server
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
     - name: build-server
-      run: cd server && go build ./cmd/server
+      run: go build ./cmd/server
     - name: test
-      run: cd server && go test ./...
+      run: go test ./...
     - name: lint
-      run: cd server && golangci-lint run
+      run: golangci-lint run
 
   # frontend: describes the steps we take to 
   # ensure that the nuxt application is buildable.
@@ -35,15 +37,19 @@ jobs:
   # 2. It typechecks & lints
   frontend:
     runs-on: ubuntu-latest
+    defaults:
+      working-directory: frontend
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
+    - name: yarn
+      run: yarn
     - name: generate
-      run: cd frontend && yarn && yarn generate
-    - name: lint-vue
-      run: cd frontend && yarn && yarn lint
+      run: yarn generate
+    - name: lint
+      run: yarn lint
     - name: typecheck
-      run: cd frontend && yarn nuxi typecheck
+      run: yarn nuxi typecheck
   
   # prmectl: just make sure that it's going to be ok.
   prmectl:
