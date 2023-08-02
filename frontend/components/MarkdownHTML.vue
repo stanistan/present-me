@@ -8,16 +8,21 @@ import showdown from "showdown";
 const converter = new showdown.Converter();
 converter.setFlavor("github");
 
-const slots = useSlots()!!;
+const slots = useSlots();
 const rendered = computed(() => {
-  //
-  // holy cow typescript hates this.
-  const d = slots.default!!();
-  if (d.length > 0) {
-    return converter.makeHtml(d[0].children as string);
+  if (!slots) {
+    return "";
+  }
+  
+  if (!slots.default) {
+    return "";
   }
 
-  // TODO: error?
-  return "N/A";
+  const data = slots.default();
+  if (!data.length) {
+    return "";
+  }
+
+  return converter.makeHtml(data[0].children as string);
 });
 </script>
