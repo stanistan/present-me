@@ -6,7 +6,6 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint ."
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^0.1.1",

@@ -51,7 +51,7 @@ jobs:
     - name: typecheck
       run: yarn nuxi typecheck
     - name: lint
-      run: yarn lint
+      run: yarn eslint .
   
   # prmectl: just make sure that it's going to be ok.
   prmectl:

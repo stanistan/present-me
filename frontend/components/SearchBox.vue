@@ -1,8 +1,5 @@
 <template>
-  <form
-    class="my-4 mx-auto text-lg max-w-3xl"
-    @submit.prevent="submitForm"
-  >
+  <form class="my-4 mx-auto text-lg max-w-3xl" @submit.prevent="submitForm">
     <ErrorMessage :message="errorMessage" />
     <div
       class="mx-2 flex flex-row rounded bg-white shadow-md p-2 gap-2 border border-violet-100"
@@ -41,11 +38,10 @@ const emit = defineEmits<{
 }>();
 
 const submitForm = () => {
-  emit('submit');
+  emit("submit");
 };
 
 const updateModelValue = (e: Event) => {
-  emit('update:modelValue', (e.target as HTMLInputElement).value);
+  emit("update:modelValue", (e.target as HTMLInputElement).value);
 };
-
 </script>
