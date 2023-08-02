@@ -48,10 +48,10 @@ jobs:
       run: yarn
     - name: generate
       run: yarn generate
-    - name: lint
-      run: yarn lint
     - name: typecheck
       run: yarn nuxi typecheck
+    - name: lint
+      run: yarn lint
   
   # prmectl: just make sure that it's going to be ok.
   prmectl:
