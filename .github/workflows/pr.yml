@@ -51,7 +51,10 @@ jobs:
     - name: typecheck
       run: yarn nuxi typecheck
     - name: lint
-      run: yarn eslint .
+      run: | 
+        echo yarn eslint .
+        echo Linting for some reason is currently broken, and times out
+        exit 1
   
   # prmectl: just make sure that it's going to be ok.
   prmectl:
