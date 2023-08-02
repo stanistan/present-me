@@ -3,10 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import showdown from "showdown";
-
-const converter = new showdown.Converter();
-converter.setFlavor("github");
+import { mdToHtml } from "../src/md";
 
 const slots = useSlots();
 const rendered = computed(() => {
@@ -23,6 +20,6 @@ const rendered = computed(() => {
     return "";
   }
 
-  return converter.makeHtml(data[0].children as string);
+  return mdToHtml(data[0].children as string);
 });
 </script>
