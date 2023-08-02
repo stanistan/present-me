@@ -10,7 +10,7 @@ const rendered = computed(() => {
   if (!slots) {
     return "";
   }
-  
+
   if (!slots.default) {
     return "";
   }
