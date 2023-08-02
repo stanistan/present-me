@@ -14,7 +14,7 @@
           class="text-xs px-2 text-violet-300 hover:text-pink-300"
           @click="requestFullscreen"
         >
-          :play:
+          ▶️
         </button>
       </template>
     </TopBar>
