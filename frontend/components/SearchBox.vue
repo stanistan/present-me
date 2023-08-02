@@ -1,8 +1,5 @@
 <template>
-  <form
-    class="my-4 mx-auto text-lg max-w-3xl"
-    @submit.prevent="$emit('submit')"
-  >
+  <form class="my-4 mx-auto text-lg max-w-3xl" @submit.prevent="submitForm">
     <ErrorMessage :message="errorMessage" />
     <div
       class="mx-2 flex flex-row rounded bg-white shadow-md p-2 gap-2 border border-violet-100"
@@ -14,7 +11,7 @@
         type="text"
         placeholder="$org/$repo/pull/$pull#pullrequestreview-$review"
         class="flex-grow px-4 font-mono focus:ring-none rounded overflow-hidden inline-block"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="updateModelValue"
       />
       <button
         type="submit"
@@ -29,10 +26,22 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  modelValue: { type: String, default: "" },
-  errorMessage: { type: String, default: "" },
-  disabled: { type: Boolean, default: false },
-});
-defineEmits(["update:modelValue", "submit"]);
+defineProps<{
+  modelValue: string;
+  errorMessage: string;
+  disabled: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+  (e: "submit"): void;
+}>();
+
+const submitForm = () => {
+  emit("submit");
+};
+
+const updateModelValue = (e: Event) => {
+  emit("update:modelValue", (e.target as HTMLInputElement).value);
+};
 </script>

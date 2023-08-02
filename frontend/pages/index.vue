@@ -49,6 +49,13 @@
 </template>
 
 <script setup lang="ts">
+interface Params {
+  owner: string;
+  repo: string;
+  pull: number;
+  review: number;
+}
+
 const query = ref("");
 const errorMessage = ref("");
 const searchDisabled = ref(false);
@@ -58,7 +65,7 @@ const searchLoading = () => {
   errorMessage.value = "";
 };
 
-const searchError = (msg) => {
+const searchError = (msg: string) => {
   searchDisabled.value = false;
   errorMessage.value = msg;
 };
@@ -67,24 +74,23 @@ const search = () => {
   searchLoading();
 
   setTimeout(async () => {
-    const { data, error } = await useFetch("/api/search", {
+    const { data, error } = await useFetch<Params>("/api/search", {
       params: { search: query.value },
       server: false,
-      initialCache: false,
     });
 
     if (error.value) {
       searchError(JSON.parse(error.value.data).msg);
     } else {
-      const params = data.value;
+      const params = data.value!!;
       await navigateTo(
         `${params.owner}/${params.repo}/pull/${params.pull}/review-${params.review}`,
       );
     }
-  }, 1000);
+  }, 500);
 };
 
-async function goTo(url) {
+async function goTo(url: string) {
   query.value = url;
   await search();
 }

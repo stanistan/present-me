@@ -29,9 +29,9 @@ import "prismjs/components/prism-yaml";
 import "prismjs/plugins/diff-highlight/prism-diff-highlight";
 import "prismjs/plugins/diff-highlight/prism-diff-highlight.css";
 
-const block = ref("block");
+const block = ref<Element>();
 onMounted(() => {
-  Prism.highlightElement(block.value);
+  Prism.highlightElement(block.value!!);
 });
 
 const props = defineProps({

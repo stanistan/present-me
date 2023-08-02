@@ -46,12 +46,13 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  model: { type: Object, required: true },
-});
+import { Review } from "../src/Review";
+const props = defineProps<{
+  model: Review;
+}>();
 
 const current = ref(0);
-const onKeyUp = (e: Event) => {
+const onKeyUp = (e: KeyboardEvent) => {
   if (e.defaultPrevented) {
     return;
   }

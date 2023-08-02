@@ -28,7 +28,8 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  model: { type: Object, required: true },
-});
+import { Review } from "../../src/Review";
+defineProps<{
+  model: Review;
+}>();
 </script>
