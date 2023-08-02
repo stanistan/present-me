@@ -31,28 +31,28 @@
         <code>{{ error.data }}</code>
       </ErrorBlock>
       <div v-else ref="content" class="h-full">
-        <slot :data="data" name="default" />
+        <slot :data="data!!" name="default" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  height: { type: String, default: "" },
-  name: { type: String, required: true },
-});
+import { Review } from "../../src/Review";
+defineProps<{
+  height?: string;
+  name: string;
+}>();
 
 const route = useRoute();
-const { pending, data, error } = await useFetch("/api/review", {
+const { pending, data, error } = await useFetch<Review>("/api/review", {
   lazy: true,
   params: route.params,
   server: false,
-  initialCache: false,
 });
 
-const content = ref("content");
+const content = ref<Element>()!!;
 const requestFullscreen = () => {
-  content.value.requestFullscreen();
+  content.value!!.requestFullscreen();
 };
 </script>

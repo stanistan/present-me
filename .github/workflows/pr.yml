@@ -7,25 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  server:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
     - name: test
       run: cd server && go test ./...
+    - name: lint
+      run: cd server && golangci-lint run
+    - name: build
+      run: cd server && go build ./cmd/server
 
-  lint:
+  frontend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
-    - name: shellcheck
-      run:  shellcheck bin/prmectl
-    - name: lint-golang
-      run: cd server && golangci-lint run
     - name: lint-vue
       run: cd frontend && yarn && yarn lint
+    - name: typecheck
+      run: cd frontend && yarn nuxi typecheck
+  
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cashapp/activate-hermit@v1
+    - name: shellcheck bin/prmectl
+      run:  shellcheck bin/prmectl
 
   generate:
     runs-on: ubuntu-latest

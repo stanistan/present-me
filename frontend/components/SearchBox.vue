@@ -29,10 +29,14 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  modelValue: { type: String, default: "" },
-  errorMessage: { type: String, default: "" },
-  disabled: { type: Boolean, default: false },
-});
-defineEmits(["update:modelValue", "submit"]);
+defineProps<{
+  modelValue: string;
+  errorMessage: string;
+  disabled: boolean;
+}>();
+
+defineEmits<{
+  (e: "update:modelValue", value: string): void;
+  (e: "submit"): void;
+}>();
 </script>
