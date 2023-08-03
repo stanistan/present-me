@@ -21,10 +21,12 @@ var (
 
 func main() {
 	var config pm.Config
-	_ = kong.Parse(&config,
+	_ = kong.Parse(
+		&config,
 		kong.Name("present-me"),
 		kong.UsageOnError(),
-		kong.Description(fmt.Sprintf("build version: %s", version)))
+		kong.Description(fmt.Sprintf("build version: %s", version)),
+	)
 
 	// 0. Standard Deps
 	// - logger,
