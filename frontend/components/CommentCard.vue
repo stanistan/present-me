@@ -1,7 +1,9 @@
 <template>
   <ComponentCard :badge="comment.number">
     <template #title>
-      <code>{{ comment.title.text }}</code>
+      <MaybeLink :href="comment.title.href" target="_blank">
+        <code>{{ comment.title.text }}</code>
+      </MaybeLink>
     </template>
     <template #body>
       <div class="flex flex-col md:flex-row max-h-[95vh] bg-gray-50">
@@ -19,7 +21,8 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
-  comment: { type: Object, required: true },
-});
+import { Comment } from "../src/Review";
+defineProps<{
+  comment: Comment;
+}>();
 </script>
