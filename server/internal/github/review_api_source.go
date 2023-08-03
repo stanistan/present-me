@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"path"
 	"strings"
 
 	"github.com/stanistan/present-me/internal/api"
@@ -80,52 +79,4 @@ func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		Body:     strings.Join(body, "\n\n---\n\n"),
 		Comments: transformComments(model.Comments),
 	}, nil
-}
-
-func transformComments(cs []*PullRequestComment) []api.Comment {
-	out := make([]api.Comment, len(cs))
-	for idx, c := range cs {
-		c := c
-		out[idx] = api.Comment{
-			Number: idx + 1,
-			Title: api.MaybeLinked{
-				Text: *c.Path,
-				HRef: *c.HTMLURL,
-			},
-			Description: commentBody(*c.Body),
-			CodeBlock: api.CodeBlock{
-				IsDiff:   true,
-				Content:  *c.DiffHunk,
-				Language: detectLanguage(*c.Path),
-			},
-		}
-	}
-	return out
-}
-
-func commentBody(s string) string {
-	return trimStartsWithNumber(s)
-}
-
-func detectLanguage(p string) string {
-	var (
-		base = path.Base(p)
-		ext  = path.Ext(p)
-	)
-
-	switch ext {
-	case "":
-		if base == "Dockerfile" {
-			return "docker"
-		}
-		return "bash"
-	case ".rs":
-		return "rust"
-	case ".vue":
-		return "html"
-	case ".Dockerfile":
-		return "docker"
-	}
-
-	return ext[1:]
 }

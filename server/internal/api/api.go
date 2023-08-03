@@ -41,6 +41,7 @@ func (r *Review) GetReview(_ context.Context) (Review, error) {
 	return *r, nil
 }
 
+// Comment (basically a standard card), is a named and annotated code block.
 type Comment struct {
 	Number      int         `json:"number"`
 	Title       MaybeLinked `json:"title"`
@@ -48,6 +49,7 @@ type Comment struct {
 	CodeBlock   CodeBlock   `json:"code"`
 }
 
+// CodeBlock is the code block and its diff.
 type CodeBlock struct {
 	Content  string `json:"content"`
 	Language string `json:"lang"`
