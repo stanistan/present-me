@@ -10,12 +10,7 @@
         <ReviewLink :params="data.meta.params" to="slides" :current="name" />
       </div>
       <template v-if="name == 'slides'" #right>
-        <button
-          class="text-xs px-2 text-violet-300 hover:text-pink-300"
-          @click="requestFullscreen"
-        >
-          ▶️
-        </button>
+        <button class="text-xs px-2" @click="requestFullscreen">▶️</button>
       </template>
     </TopBar>
     <div class="relative" :class="height">
@@ -47,7 +42,9 @@ defineProps<{
 const route = useRoute();
 const { pending, data, error } = await useFetch<Review>("/api/review", {
   lazy: true,
-  params: route.params,
+  params: Object.assign({}, route.params, {
+    refresh: route.query.refresh,
+  }),
   server: false,
 });
 
