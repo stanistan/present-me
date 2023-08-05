@@ -24,5 +24,6 @@ func transformComments(cs []*PullRequestComment) []api.Comment {
 }
 
 func commentBody(s string) string {
-	return trimStartsWithNumber(s)
+	out := startsWithNumberRegexp.ReplaceAllString(s, "")
+	return prmeTagRegexp.ReplaceAllString(out, "")
 }

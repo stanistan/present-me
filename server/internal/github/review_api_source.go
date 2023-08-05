@@ -23,10 +23,10 @@ func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 
 	gh, ok := Ctx(ctx)
 	if !ok || gh == nil {
-		return api.Review{}, fmt.Errorf("need gh context")
+		return api.Review{}, fmt.Errorf("missing gh context")
 	}
 
-	model, err := params.Model(ctx, gh)
+	model, err := gh.FetchReviewModel(ctx, params, CommentMatchesReview(params.ReviewID))
 	if err != nil {
 		return api.Review{}, errors.WithStack(err)
 	}

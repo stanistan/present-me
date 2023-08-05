@@ -35,10 +35,6 @@ func orderOf(c string) (int, bool) {
 	return n, true
 }
 
-func trimStartsWithNumber(c string) string {
-	return startsWithNumberRegexp.ReplaceAllString(c, "")
-}
-
 func generateDiff(comment *PullRequestComment) (string, error) {
 	// 1. we extract the metadata, we know which side we are going to be starting on.
 	meta, err := diff.ParseHunkMeta(*comment.DiffHunk)
