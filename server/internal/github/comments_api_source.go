@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/stanistan/present-me/internal/api"
 )
@@ -14,6 +15,15 @@ type CommentsAPISource struct {
 	Repo  string `json:"repo"`
 	Pull  string `json:"pull"`
 	Tag   string `json:"tag"`
+}
+
+func NewCommentsAPISourceFromValues(values url.Values) api.Source {
+	return &CommentsAPISource{
+		Owner: values.Get("org"),
+		Repo:  values.Get("repo"),
+		Pull:  values.Get("pull"),
+		Tag:   values.Get("tag"),
+	}
 }
 
 var _ api.Source = &CommentsAPISource{}

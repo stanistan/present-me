@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 
+	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/present-me/internal/http"
 )
@@ -47,8 +50,19 @@ var apiRoutes = http.Routes(
 
 	// GET /review hydrates the the full review from github.
 	http.GET("/review", func(r *http.Request) (*http.JSONResponse, error) {
-		source := github.ReviewAPISource{
-			ReviewParamsMap: github.NewReviewParamsMap(r.URL.Query()),
+		var (
+			source api.Source
+			kind   = r.URL.Query().Get("kind")
+		)
+		switch kind {
+		case "review":
+			source = &github.ReviewAPISource{
+				ReviewParamsMap: github.NewReviewParamsMap(r.URL.Query()),
+			}
+		case "prme":
+			source = github.NewCommentsAPISourceFromValues(r.URL.Query())
+		default:
+			source = &api.ErrSource{Err: fmt.Errorf("invalid kind: %s", kind)}
 		}
 
 		review, err := source.GetReview(r.Context())
@@ -57,5 +71,10 @@ var apiRoutes = http.Routes(
 		}
 
 		return http.OKResponse(review), nil
+	}),
+
+	// GET /prme refers to a tagged
+	http.GET("/prme", func(r *http.Request) (*http.JSONResponse, error) {
+		return http.OKResponse(nil), nil
 	}),
 )

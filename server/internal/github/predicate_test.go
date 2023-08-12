@@ -39,6 +39,9 @@ func TestCommentTagRegex(t *testing.T) {
 		{
 			"won't parse one without parentheses", "foo prme", false, reviewTag{},
 		},
+		{
+			"no tag but order", "anything (prme-5)", true, reviewTag{"", 5},
+		},
 	} {
 		d := data
 		t.Run(d.name, func(t *testing.T) {
