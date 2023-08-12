@@ -6,13 +6,20 @@ import (
 	"sort"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v53/github"
 	"github.com/rs/zerolog/log"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/errors"
+)
+
+type (
+	PullRequest        = github.PullRequest
+	PullRequestReview  = github.PullRequestReview
+	PullRequestComment = github.PullRequestComment
+	CommitFile         = github.CommitFile
 )
 
 type ClientOptions struct {
