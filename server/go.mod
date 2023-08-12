@@ -3,7 +3,7 @@ module github.com/stanistan/present-me
 go 1.20
 
 require (
-	github.com/alecthomas/kong v0.7.2-0.20230225013903-a9be85c4d3d6
+	github.com/alecthomas/kong v0.8.0
 	github.com/bradleyfalzon/ghinstallation/v2 v2.1.0
 	github.com/cespare/reflex v0.3.1
 	github.com/google/go-github/v52 v52.0.0

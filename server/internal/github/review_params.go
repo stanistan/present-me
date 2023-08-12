@@ -59,6 +59,8 @@ type ReviewParamsMap struct {
 	Repo   string `json:"repo"`
 	Pull   string `json:"pull"`
 	Review string `json:"review"`
+	Tag    string `json:"tag"`
+	Kind   string `json:"kind"`
 }
 
 func NewReviewParamsMap(values url.Values) ReviewParamsMap {
@@ -67,6 +69,8 @@ func NewReviewParamsMap(values url.Values) ReviewParamsMap {
 		Repo:   values.Get("repo"),
 		Pull:   values.Get("pull"),
 		Review: values.Get("review"),
+		Tag:    values.Get("tag"),
+		Kind:   values.Get("kind"),
 	}
 }
 
@@ -105,10 +109,6 @@ func ReviewParamsFromMap(m ReviewParamsMap) (*ReviewParams, error) {
 		Pull:     int(number),
 		ReviewID: reviewID,
 	}, nil
-}
-
-func (r *ReviewParams) Model(ctx context.Context, g *Client) (*ReviewModel, error) {
-	return g.FetchReviewModel(ctx, r)
 }
 
 func (r *ReviewParams) EnsureReviewID(ctx context.Context, g *Client) (bool, error) {

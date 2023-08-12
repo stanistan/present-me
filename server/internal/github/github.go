@@ -60,14 +60,43 @@ func New(ctx context.Context, opts ClientOptions) (*Client, error) {
 	return &Client{c: github.NewClient(c)}, nil
 }
 
+type Fetch[T any] func() (T, error)
+
+func listApply[T any](
+	ctx context.Context,
+	k cache.DataKey,
+	fetch Fetch[[]T],
+	predicate Pred[T],
+) ([]T, error) {
+	items, err := cache.Apply(ctx, k, fetch)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	if predicate == nil {
+		return items, nil
+	}
+
+	idx := 0
+	for _, item := range items {
+		if predicate(item) {
+			items[idx] = item
+			idx++
+		}
+	}
+
+	return items[:idx], nil
+}
+
 func (g *Client) ListFiles(ctx context.Context, r *ReviewParams) ([]*CommitFile, error) {
-	return cache.Apply(
+	return listApply(
 		ctx,
 		cache.DataKeyFor("files", r.Owner, r.Repo, r.Pull),
 		func() ([]*CommitFile, error) {
 			d, _, err := g.c.PullRequests.ListFiles(ctx, r.Owner, r.Repo, r.Pull, nil)
 			return d, errors.WrapGithubErr(err, "call to ListFiles failed")
 		},
+		nil,
 	)
 }
 
@@ -83,13 +112,14 @@ func (g *Client) GetPullRequest(ctx context.Context, r *ReviewParams) (*PullRequ
 }
 
 func (g *Client) ListReviews(ctx context.Context, r *ReviewParams) ([]*PullRequestReview, error) {
-	return cache.Apply(
+	return listApply(
 		ctx,
 		cache.DataKeyFor("reviews", r.Owner, r.Repo, r.Pull),
 		func() ([]*PullRequestReview, error) {
 			reviews, _, err := g.c.PullRequests.ListReviews(ctx, r.Owner, r.Repo, r.Pull, nil)
 			return reviews, errors.WrapGithubErr(err, "call to ListReviews failed")
 		},
+		nil,
 	)
 }
 
@@ -105,41 +135,48 @@ func (g *Client) GetReview(ctx context.Context, r *ReviewParams) (*PullRequestRe
 }
 
 func (g *Client) ListReviewComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
-	return cache.Apply(
+	return listApply(
 		ctx,
 		cache.DataKeyFor("review-comments", r.Owner, r.Repo, r.Pull, r.ReviewID),
 		func() ([]*PullRequestComment, error) {
 			cs, _, err := g.c.PullRequests.ListReviewComments(ctx, r.Owner, r.Repo, r.Pull, r.ReviewID, nil)
 			return cs, errors.WrapGithubErr(err, "call to ListReviewComments failed")
 		},
+		nil,
 	)
 }
 
-func (g *Client) ListComments(ctx context.Context, r *ReviewParams) ([]*PullRequestComment, error) {
-	cs, err := cache.Apply(
+func (g *Client) ListComments(
+	ctx context.Context, r *ReviewParams, pred CommentPredicate,
+) ([]*PullRequestComment, error) {
+	return listApply(
 		ctx,
 		cache.DataKeyFor("pull-comments", r.Owner, r.Repo, r.Pull),
 		func() ([]*PullRequestComment, error) {
 			cs, _, err := g.c.PullRequests.ListComments(ctx, r.Owner, r.Repo, r.Pull, nil)
 			return cs, errors.WrapGithubErr(err, "call to ListComments failed")
 		},
+		pred,
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	var ret []*PullRequestComment
-	for _, c := range cs {
-		if c.PullRequestReviewID == nil || *c.PullRequestReviewID != r.ReviewID {
-			continue
-		}
-		ret = append(ret, c)
-	}
-
-	return ret, nil
 }
 
-func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*ReviewModel, error) {
+func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicate) (*ReviewModel, error) {
+	client, ok := Ctx(ctx)
+	if !ok || client == nil {
+		return nil, errors.New("context missing github client")
+	}
+
+	model, err := client.FetchReviewModel(ctx, r, pred)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return model, nil
+}
+
+func (g *Client) FetchReviewModel(
+	ctx context.Context, r *ReviewParams, pred CommentPredicate,
+) (*ReviewModel, error) {
 	model := &ReviewModel{Params: r}
 	group, ctx := errgroup.WithContext(ctx)
 
@@ -151,16 +188,18 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams) (*Review
 		return err
 	})
 
-	group.Go(func() error {
-		review, err := g.GetReview(ctx, r)
-		if err == nil {
-			model.Review = review
-		}
-		return err
-	})
+	if r.ReviewID != 0 {
+		group.Go(func() error {
+			review, err := g.GetReview(ctx, r)
+			if err == nil {
+				model.Review = review
+			}
+			return err
+		})
+	}
 
 	group.Go(func() error {
-		comments, err := g.ListComments(ctx, r)
+		comments, err := g.ListComments(ctx, r, pred)
 		if err == nil {
 			for idx := range comments {
 				comment := comments[idx]

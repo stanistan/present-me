@@ -101,7 +101,6 @@ func (p *diffScanner) filter(lines []string, auto bool) []string {
 }
 
 func diffRange(c *PullRequestComment) (int, int, bool, error) {
-
 	// - endLine is the line that the comment is on or after,
 	// - startLine is the beginning line that we'll include in our diff,
 	//   and it looks like github defaults to 4 lines included if there is

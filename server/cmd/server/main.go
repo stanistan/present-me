@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -15,27 +14,24 @@ import (
 	"github.com/stanistan/present-me/internal/github"
 )
 
-var (
-	version = "development" // dynamically linked
-)
+const name = "present-me"
+
+var version = "development" // dynamically linked
 
 func main() {
 	var config pm.Config
-	_ = kong.Parse(
-		&config,
-		kong.Name("present-me"),
-		kong.UsageOnError(),
-		kong.Description(fmt.Sprintf("build version: %s", version)),
-	)
+	_ = kong.Parse(&config,
+		kong.Name(name),
+		kong.Vars{"version": version},
+		kong.UsageOnError())
 
-	// 0. Standard Deps
-	// - logger,
-	// - ctx withLogger
-	// - disk cache
-	// - github client
-	log := config.Logger()
-	ctx := log.WithContext(context.Background())
+	// set up our logger
+	ctx, log := config.Logger(context.Background())
+
+	// get our cache setup for the server
 	diskCache := config.Cache(ctx)
+
+	// configure our github client
 	gh, err := config.GithubClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("could not configure GH client")
@@ -47,6 +43,7 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(
 		hlog.NewHandler(log),
+		hlog.URLHandler("url"),
 		github.Middleware(gh),
 		cache.Middleware(diskCache, func(r *http.Request) *cache.Options {
 			return &cache.Options{
