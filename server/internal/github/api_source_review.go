@@ -21,6 +21,10 @@ func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		return api.Review{}, errors.WithStack(err)
 	}
 
+	if params.ReviewID == 0 {
+		return api.Review{}, errors.New("review must have review id")
+	}
+
 	model, err := FetchReviewModel(ctx, params, CommentMatchesReview(params.ReviewID))
 	if err != nil {
 		return api.Review{}, errors.WithStack(err)
