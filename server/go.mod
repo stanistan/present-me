@@ -3,7 +3,7 @@ module github.com/stanistan/present-me
 go 1.21
 
 require (
-	github.com/alecthomas/assert v1.0.0
+	github.com/alecthomas/assert/v2 v2.3.0
 	github.com/alecthomas/kong v0.8.0
 	github.com/bradleyfalzon/ghinstallation/v2 v2.1.0
 	github.com/cespare/reflex v0.3.1
@@ -18,8 +18,7 @@ require (
 
 require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
-	github.com/alecthomas/colour v0.1.0 // indirect
-	github.com/alecthomas/repr v0.1.0 // indirect
+	github.com/alecthomas/repr v0.2.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/creack/pty v1.1.11 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -28,13 +27,12 @@ require (
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/go-github/v45 v45.2.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/ogier/pflag v0.0.1 // indirect
 	github.com/rs/xid v1.4.0 // indirect
-	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/stretchr/testify v1.8.1 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect

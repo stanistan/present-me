@@ -3,7 +3,7 @@ package diff
 import (
 	"testing"
 
-	"github.com/alecthomas/assert"
+	"github.com/alecthomas/assert/v2"
 )
 
 func TestParseHunkMeta(t *testing.T) {

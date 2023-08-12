@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/alecthomas/assert"
+	"github.com/alecthomas/assert/v2"
 )
 
 const testDataDir = "testdata"
