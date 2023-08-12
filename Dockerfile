@@ -11,7 +11,7 @@ ARG VERSION_SHA
 RUN echo "{ \"rev\": \"$VERSION_SHA\" }" > /app/version.json
 RUN yarn run generate
 
-FROM golang:1.20.7-alpine as server 
+FROM golang:1.21.0-alpine as server 
 WORKDIR /app
 COPY server/go.mod server/go.sum ./
 RUN go mod download

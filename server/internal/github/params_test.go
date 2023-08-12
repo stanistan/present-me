@@ -3,11 +3,11 @@ package github
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/alecthomas/assert/v2"
 )
 
 func TestReviewParamsFromURL(t *testing.T) {
 	params, err := ReviewParamsFromURL("stanistan/invoice-proxy/pull/3")
-	require.NoError(t, err)
-	require.Equal(t, int64(0), params.ReviewID)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), params.ReviewID)
 }
