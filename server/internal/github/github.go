@@ -160,6 +160,20 @@ func (g *Client) ListComments(
 	)
 }
 
+func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicate) (*ReviewModel, error) {
+	client, ok := Ctx(ctx)
+	if !ok || client == nil {
+		return nil, errors.New("context missing github client")
+	}
+
+	model, err := client.FetchReviewModel(ctx, r, pred)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return model, nil
+}
+
 func (g *Client) FetchReviewModel(
 	ctx context.Context, r *ReviewParams, pred CommentPredicate,
 ) (*ReviewModel, error) {
@@ -174,13 +188,15 @@ func (g *Client) FetchReviewModel(
 		return err
 	})
 
-	group.Go(func() error {
-		review, err := g.GetReview(ctx, r)
-		if err == nil {
-			model.Review = review
-		}
-		return err
-	})
+	if r.ReviewID != 0 {
+		group.Go(func() error {
+			review, err := g.GetReview(ctx, r)
+			if err == nil {
+				model.Review = review
+			}
+			return err
+		})
+	}
 
 	group.Go(func() error {
 		comments, err := g.ListComments(ctx, r, pred)

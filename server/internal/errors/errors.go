@@ -61,3 +61,7 @@ func WrapErr(err error) *Error {
 		HttpCode: 500,
 	}
 }
+
+func New(msg string) error {
+	return errors.New(msg)
+}

@@ -21,12 +21,7 @@ func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		return api.Review{}, errors.WithStack(err)
 	}
 
-	gh, ok := Ctx(ctx)
-	if !ok || gh == nil {
-		return api.Review{}, fmt.Errorf("missing gh context")
-	}
-
-	model, err := gh.FetchReviewModel(ctx, params, CommentMatchesReview(params.ReviewID))
+	model, err := FetchReviewModel(ctx, params, CommentMatchesReview(params.ReviewID))
 	if err != nil {
 		return api.Review{}, errors.WithStack(err)
 	}

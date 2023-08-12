@@ -11,6 +11,11 @@ import (
 	"github.com/stanistan/present-me/internal/log"
 )
 
+// Config is the main configuration wrapper struct for
+// the present-me application.
+//
+// It is basically the DI provider for all of the runtime
+// dependencies and how to configure them.
 type Config struct {
 	ServeConfig
 	Log       log.Config           `embed:"" prefix:"log-"`
@@ -23,8 +28,9 @@ func (c *Config) GithubClient(ctx context.Context) (*github.Client, error) {
 	return g, errors.WithStack(err)
 }
 
-func (c *Config) Logger() zerolog.Logger {
-	return log.NewLogger(c.Log)
+func (c *Config) Logger(ctx context.Context) (context.Context, zerolog.Logger) {
+	l := log.NewLogger(c.Log)
+	return l.WithContext(ctx), l
 }
 
 func (c *Config) Cache(ctx context.Context) *cache.Cache {

@@ -50,19 +50,17 @@ var apiRoutes = http.Routes(
 
 	// GET /review hydrates the the full review from github.
 	http.GET("/review", func(r *http.Request) (*http.JSONResponse, error) {
-		var (
-			source api.Source
-			kind   = r.URL.Query().Get("kind")
-		)
-		switch kind {
+		params := github.NewReviewParamsMap(r.URL.Query())
+		var source api.Source
+		switch params.Kind {
 		case "review":
-			source = &github.ReviewAPISource{
-				ReviewParamsMap: github.NewReviewParamsMap(r.URL.Query()),
-			}
+			source = &github.ReviewAPISource{ReviewParamsMap: params}
 		case "prme":
-			source = github.NewCommentsAPISourceFromValues(r.URL.Query())
+			source = &github.CommentsAPISource{ReviewParamsMap: params}
+		case "":
+			source = &api.ErrSource{Err: fmt.Errorf("missing kind")}
 		default:
-			source = &api.ErrSource{Err: fmt.Errorf("invalid kind: %s", kind)}
+			source = &api.ErrSource{Err: fmt.Errorf("invalid kind: %s", params.Kind)}
 		}
 
 		review, err := source.GetReview(r.Context())
@@ -71,10 +69,5 @@ var apiRoutes = http.Routes(
 		}
 
 		return http.OKResponse(review), nil
-	}),
-
-	// GET /prme refers to a tagged
-	http.GET("/prme", func(r *http.Request) (*http.JSONResponse, error) {
-		return http.OKResponse(nil), nil
 	}),
 )
