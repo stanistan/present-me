@@ -3,7 +3,7 @@ package github
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/alecthomas/assert"
 )
 
 func TestCommentTagRegex(t *testing.T) {
@@ -46,8 +46,8 @@ func TestCommentTagRegex(t *testing.T) {
 		d := data
 		t.Run(d.name, func(t *testing.T) {
 			tag, ok := parseReviewTag(d.input)
-			require.Equal(t, d.expectedOk, ok)
-			require.Equal(t, d.expected, tag)
+			assert.Equal(t, d.expectedOk, ok)
+			assert.Equal(t, d.expected, tag)
 		})
 	}
 }
