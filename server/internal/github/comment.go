@@ -1,6 +1,8 @@
 package github
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/stanistan/present-me/internal/api"
@@ -69,4 +71,16 @@ func commentCodeDiff(c *PullRequestComment) (string, error) {
 	// filter our diff lines to only what's relevant for this comment
 	out := scanner.Filter(strings.Split(*c.DiffHunk, "\n"))
 	return strings.Join(out, "\n"), nil
+}
+
+var startsWithNumberRegexp = regexp.MustCompile(`^\s*(\d+)\.\s*`)
+
+func orderOf(c string) (int, bool) {
+	m := startsWithNumberRegexp.FindStringSubmatch(c)
+	if m == nil {
+		return 0, false
+	}
+
+	n, _ := strconv.Atoi(m[1])
+	return n, true
 }

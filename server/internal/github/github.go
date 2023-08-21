@@ -167,13 +167,18 @@ func (g *Client) ListComments(
 	)
 }
 
-func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicate) (*ReviewModel, error) {
+func FetchReviewModel(
+	ctx context.Context,
+	r *ReviewParams,
+	pred CommentPredicate,
+	orderOf func(string) (int, bool),
+) (*ReviewModel, error) {
 	client, ok := Ctx(ctx)
 	if !ok || client == nil {
 		return nil, errors.New("context missing github client")
 	}
 
-	model, err := client.FetchReviewModel(ctx, r, pred)
+	model, err := client.FetchReviewModel(ctx, r, pred, orderOf)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -181,7 +186,12 @@ func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicat
 	return model, nil
 }
 
-func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicate) (*ReviewModel, error) {
+func (g *Client) FetchReviewModel(
+	ctx context.Context,
+	r *ReviewParams,
+	pred CommentPredicate,
+	orderOf func(string) (int, bool),
+) (*ReviewModel, error) {
 	model := &ReviewModel{Params: r}
 	group, ctx := errgroup.WithContext(ctx)
 
@@ -193,6 +203,7 @@ func (g *Client) FetchReviewModel(ctx context.Context, r *ReviewParams, pred Com
 		return err
 	})
 
+	// N.B. this is legacy-ish
 	if r.ReviewID != 0 {
 		group.Go(func() error {
 			review, err := g.GetReview(ctx, r)
