@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/errors"
@@ -28,9 +27,9 @@ func (s *CommentsAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		return api.Review{}, errors.WithStack(err)
 	}
 
-	var body []string
+	var body string
 	if model.PR.Body != nil && *model.PR.Body != "" {
-		body = append(body, *model.PR.Body)
+		body = *model.PR.Body
 	}
 
 	return api.Review{
@@ -62,7 +61,7 @@ func (s *CommentsAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		MetaData: map[string]any{
 			"params": s.ReviewParamsMap,
 		},
-		Body:     strings.Join(body, "\n\n---\n\n"),
+		Body:     body,
 		Comments: transformComments(model.Comments),
 	}, nil
 }
