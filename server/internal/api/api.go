@@ -56,11 +56,13 @@ type CodeBlock struct {
 	IsDiff   bool   `json:"diff,omitempty"`
 }
 
+// MaybeLinked refers to text that can have a url associated with it.
 type MaybeLinked struct {
 	Text string `json:"text"`
 	HRef string `json:"href,omitempty"`
 }
 
+// LabelledLink is a text link with a label.
 type LabelledLink struct {
 	MaybeLinked
 	Label string `json:"label"`

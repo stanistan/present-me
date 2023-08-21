@@ -35,33 +35,33 @@ func orderOf(c string) (int, bool) {
 	return n, true
 }
 
-func generateDiff(comment *PullRequestComment) (string, error) {
-	// 1. we extract the metadata, we know which side we are going to be starting on.
-	meta, err := diff.ParseHunkMeta(*comment.DiffHunk)
+func generateDiff(c *PullRequestComment) (string, error) {
+	// we extract the metadata, we know which side we are going to be starting on.
+	meta, err := diff.ParseHunkMeta(*c.DiffHunk)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	// 2. how are we counting lines?
-	hunkRange, err := meta.RangeForSide(*comment.Side)
+	// how are we counting lines?
+	hunkRange, err := meta.RangeForSide(*c.Side)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	// 3. what is our range?
-	endLine, startLine, auto, err := diffRange(comment)
+	// - endLine is the line that the comment is on or after,
+	// - startLine is the beginning line that we'll include in our diff,
+	//   and it looks like github defaults to 4 lines included if there is
+	//   no `StartLine`.
+	scanner, err := diff.NewScanner(
+		hunkRange,
+		diff.RangeFrom{c.OriginalStartLine, c.StartLine},
+		diff.RangeFrom{c.OriginalLine, c.Line},
+	)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	// 4. configure out scanner
-	scanner := &diffScanner{
-		hunkRange: hunkRange,
-		start:     startLine,
-		end:       endLine,
-	}
-
-	// 5. filter our diff lines to only what's relevant for this comment
-	out := scanner.filter(strings.Split(*comment.DiffHunk, "\n"), auto)
+	// filter our diff lines to only what's relevant for this comment
+	out := scanner.Filter(strings.Split(*c.DiffHunk, "\n"))
 	return strings.Join(out, "\n"), nil
 }

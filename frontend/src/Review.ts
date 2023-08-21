@@ -1,3 +1,8 @@
+//
+// Note!
+//
+// This should be kept *generally* in sync with server/internal/api/api.go structs.
+
 export interface MaybeLinked {
   text: string;
   href?: string;
