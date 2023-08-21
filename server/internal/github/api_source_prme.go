@@ -22,7 +22,15 @@ func (s *CommentsAPISource) GetReview(ctx context.Context) (api.Review, error) {
 		return api.Review{}, errors.WithStack(err)
 	}
 
-	model, err := FetchReviewModel(ctx, params, CommentMatchesTag(s.ReviewParamsMap.Tag))
+	model, err := FetchReviewModel(
+		ctx,
+		params,
+		CommentMatchesTag(s.ReviewParamsMap.Tag),
+		func(body string) (int, bool) {
+			t, ok := parseReviewTag(body)
+			return t.Order, ok
+		},
+	)
 	if err != nil {
 		return api.Review{}, errors.WithStack(err)
 	}

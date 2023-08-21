@@ -32,7 +32,7 @@ func TestDiffGenerator(t *testing.T) {
 			assert.NoError(t, err, "test data file is an invalid json PullRequestComment")
 			comment.DiffHunk = &input
 
-			diff, err := generateDiff(&comment)
+			diff, err := commentCodeDiff(&comment)
 			assert.NoError(t, err, "failed to generate diff")
 			assert.Equal(t, expected, diff+"\n", "generated diff doesn't match expected output")
 		})

@@ -15,21 +15,21 @@ func CommentMatchesReview(reviewID int64) CommentPredicate {
 	}
 }
 
-var prmeTagRegexp = regexp.MustCompile(`\(prme([^-\s]+)?(-(\d+))?\)\s*$`)
-
-type reviewTag struct {
+type ReviewTag struct {
 	Review string
 	Order  int
 }
 
-func parseReviewTag(s string) (reviewTag, bool) {
+var prmeTagRegexp = regexp.MustCompile(`\(prme([^-\s]+)?(-(\d+))?\)\s*$`)
+
+func parseReviewTag(s string) (ReviewTag, bool) {
 	m := prmeTagRegexp.FindStringSubmatch(s)
 	if m == nil {
-		return reviewTag{}, false
+		return ReviewTag{}, false
 	}
 
 	n, _ := strconv.Atoi(m[3])
-	return reviewTag{Review: m[1], Order: n}, true
+	return ReviewTag{Review: m[1], Order: n}, true
 }
 
 func CommentMatchesTag(tag string) CommentPredicate {

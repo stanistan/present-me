@@ -32,7 +32,7 @@ type PrivateKey struct {
 	File string `name:"file" env:"GH_PK_FILE"`
 }
 
-func (o *ClientOptions) HTTPClient(ctx context.Context) (*http.Client, error) {
+func (o *ClientOptions) httpClient(ctx context.Context) (*http.Client, error) {
 	var (
 		itr http.RoundTripper
 		err error
@@ -59,7 +59,7 @@ type Client struct {
 }
 
 func New(ctx context.Context, opts ClientOptions) (*Client, error) {
-	c, err := opts.HTTPClient(ctx)
+	c, err := opts.httpClient(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -167,13 +167,18 @@ func (g *Client) ListComments(
 	)
 }
 
-func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicate) (*ReviewModel, error) {
+func FetchReviewModel(
+	ctx context.Context,
+	r *ReviewParams,
+	pred CommentPredicate,
+	orderOf func(string) (int, bool),
+) (*ReviewModel, error) {
 	client, ok := Ctx(ctx)
 	if !ok || client == nil {
 		return nil, errors.New("context missing github client")
 	}
 
-	model, err := client.FetchReviewModel(ctx, r, pred)
+	model, err := client.FetchReviewModel(ctx, r, pred, orderOf)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -182,7 +187,10 @@ func FetchReviewModel(ctx context.Context, r *ReviewParams, pred CommentPredicat
 }
 
 func (g *Client) FetchReviewModel(
-	ctx context.Context, r *ReviewParams, pred CommentPredicate,
+	ctx context.Context,
+	r *ReviewParams,
+	pred CommentPredicate,
+	orderOf func(string) (int, bool),
 ) (*ReviewModel, error) {
 	model := &ReviewModel{Params: r}
 	group, ctx := errgroup.WithContext(ctx)
@@ -195,6 +203,7 @@ func (g *Client) FetchReviewModel(
 		return err
 	})
 
+	// N.B. this is legacy-ish
 	if r.ReviewID != 0 {
 		group.Go(func() error {
 			review, err := g.GetReview(ctx, r)
@@ -208,20 +217,6 @@ func (g *Client) FetchReviewModel(
 	group.Go(func() error {
 		comments, err := g.ListComments(ctx, r, pred)
 		if err == nil {
-			for idx := range comments {
-				comment := comments[idx]
-				diff, err := generateDiff(comment)
-				if err != nil {
-					// TODO(stanistan):
-					// consider logging the warning here, and not mutating the diff as well,
-					// or _also_ returning the fact that there's an error warning in the API
-					// response.
-					return err
-				}
-
-				comment.DiffHunk = &diff
-				comments[idx] = comment
-			}
 			model.Comments = comments
 		}
 		return err
