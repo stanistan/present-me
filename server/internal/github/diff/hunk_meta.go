@@ -6,9 +6,7 @@ import (
 	"strconv"
 )
 
-var (
-	hunkPrefixRegexp = regexp.MustCompile(`^@@ -(\d+),(\d+) \+(\d+),(\d+) @@`)
-)
+var hunkPrefixRegexp = regexp.MustCompile(`^@@ -(\d+),(\d+) \+(\d+),(\d+) @@`)
 
 type HunkRange struct {
 	StartingAt, NumLines int
@@ -20,7 +18,6 @@ type HunkMeta struct {
 }
 
 func ParseHunkMeta(hunk string) (HunkMeta, error) {
-
 	m := hunkPrefixRegexp.FindStringSubmatch(hunk)
 	if m == nil {
 		return HunkMeta{}, fmt.Errorf("could not parse hunk prefix")

@@ -8,6 +8,6 @@
 
 <script setup lang="ts">
 definePageMeta({
-  name: "pull-review"
+  name: "pull-tag"
 });
 </script>

@@ -44,7 +44,7 @@ const { pending, data, error } = await useFetch<Review>("/api/review", {
   lazy: true,
   params: Object.assign({}, route.params, {
     refresh: route.query.refresh,
-    kind: "review",
+    kind: route.name,
   }),
   server: false,
 });

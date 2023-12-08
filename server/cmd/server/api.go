@@ -53,9 +53,9 @@ var apiRoutes = http.Routes(
 		params := github.NewReviewParamsMap(r.URL.Query())
 		var source api.Source
 		switch params.Kind {
-		case "review":
+		case "pull-review":
 			source = &github.ReviewAPISource{ReviewParamsMap: params}
-		case "prme":
+		case "pull-tag":
 			source = &github.CommentsAPISource{ReviewParamsMap: params}
 		case "":
 			source = &api.ErrSource{Err: fmt.Errorf("missing kind")}
@@ -66,6 +66,13 @@ var apiRoutes = http.Routes(
 		review, err := source.GetReview(r.Context())
 		if err != nil {
 			return nil, errors.Wrap(err, "error fetching review")
+		}
+
+		if len(review.Comments) == 0 {
+			return &http.JSONResponse{
+				Code: 404,
+				Data: map[string]string{"msg": "Not found"},
+			}, nil
 		}
 
 		return http.OKResponse(review), nil
