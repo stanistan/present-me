@@ -1,0 +1,6 @@
+#!/bin/bash
+
+go version
+exec env $(cat .env | xargs) \
+  go run github.com/cespare/reflex -d none -s -- \
+  go run ./cmd/veun
