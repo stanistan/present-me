@@ -17,29 +17,36 @@ import (
 	"github.com/stanistan/veun/vhttp/request"
 )
 
-func newServer(ctx context.Context, config pm.Config) (context.Context, *server, error) {
-	ctx, log := config.Logger(ctx)
+func App(
+	ctx context.Context, log zerolog.Logger, config pm.Config,
+) (*app, error) {
 	cache := config.Cache(ctx)
 	gh, err := config.GithubClient(ctx)
 	if err != nil {
-		return ctx, nil, fmt.Errorf("could not cconfigure github client: %w", err)
+		return nil, fmt.Errorf("could not cconfigure github client: %w", err)
 	}
 
-	return ctx, &server{
-		log:   log,
-		gh:    gh,
-		cache: cache,
+	return &app{
+		config: config,
+		log:    log,
+		gh:     gh,
+		cache:  cache,
 	}, nil
 }
 
-type server struct {
-	log   zerolog.Logger
-	gh    *github.Client
-	cache *cache.Cache
+type app struct {
+	config pm.Config
+	log    zerolog.Logger
+	gh     *github.Client
+	cache  *cache.Cache
 }
 
 // debug is a request handler function that prints the current request name.
-func (s *server) debug(r *http.Request) (veun.AsView, http.Handler, error) {
+func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
+
+	if !s.config.Debug {
+		return nil, http.NotFoundHandler(), nil
+	}
 
 	pathValue := func(name string) [2]string {
 		return [2]string{
@@ -71,9 +78,8 @@ func (s *server) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 	}
 
 	return el.Div{
-		el.H1{el.Text("Debug")},
+		el.H1{el.Text("present-me (debug)")},
 		el.Table{
-			//			el.Caption{code("var r *http.Request")},
 			el.THead{el.Tr{
 				el.Th{code("var r *http.Request")},
 				el.Th{code("value")},
@@ -83,7 +89,11 @@ func (s *server) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 	}, nil, nil
 }
 
-func (s *server) Handler() http.Handler {
+func (s *app) Handler() http.Handler {
+	var (
+		h  = vhttp.Handler
+		hf = vhttp.HandlerFunc
+	)
 	_ = cache.Middleware(s.cache, func(r *http.Request) *cache.Options {
 		return &cache.Options{
 			TTL:          10 * time.Minute,
@@ -104,7 +114,11 @@ func (s *server) Handler() http.Handler {
 	return mux
 }
 
-var (
-	h  = vhttp.Handler
-	hf = vhttp.HandlerFunc
-)
+func (s *app) HTTPServer() *http.Server {
+	return &http.Server{
+		Addr:         s.config.Address(),
+		ReadTimeout:  s.config.ServerReadTimeout,
+		WriteTimeout: s.config.ServerWriteTimeout,
+		Handler:      s.Handler(),
+	}
+}

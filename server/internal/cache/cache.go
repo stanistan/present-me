@@ -145,7 +145,10 @@ func NewCache(ctx context.Context, opts CacheOpts) *Cache {
 		CacheSizeMax: opts.CacheMaxSizeKB * 1024,
 	}
 
-	log.Ctx(ctx).Info().Msgf("initializing cache basePath=%s size=%d", cacheOpts.BasePath, cacheOpts.CacheSizeMax)
+	log.Ctx(ctx).Info().
+		Str("basePath", cacheOpts.BasePath).
+		Int64("size", int64(cacheOpts.CacheSizeMax)).
+		Msg("initialized cache")
 	return &Cache{d: diskv.New(cacheOpts)}
 }
 

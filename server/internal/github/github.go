@@ -187,9 +187,7 @@ func FetchReviewModel(
 }
 
 func (g *Client) FetchReviewModel(
-	ctx context.Context,
-	r *ReviewParams,
-	pred CommentPredicate,
+	ctx context.Context, r *ReviewParams, pred CommentPredicate,
 	orderOf func(string) (int, bool),
 ) (*ReviewModel, error) {
 	model := &ReviewModel{Params: r}

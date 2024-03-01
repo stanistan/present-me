@@ -18,6 +18,7 @@ import (
 // dependencies and how to configure them.
 type Config struct {
 	ServeConfig
+	Debug     bool                 `env:"DEBUG"`
 	Log       log.Config           `embed:"" prefix:"log-"`
 	DiskCache cache.CacheOpts      `embed:"" prefix:"disk-cache-"`
 	Github    github.ClientOptions `embed:"" prefix:"gh-"`
