@@ -3,7 +3,7 @@ package errors
 import (
 	"fmt"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v58/github"
 	"github.com/pkg/errors"
 )
 
