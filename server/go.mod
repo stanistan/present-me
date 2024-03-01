@@ -3,8 +3,8 @@ module github.com/stanistan/present-me
 go 1.22.0
 
 require (
-	github.com/alecthomas/assert/v2 v2.4.0
-	github.com/alecthomas/kong v0.8.0
+	github.com/alecthomas/assert/v2 v2.6.0
+	github.com/alecthomas/kong v0.8.1
 	github.com/bradleyfalzon/ghinstallation/v2 v2.9.1-0.20240116154122-7838128b61c6
 	github.com/cespare/reflex v0.3.1
 	github.com/google/go-github/v58 v58.0.0
@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	github.com/alecthomas/repr v0.3.0 // indirect
+	github.com/alecthomas/repr v0.4.0 // indirect
 	github.com/creack/pty v1.1.11 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
