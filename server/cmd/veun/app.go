@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,16 +12,25 @@ import (
 	pm "github.com/stanistan/present-me"
 	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/github"
+	"github.com/stanistan/present-me/internal/view/layout"
 	"github.com/stanistan/veun"
 	"github.com/stanistan/veun/el-exp"
 	"github.com/stanistan/veun/vhttp"
+	"github.com/stanistan/veun/vhttp/handler"
 	"github.com/stanistan/veun/vhttp/request"
 )
 
+var (
+	//go:embed static
+	staticFiles embed.FS
+)
+
 func App(
-	ctx context.Context, log zerolog.Logger, config pm.Config,
+	ctx context.Context,
+	log zerolog.Logger,
+	config pm.Config,
 ) (*app, error) {
-	cache := config.Cache(ctx)
+
 	gh, err := config.GithubClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not cconfigure github client: %w", err)
@@ -30,7 +40,7 @@ func App(
 		config: config,
 		log:    log,
 		gh:     gh,
-		cache:  cache,
+		cache:  config.Cache(ctx),
 	}, nil
 }
 
@@ -72,21 +82,43 @@ func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 	var rows []veun.AsView
 	for _, v := range namedData {
 		rows = append(rows, el.Tr{
-			el.Td{code(v[0])},
-			el.Td{el.Em{code(v[1])}},
+			el.Td{code(v[0]), el.Attr{"class", "bg-pink-300 border border-white text-right text-xs p-1"}},
+			el.Td{el.Em{code(v[1])}, el.Attr{"class", "bg-pink-300 border border-white text-right text-xs p-1"}},
 		})
 	}
 
-	return el.Div{
-		el.H1{el.Text("present-me (debug)")},
-		el.Table{
-			el.THead{el.Tr{
-				el.Th{code("var r *http.Request")},
-				el.Th{code("value")},
-			}},
-			el.TBody{el.Content(rows)},
+	return layout.Layout(
+		layout.Params{
+			Title: "present-me",
+			CSSFiles: []string{
+				"/static/dev-styles.css",
+			},
+			Version: layout.Version{
+				URL: "https://github.com/stanistan/present-me/" + version,
+				SHA: version[0:7],
+			},
 		},
-	}, nil, nil
+		el.Div{
+			el.H1{
+				el.Attr{"class", "text-4xl"},
+				el.Text("present-me (debug)"),
+			},
+			el.Table{
+				el.Attr{"class", "table-auto text-sm"},
+				el.THead{el.Tr{
+					el.Th{
+						el.Attr{"class", "bg-gray-400 p-1 border border-white text-right"},
+						code("var r *http.Request"),
+					},
+					el.Th{
+						el.Attr{"class", "bg-gray-400 border border-white p-1 text-left"},
+						code("value"),
+					},
+				}},
+				el.TBody{el.Content(rows)},
+			},
+		},
+	), nil, nil
 }
 
 func (s *app) Handler() http.Handler {
@@ -102,6 +134,8 @@ func (s *app) Handler() http.Handler {
 	})
 
 	mux := http.NewServeMux()
+	mux.Handle("GET /static/*", http.FileServer(http.FS(staticFiles)))
+
 	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.debug)) // list review sources
 	mux.Handle("GET /{owner}/{repo}/pull/{pr}/", hf(s.debug))                  // list review sources
 	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                       // list pulls
@@ -109,9 +143,11 @@ func (s *app) Handler() http.Handler {
 	mux.Handle("GET /{owner}/", hf(s.debug))                                   // list repos _should we drop this_
 	mux.Handle("GET /", hf(s.debug))                                           // search
 	mux.Handle("GET /version", h(request.Always(veun.Raw(version))))           // what version are we running!?
+	mux.Handle("/", handler.OnlyRoot(hf(s.debug)))                             // 404
 
-	mux.Handle("/", hf(s.debug)) // 404
-	return mux
+	return handler.Checked(
+		mux,
+	)
 }
 
 func (s *app) HTTPServer() *http.Server {

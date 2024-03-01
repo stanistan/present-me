@@ -19,6 +19,7 @@ var (
 )
 
 func main() {
+	// get our args
 	var config pm.Config
 	_ = kong.Parse(&config, cliOptions...)
 
@@ -42,6 +43,6 @@ func main() {
 	if err := s.ListenAndServe(); err != nil {
 		log.Fatal().
 			Err(err).
-			Msg("failed to start server")
+			Msg("server failed")
 	}
 }
