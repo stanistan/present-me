@@ -1,10 +1,7 @@
-description = "standalone executable for tailwind"
+description = "standalone executable for tailwindcss"
 binaries = [ "tailwindcss" ]
-test = "tailwindcss --version"
+test = "tailwindcss -h"
 dont-extract = true
-
-// https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64
-// https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.1/tailwindcss-macos-arm64
 
 darwin {
   source = "https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-macos-arm64"
@@ -22,7 +19,6 @@ darwin {
 
 linux {
   source = "https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-linux-arm64"
-  dont-extract = true
   on "unpack" {
     rename {
       from = "${root}/tailwindcss-linux-arm64"
@@ -35,5 +31,4 @@ linux {
   }
 }
 
-version "3.4.1" {
-}
+version "3.4.1" { }
