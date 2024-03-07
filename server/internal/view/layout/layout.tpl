@@ -12,30 +12,29 @@
 
     <div class="min-h-screen flex flex-col justify-content-center">
       <div class="flex-grow">
-        {{ slot "body" }}
-      </div>
-      <div class="flex-none">
 
+        {{ slot "body" }}
+
+      </div>
+
+      <div class="flex-none">
         <footer
           class="pt-3 pb-5 max-w-screen-2xl mx-auto font-mono text-xs flex flex-row"
         >
           <div class="flex-none px-3">
             <a href="{{ .Version.URL }}">({{ .Version.SHA }})</a>
           </div>
-          <div class="flex-grow" />
+          <div class="flex-grow"></div>
           <div class="flex-none px-3">
-
             <a
               href="https://github.com/stanistan/present-me"
               class="underline underline-offset-8 font-bold">
               <em>present-me</em> <span>by stanistan</span>
             </a>
-
           </div>
         </footer>
-
-
       </div>
+
     </div>
 
     {{ range .JSFiles }}

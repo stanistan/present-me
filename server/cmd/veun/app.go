@@ -5,16 +5,19 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
 
 	pm "github.com/stanistan/present-me"
+	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/present-me/internal/view/layout"
+	"github.com/stanistan/present-me/internal/view/review"
 	"github.com/stanistan/veun"
-	"github.com/stanistan/veun/el-exp"
+	"github.com/stanistan/veun/el"
 	"github.com/stanistan/veun/vhttp"
 	"github.com/stanistan/veun/vhttp/handler"
 	"github.com/stanistan/veun/vhttp/request"
@@ -58,14 +61,11 @@ func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 		return nil, http.NotFoundHandler(), nil
 	}
 
-	pathValue := func(name string) [2]string {
-		return [2]string{
-			"r.PathValue(\"" + name + "\")",
-			r.PathValue(name),
-		}
+	pathValue := func(name string) []string {
+		return []string{"r.PathValue(\"" + name + "\")", r.PathValue(name)}
 	}
 
-	namedData := [][2]string{
+	namedData := [][]string{
 		{"r.URL.Path", r.URL.Path},
 		{"r.URL.RawQuery", r.URL.RawQuery},
 		pathValue("owner"),
@@ -75,79 +75,92 @@ func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 		pathValue("kind"),
 	}
 
-	var code = func(in string) el.Code {
-		return el.Code{el.Text(in)}
-	}
-
-	var rows []veun.AsView
-	for _, v := range namedData {
-		rows = append(rows, el.Tr{
-			el.Td{code(v[0]), el.Attr{"class", "bg-pink-300 border border-white text-right text-xs p-1"}},
-			el.Td{el.Em{code(v[1])}, el.Attr{"class", "bg-pink-300 border border-white text-right text-xs p-1"}},
-		})
-	}
-
-	return layout.Layout(
-		layout.Params{
-			Title: "present-me",
-			CSSFiles: []string{
-				"/static/dev-styles.css",
-			},
-			Version: layout.Version{
-				URL: "https://github.com/stanistan/present-me/" + version,
-				SHA: version[0:7],
-			},
+	return s.layout(el.Div{
+		el.Class("p-3", "bg-red-100", "h-full", "font-mono"),
+		el.H1{
+			el.Class("text-2xl", "p-4", "font-bold", "text-center"),
+			el.Text("present-me (debug)"),
 		},
-		el.Div{
-			el.H1{
-				el.Attr{"class", "text-4xl"},
-				el.Text("present-me (debug)"),
+		table(
+			[]string{"var r *http.Request", "value"},
+			[][]string(namedData),
+			el.Class("mx-auto", "w-[75%]"),
+			el.Caption{
+				el.Class("caption-bottom", "text-xs"),
+				el.Text("debug http-request things!"),
 			},
-			el.Table{
-				el.Attr{"class", "table-auto text-sm"},
-				el.THead{el.Tr{
-					el.Th{
-						el.Attr{"class", "bg-gray-400 p-1 border border-white text-right"},
-						code("var r *http.Request"),
-					},
-					el.Th{
-						el.Attr{"class", "bg-gray-400 border border-white p-1 text-left"},
-						code("value"),
-					},
-				}},
-				el.TBody{el.Content(rows)},
-			},
-		},
-	), nil, nil
+		),
+	}), nil, nil
+}
+
+func (s *app) layout(view veun.AsView) veun.AsView {
+	return layout.Layout(layout.Params{
+		Title:    "present-me",
+		CSSFiles: []string{"/static/dev-styles.css"}, // TODO: dev/prod css },
+		Version:  layout.Version{URL: "https://github.com/stanistan/present-me/" + version, SHA: version[0:7]},
+	}, view)
 }
 
 func (s *app) Handler() http.Handler {
 	var (
-		h  = vhttp.Handler
-		hf = vhttp.HandlerFunc
-	)
-	_ = cache.Middleware(s.cache, func(r *http.Request) *cache.Options {
-		return &cache.Options{
-			TTL:          10 * time.Minute,
-			ForceRefresh: r.URL.Query().Get("refresh") == "1",
+		gHandler = github.Middleware(s.gh)
+		cHandler = cache.Middleware(s.cache, func(r *http.Request) *cache.Options {
+			return &cache.Options{
+				TTL:          10 * time.Minute,
+				ForceRefresh: r.URL.Query().Get("refresh") == "1",
+			}
+		})
+
+		h = func(r request.Handler) http.Handler {
+			return gHandler(cHandler(vhttp.Handler(r)))
 		}
-	})
+
+		hf = func(r request.HandlerFunc) http.Handler {
+			return gHandler(cHandler(vhttp.HandlerFunc(r)))
+		}
+	)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/*", http.FileServer(http.FS(staticFiles)))
 
-	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.debug)) // list review sources
-	mux.Handle("GET /{owner}/{repo}/pull/{pr}/", hf(s.debug))                  // list review sources
-	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                       // list pulls
-	mux.Handle("GET /{owner}/{repo}/", hf(s.debug))                            // list pulls
-	mux.Handle("GET /{owner}/", hf(s.debug))                                   // list repos _should we drop this_
-	mux.Handle("GET /", hf(s.debug))                                           // search
-	mux.Handle("GET /version", h(request.Always(veun.Raw(version))))           // what version are we running!?
-	mux.Handle("/", handler.OnlyRoot(hf(s.debug)))                             // 404
+	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.review)) // list review sources
+	mux.Handle("GET /{owner}/{repo}/pull/{pr}/", hf(s.debug))                   // list review sources
+	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                        // list pulls
+	mux.Handle("GET /{owner}/{repo}/", hf(s.debug))                             // list pulls
+	mux.Handle("GET /{owner}/", hf(s.debug))                                    // list repos _should we drop this_
+	mux.Handle("GET /", hf(s.debug))                                            // search
+	mux.Handle("GET /version", h(request.Always(veun.Raw(version))))            // what version are we running!?
+	mux.Handle("/", handler.OnlyRoot(hf(s.debug)))                              // 404
 
-	return handler.Checked(
-		mux,
-	)
+	return mux
+}
+
+func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
+	pathSource := r.PathValue("source")
+	_, reviewID, hasReviewID := strings.Cut(pathSource, "review-")
+	_, tag, hasTagID := strings.Cut(pathSource, "tag")
+
+	params := github.ReviewParamsMap{
+		Owner:  r.PathValue("owner"),
+		Repo:   r.PathValue("repo"),
+		Pull:   r.PathValue("pull"),
+		Review: reviewID,
+		Tag:    tag,
+	}
+
+	var source api.Source
+	if hasReviewID {
+		source = &github.ReviewAPISource{ReviewParamsMap: params}
+	} else if hasTagID {
+		source = &github.CommentsAPISource{ReviewParamsMap: params}
+	}
+
+	model, err := source.GetReview(r.Context())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return s.layout(review.PageContent(params, model)), nil, nil
 }
 
 func (s *app) HTTPServer() *http.Server {
@@ -156,5 +169,41 @@ func (s *app) HTTPServer() *http.Server {
 		ReadTimeout:  s.config.ServerReadTimeout,
 		WriteTimeout: s.config.ServerWriteTimeout,
 		Handler:      s.Handler(),
+	}
+}
+
+func table(heading []string, rows [][]string, ps ...el.Param) el.Table {
+	var (
+		cell = el.Class("border", "border-white", "p-2", "text-xs")
+	)
+	return el.Table{
+		el.Class("table-auto", "text-sm"),
+		el.THead{
+			el.Tr{
+				el.Th{},
+				el.MapFragment(heading, func(title string, _ int) el.Th {
+					return el.Th{cell, el.Class("bg-green-400"), el.Text(title)}
+				}),
+			},
+		},
+		el.TBody{
+			el.MapFragment(rows, func(row []string, idx int) el.Tr {
+				return el.Tr{
+					el.Td{
+						cell,
+						el.Class("bg-pink-100", "text-right"),
+						el.Text(fmt.Sprintf("%d", idx+1)),
+					},
+					el.MapFragment(row, func(t string, _ int) el.Td {
+						return el.Td{
+							cell,
+							el.Class("bg-pink-200"),
+							el.Text(t),
+						}
+					}),
+				}
+			}),
+		},
+		el.Fragment(ps),
 	}
 }
