@@ -1,0 +1,16 @@
+#!/bin/bash
+
+case "$1" in
+  go)
+    exec env $(cat .env | xargs) go run github.com/cespare/reflex -d none -c reflex.conf
+    ;;
+  tailwind)
+    exec tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/dev-styles.css --watch
+    ;;
+  *)
+    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+    ./dev go &
+    ./dev tailwind &
+    wait
+    ;;
+esac
