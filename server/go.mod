@@ -30,6 +30,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/ogier/pflag v0.0.1 // indirect
 	github.com/rs/xid v1.5.0 // indirect
+	github.com/yuin/goldmark v1.7.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 )
 

@@ -3,10 +3,11 @@ package review
 import (
 	"fmt"
 
-	"github.com/stanistan/present-me/internal/api"
-	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/veun"
 	"github.com/stanistan/veun/el"
+
+	"github.com/stanistan/present-me/internal/api"
+	"github.com/stanistan/present-me/internal/github"
 )
 
 func topBar(main, right veun.AsView) el.Div {
@@ -26,6 +27,15 @@ func topBar(main, right veun.AsView) el.Div {
 	}
 }
 
+func GradientText(slot veun.AsView) el.Span {
+	return el.Span{
+		el.Class("bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-violet-900"),
+		el.Content{
+			slot,
+		},
+	}
+}
+
 func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 	return el.Div{
 		topBar(
@@ -41,21 +51,19 @@ func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 					el.Class("gap-3"),
 					el.Div{
 						el.Class("pt-4"),
-						el.Text("ReviewMetadataList for model"),
+						MetadataList(model),
 					},
 					Card{
 						Title: el.Div{
-							el.Class("text-xsl font-extrabold"),
-							el.Text(model.Title.Text),
+							el.Class("text-xl font-extrabold"),
+							GradientText(el.Text(model.Title.Text)),
 						},
 						Body: el.Div{
 							el.Class("p-4"),
-							el.Content{
-								Markdown(model.Body),
-							},
+							Markdown(model.Body),
 						},
-					}.View(),
-					el.MapFragment(model.Comments, func(c api.Comment, idx int) el.Div {
+					}.Render(),
+					el.MapFragment(model.Comments, func(c api.Comment, idx int) el.Component {
 						return Card{
 							Badge: idx + 1,
 							Title: el.A{
@@ -70,14 +78,14 @@ func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 								el.Class("flex flex-col md:flex-row max-h-[95vh] bg-gray-50"),
 								el.Div{
 									el.Class("p-3 flex-none md:w-2/5 text-md markdown"),
-									el.Content{Markdown(c.Description)},
+									Markdown(c.Description),
 								},
 								el.Div{
 									el.Class("flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0"),
 									Diff(c.CodeBlock),
 								},
 							},
-						}.View()
+						}.Render()
 					}),
 				},
 			},
@@ -85,16 +93,23 @@ func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 	}
 }
 
-// TODO: markdown
-func Markdown(in string) veun.AsView {
-	return el.Div{el.Text(in)}
+func Markdown(in string) el.Div {
+	return el.Div{
+		el.Class("markdown"),
+		el.Content{markdown(in)},
+	}
 }
 
 func Diff(code api.CodeBlock) el.Pre {
+	lang := "language-" + code.Language
+	if code.IsDiff {
+		lang = "language-diff-" + code.Language
+	}
+
 	return el.Pre{
-		el.Class("bg-gray-100"),
+		el.Class("bg-gray-100", lang),
 		el.Code{
-			el.Class(code.Language),
+			el.Class("diff-highlight", lang),
 			el.Text(code.Content),
 		},
 	}
@@ -105,7 +120,7 @@ type Card struct {
 	Title, Body veun.AsView
 }
 
-func (c Card) View() el.Div {
+func (c Card) Render() el.Component {
 	return el.Div{
 		el.Class("m-4", "border", "border-slate-300", "rounded-xl", "overflow-hidden", "shadow"),
 		el.Div{
@@ -130,5 +145,29 @@ func badge(i int) el.Fragment {
 			el.Class("text-center ring bg-gray-700 text-white rounded-3xl p-1 px-2 text-xs mr-2 ring-gray-100 font-mono"),
 			el.Text(fmt.Sprintf("%d", i)),
 		},
+	}
+}
+
+func MetadataList(m api.Review) el.Div {
+	return el.Div{
+		el.MapFragment(m.Links, func(l api.LabelledLink, _ int) el.Div {
+			return el.Div{
+				el.Class("grid grid-cols-2 gap-4 text-xs font-mono"),
+				el.Div{
+					el.Class("text-right p-1"),
+					el.A{
+						el.Class("underline hover:no-underline"),
+						el.Href(l.HRef),
+						el.Text(l.Text),
+					},
+				},
+				el.Div{
+					el.Class("p-1"),
+					el.Strong{
+						el.Text(l.Label),
+					},
+				},
+			}
+		}),
 	}
 }

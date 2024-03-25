@@ -37,6 +37,7 @@ func main() {
 	log.Info().
 		Str("address", config.Address()).
 		Bool("debug", config.Debug).
+		Str("env", config.Environment).
 		Msg("starting server")
 
 	s := app.HTTPServer()

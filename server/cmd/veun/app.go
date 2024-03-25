@@ -54,13 +54,7 @@ type app struct {
 	cache  *cache.Cache
 }
 
-// debug is a request handler function that prints the current request name.
-func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
-
-	if !s.config.Debug {
-		return nil, http.NotFoundHandler(), nil
-	}
-
+func (s *app) debugView(r *http.Request) veun.AsView {
 	pathValue := func(name string) []string {
 		return []string{"r.PathValue(\"" + name + "\")", r.PathValue(name)}
 	}
@@ -75,7 +69,7 @@ func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 		pathValue("kind"),
 	}
 
-	return s.layout(el.Div{
+	return el.Div{
 		el.Class("p-3", "bg-red-100", "h-full", "font-mono"),
 		el.H1{
 			el.Class("text-2xl", "p-4", "font-bold", "text-center"),
@@ -83,21 +77,39 @@ func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
 		},
 		table(
 			[]string{"var r *http.Request", "value"},
-			[][]string(namedData),
+			namedData,
 			el.Class("mx-auto", "w-[75%]"),
 			el.Caption{
 				el.Class("caption-bottom", "text-xs"),
 				el.Text("debug http-request things!"),
 			},
 		),
-	}), nil, nil
+	}
 }
 
-func (s *app) layout(view veun.AsView) veun.AsView {
+// debug is a request handler function that prints the current request name.
+func (s *app) debug(r *http.Request) (veun.AsView, http.Handler, error) {
+	if !s.config.Debug {
+		return nil, http.NotFoundHandler(), nil
+	}
+
+	return s.layout(s.debugView(r), nil), nil, nil
+}
+
+func (s *app) layout(view veun.AsView, d func() veun.AsView) veun.AsView {
+
+	if d != nil && s.config.Debug {
+		view = veun.Views{view, d()}
+	}
+
 	return layout.Layout(layout.Params{
 		Title:    "present-me",
 		CSSFiles: []string{"/static/dev-styles.css"}, // TODO: dev/prod css },
-		Version:  layout.Version{URL: "https://github.com/stanistan/present-me/" + version, SHA: version[0:7]},
+		JSFiles:  []string{"/static/prism.js"},
+		Version: layout.Version{
+			URL: "https://github.com/stanistan/present-me/" + version,
+			SHA: version[0:7],
+		},
 	}, view)
 }
 
@@ -123,7 +135,8 @@ func (s *app) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/*", http.FileServer(http.FS(staticFiles)))
 
-	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.review)) // list review sources
+	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.review)) // do the source and kind
+	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}", hf(s.review))        // do the source thing
 	mux.Handle("GET /{owner}/{repo}/pull/{pr}/", hf(s.debug))                   // list review sources
 	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                        // list pulls
 	mux.Handle("GET /{owner}/{repo}/", hf(s.debug))                             // list pulls
@@ -160,7 +173,12 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 		return nil, nil, err
 	}
 
-	return s.layout(review.PageContent(params, model)), nil, nil
+	return s.layout(
+		review.PageContent(params, model),
+		func() veun.AsView {
+			return s.debugView(r)
+		},
+	), nil, nil
 }
 
 func (s *app) HTTPServer() *http.Server {
