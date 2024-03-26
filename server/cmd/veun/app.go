@@ -159,6 +159,7 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 		Pull:   r.PathValue("pull"),
 		Review: reviewID,
 		Tag:    tag,
+		Kind:   r.PathValue("kind"),
 	}
 
 	var source api.Source

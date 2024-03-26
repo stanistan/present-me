@@ -36,11 +36,37 @@ func GradientText(slot veun.AsView) el.Span {
 	}
 }
 
+func reviewLink(p github.ReviewParamsMap, to string) el.A {
+	href := fmt.Sprintf("/%s/%s/pull/%s/%s/%s", p.Owner, p.Repo, p.Pull, p.Source(), to)
+	class := "underline"
+	if p.Kind == to {
+		class = "font-bold no-underline"
+	}
+
+	return el.A{
+		el.Href(href),
+		el.Class(class, "hover:no-underline"),
+		el.Text(to),
+	}
+}
+
 func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 	return el.Div{
 		topBar(
-			// TODO: topbar needs the buttons to do slides and cards, etc
-			el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
+			veun.Views{
+				el.Span{
+					el.Class("px-3"),
+					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
+				},
+				el.Div{
+					el.Class("inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs gap-3"),
+					reviewLink(p, "cards"),
+					el.Text(" | "),
+					reviewLink(p, "slides"),
+				},
+			},
+
+			//TODO: if we're doing slides this should be the full-screen JS thing
 			nil,
 		),
 		el.Div{

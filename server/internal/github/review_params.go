@@ -63,6 +63,14 @@ type ReviewParamsMap struct {
 	Kind   string `json:"kind"`
 }
 
+func (r ReviewParamsMap) Source() string {
+	if r.Review != "" {
+		return "review-" + r.Review
+	}
+
+	return "tag" + r.Tag
+}
+
 func NewReviewParamsMap(values url.Values) ReviewParamsMap {
 	return ReviewParamsMap{
 		Owner:  values.Get("org"),
