@@ -35,13 +35,19 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) el.Div {
 				},
 			},
 
-			//TODO: if we're doing slides this should be the full-screen JS thing
-			el.Text("play!"),
+			el.Button{
+				el.Class("text-xs px-2"),
+				el.Attr{"id", "play-full-screen"},
+				el.Text("▶️"),
+			},
 		),
 
 		el.Div{el.Class("relative h-[95vh]"),
 
-			el.Div{el.Class("bg-white flex flex-col h-full"),
+			el.Div{
+				el.Class("bg-white flex flex-col h-full"),
+				el.Attr{"id", "slideshow"},
+
 				el.Div{el.Class("flex-grow")},
 				el.Div{el.Class("flex-0 max-w-[2200px] mx-auto"),
 
@@ -116,6 +122,10 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) el.Div {
 }
 
 const slideJS = `
+document.getElementById("play-full-screen").addEventListener("click", () => {
+	document.getElementById("slideshow").requestFullscreen();
+});
+
 window.addEventListener("keyup", (e) => {
 	if (e.defaultPrevented) {
 		return;
