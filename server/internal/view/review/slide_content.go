@@ -12,11 +12,12 @@ import (
 func SlideContent(p github.ReviewParamsMap, model api.Review) el.Div {
 	toShow := 0
 	slide := func(idx int) el.AttrFunc {
-		if idx == toShow {
-			return el.Class()
+		cl := "visible"
+		if idx != toShow {
+			cl = "hidden"
 		}
 
-		return el.Class("hidden")
+		return el.Class("slide", fmt.Sprintf("slide-%d", idx), cl)
 	}
 
 	return el.Div{
@@ -105,5 +106,51 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) el.Div {
 				},
 			},
 		},
+		el.Script{
+			el.Attrs{"type": "text/javascript"},
+			el.Content{
+				veun.Raw(slideJS),
+			},
+		},
 	}
 }
+
+const slideJS = `
+window.addEventListener("keyup", (e) => {
+	if (e.defaultPrevented) {
+		return;
+	}
+
+	var action = "";
+	switch (e.key) {
+	case "ArrowLeft":
+		action = "prev";
+		break;
+	case "ArrowRight":
+		action = "next";
+		break;
+	default:
+		return;
+	}
+
+	e.preventDefault();
+
+	var currentSlide = document.querySelectorAll(".slide.visible")[0];
+	var nextSlide = null;
+	if (action == "prev") {
+		nextSlide = currentSlide.previousElementSibling;
+	} else {
+		nextSlide = currentSlide.nextElementSibling;
+	}
+
+	if (nextSlide != null) {
+		var currentCl = currentSlide.classList;
+		currentCl.remove("visible");
+		currentCl.add("hidden");
+
+		var nextCl = nextSlide.classList;
+		nextCl.add("visible");
+		nextCl.remove("hidden");
+	}
+})
+`
