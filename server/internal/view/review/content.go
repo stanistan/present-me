@@ -120,6 +120,10 @@ func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
 }
 
 func Markdown(in string) el.Div {
+	if in == "" {
+		return nil
+	}
+
 	return el.Div{
 		el.Class("markdown"),
 		el.Content{markdown(in)},

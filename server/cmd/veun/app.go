@@ -162,6 +162,10 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 		Kind:   r.PathValue("kind"),
 	}
 
+	if params.Kind == "" {
+		params.Kind = "slides"
+	}
+
 	var source api.Source
 	if hasReviewID {
 		source = &github.ReviewAPISource{ReviewParamsMap: params}
@@ -174,11 +178,17 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 		return nil, nil, err
 	}
 
+	var content veun.AsView
+	switch params.Kind {
+	case "cards":
+		content = review.PageContent(params, model)
+	case "slides":
+		content = review.SlideContent(params, model)
+	}
+
 	return s.layout(
-		review.PageContent(params, model),
-		func() veun.AsView {
-			return s.debugView(r)
-		},
+		content,
+		func() veun.AsView { return s.debugView(r) },
 	), nil, nil
 }
 
