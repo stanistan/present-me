@@ -64,11 +64,12 @@ type ReviewParamsMap struct {
 }
 
 func (r ReviewParamsMap) Source() string {
-	if r.Review != "" {
+	switch r.Review {
+	case "":
+		return "tag" + r.Tag
+	default:
 		return "review-" + r.Review
 	}
-
-	return "tag" + r.Tag
 }
 
 func NewReviewParamsMap(values url.Values) ReviewParamsMap {

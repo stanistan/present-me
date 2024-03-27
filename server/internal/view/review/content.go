@@ -30,9 +30,7 @@ func topBar(main, right veun.AsView) el.Div {
 func GradientText(slot veun.AsView) el.Span {
 	return el.Span{
 		el.Class("bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-violet-900"),
-		el.Content{
-			slot,
-		},
+		el.Content{slot},
 	}
 }
 
@@ -50,76 +48,7 @@ func reviewLink(p github.ReviewParamsMap, to string) el.A {
 	}
 }
 
-func PageContent(p github.ReviewParamsMap, model api.Review) el.Div {
-	return el.Div{
-		topBar(
-			veun.Views{
-				el.Span{
-					el.Class("px-3"),
-					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
-				},
-				el.Div{
-					el.Class("inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs gap-3"),
-					reviewLink(p, "cards"),
-					el.Text(" | "),
-					reviewLink(p, "slides"),
-				},
-			},
-
-			//TODO: if we're doing slides this should be the full-screen JS thing
-			nil,
-		),
-		el.Div{
-			el.Class("relative"),
-			el.Div{
-				el.Class("h-full"),
-				el.Div{
-					el.Class("gap-3"),
-					el.Div{
-						el.Class("pt-4"),
-						MetadataList(model),
-					},
-					Card{
-						Title: el.Div{
-							el.Class("text-xl font-extrabold"),
-							GradientText(el.Text(model.Title.Text)),
-						},
-						Body: el.Div{
-							el.Class("p-4"),
-							Markdown(model.Body),
-						},
-					}.Render(),
-					el.MapFragment(model.Comments, func(c api.Comment, idx int) el.Component {
-						return Card{
-							Badge: idx + 1,
-							Title: el.A{
-								el.Code{
-									el.Text(c.Title.Text),
-								},
-								el.Class("underline", "hover:no-underline"),
-								el.Href(c.Title.HRef),
-								el.Attr{"target", "_blank"},
-							},
-							Body: el.Div{
-								el.Class("flex flex-col md:flex-row max-h-[95vh] bg-gray-50"),
-								el.Div{
-									el.Class("p-3 flex-none md:w-2/5 text-md markdown"),
-									Markdown(c.Description),
-								},
-								el.Div{
-									el.Class("flex-grow overflow-scroll text-sm md:border-l border-t md:border-t-0"),
-									Diff(c.CodeBlock),
-								},
-							},
-						}.Render()
-					}),
-				},
-			},
-		},
-	}
-}
-
-func Markdown(in string) el.Div {
+func Markdown(in string) el.Component {
 	if in == "" {
 		return nil
 	}
