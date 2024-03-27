@@ -14,7 +14,7 @@ func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 			el.Div{
 				el.Class("h-full"),
 				el.Div{
-					el.Class("gap-3"),
+					el.Class("gap-3", "max-w-screen-2xl mx-auto"),
 					el.Div{
 						el.Class("pt-4"),
 						MetadataList(model),
@@ -22,7 +22,7 @@ func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 					Card{
 						Title: el.Div{
 							el.Class("text-xl font-extrabold"),
-							GradientText(el.Text(model.Title.Text)),
+							GradientText(model.Title.Text),
 						},
 						Body: el.Div{
 							el.Class("p-4"),

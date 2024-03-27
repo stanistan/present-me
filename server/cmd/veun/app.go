@@ -102,9 +102,14 @@ func (s *app) layout(view veun.AsView, d func() veun.AsView) veun.AsView {
 		view = veun.Views{view, d()}
 	}
 
+	cssFile := "/static/dev-styles.css"
+	if s.config.Environment == "prod" {
+		cssFile = "/static/styles.css"
+	}
+
 	return layout.Layout(layout.Params{
 		Title:    "present-me",
-		CSSFiles: []string{"/static/dev-styles.css"}, // TODO: dev/prod css },
+		CSSFiles: []string{cssFile},
 		JSFiles:  []string{"/static/prism.js"},
 		Version: layout.Version{
 			URL: "https://github.com/stanistan/present-me/" + version,

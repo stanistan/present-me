@@ -16,7 +16,7 @@ type LayoutParams struct {
 
 func Layout(p github.ReviewParamsMap, model api.Review, layout LayoutParams) veun.AsView {
 	return el.Div{
-		// top-bar
+
 		topBar(
 			veun.Views{
 				el.Span{
@@ -24,16 +24,19 @@ func Layout(p github.ReviewParamsMap, model api.Review, layout LayoutParams) veu
 					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
 				},
 				el.Div{
-					el.Class("inline-block bg-slate-50 shadow-inner text-black px-2 py-1 rounded-sm text-xs gap-3"),
-					reviewLink(p, "cards"),
-					el.Text(" | "),
-					reviewLink(p, "slides"),
+					el.Class(
+						"inline-block px-2 py-1",
+						"bg-slate-50 shadow-inner rounded-sm",
+						"text-black text-xs",
+					),
+					el.Fragment{
+						reviewLink(p, "cards"), el.Text(" | "), reviewLink(p, "slides"),
+					},
 				},
 			},
 			layout.PlayButton,
 		),
 
-		// content
 		el.Div{
 			layout.Content,
 		},

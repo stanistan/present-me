@@ -41,7 +41,7 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 					el.Div{
 						slide(0),
 						el.Div{el.Class("text-6xl font-extrabold text-center"),
-							GradientText(el.Text(model.Title.Text)),
+							GradientText(model.Title.Text),
 						},
 						el.Div{el.Class("mx-auto mt-8"),
 							MetadataList(model),
@@ -54,7 +54,7 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 						Card{
 							Title: el.Div{
 								el.Class("text-xl font-extrabold"),
-								GradientText(el.Text(model.Title.Text)),
+								GradientText(model.Title.Text),
 							},
 							Body: el.Div{
 								el.Class("p-4"),

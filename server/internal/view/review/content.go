@@ -10,27 +10,43 @@ import (
 	"github.com/stanistan/present-me/internal/github"
 )
 
+func flexNone(fs ...el.Param) el.Div {
+	return el.Div{el.Class("flex-none"), el.Fragment(fs)}
+}
+
+func flexSpace() el.Div {
+	return el.Div{el.Class("flex-grow")}
+}
+
+func flexRow(fs ...el.Param) el.Div {
+	return el.Div{el.Class("flex", "flex-row"), el.Fragment(fs)}
+}
+
 func topBar(main, right veun.AsView) el.Div {
 	return el.Div{
-		el.Class("bg-gradient-to-b from-gray-800 to-black", "text-white", "font-mono", "text-sm", "py-2", "shadow"),
-		el.Div{
-			el.Class("flex flex-row"),
-			el.Div{
-				el.Class("flex-none pl-3"),
-				el.A{el.Href("/"), el.Class("font-bold hover:text-pink-300"), el.Text(" / ")},
-			},
-			el.Div{el.Class("flex-grow")},
-			el.Div{el.Class("flex-none"), el.Content{main}},
-			el.Div{el.Class("flex-grow")},
-			el.Div{el.Class("flex-none pr-3"), el.Content{right}},
-		},
+		el.Class(
+			"py-2",
+			"bg-gradient-to-b from-gray-800 to-black",
+			"text-white font-mono text-sm",
+		),
+		flexRow(
+			flexNone(el.A{
+				el.Href("/"),
+				el.Class("font-bold hover:text-pink-300 ml-3"),
+				el.Text(" / "),
+			}),
+			flexSpace(),
+			flexNone(el.Content{main}),
+			flexSpace(),
+			flexNone(el.Class("pr-3"), el.Content{right}),
+		),
 	}
 }
 
-func GradientText(slot veun.AsView) el.Span {
+func GradientText(text string) el.Span {
 	return el.Span{
 		el.Class("bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-violet-900"),
-		el.Content{slot},
+		el.Text(text),
 	}
 }
 
@@ -66,7 +82,7 @@ func Diff(code api.CodeBlock) el.Pre {
 	}
 
 	return el.Pre{
-		el.Class("bg-gray-100", lang),
+		el.Class("bg-gray-50", lang),
 		el.Code{
 			el.Class("diff-highlight", lang),
 			el.Text(code.Content),
@@ -81,7 +97,7 @@ type Card struct {
 
 func (c Card) Render() el.Component {
 	return el.Div{
-		el.Class("m-4", "border", "border-slate-300", "rounded-xl", "overflow-hidden", "shadow"),
+		el.Class("m-4", "border border-slate-300", "rounded-xl", "overflow-hidden", "shadow"),
 		el.Div{
 			el.Class("w-full"),
 			el.Div{
