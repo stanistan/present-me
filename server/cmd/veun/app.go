@@ -14,6 +14,7 @@ import (
 	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/cache"
 	"github.com/stanistan/present-me/internal/github"
+	"github.com/stanistan/present-me/internal/view/home"
 	"github.com/stanistan/present-me/internal/view/layout"
 	"github.com/stanistan/present-me/internal/view/review"
 	"github.com/stanistan/veun"
@@ -146,11 +147,15 @@ func (s *app) Handler() http.Handler {
 	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                        // list pulls
 	mux.Handle("GET /{owner}/{repo}/", hf(s.debug))                             // list pulls
 	mux.Handle("GET /{owner}/", hf(s.debug))                                    // list repos _should we drop this_
-	mux.Handle("GET /", hf(s.debug))                                            // search
-	mux.Handle("GET /version", h(request.Always(veun.Raw(version))))            // what version are we running!?
-	mux.Handle("/", handler.OnlyRoot(hf(s.debug)))                              // 404
+	mux.Handle("GET /", handler.OnlyRoot(hf(s.home)))
+	mux.Handle("GET /version", h(request.Always(veun.Raw(version)))) // what version are we running!?
+	mux.Handle("/", handler.OnlyRoot(h(request.Always(home.Home{}))))
 
 	return mux
+}
+
+func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
+	return s.layout(home.Home{}, nil), nil, nil
 }
 
 func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
