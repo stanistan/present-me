@@ -34,4 +34,4 @@ require (
 	golang.org/x/sys v0.8.0 // indirect
 )
 
-replace github.com/stanistan/veun => ../../veun
+replace github.com/stanistan/veun => ../veun
