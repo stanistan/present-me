@@ -2,8 +2,6 @@
 *.pem
 .cache/*
 .env
-.hermit/node/lib/node_modules/*
-.hermit/node/cache/*
-server/static
-server/cmd/veun/static/dev*
+node_modules/
+cmd/veun/static/dev*
 data/

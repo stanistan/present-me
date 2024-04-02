@@ -15,7 +15,7 @@ case "$1" in
     exec env $(cat .env | xargs) go run github.com/cespare/reflex -d none -c reflex.conf
     ;;
   tailwind)
-    exec tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/dev-styles.css --watch
+    exec bun run tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/dev-styles.css --watch
     ;;
   *)
     echo "??? $1 ???"

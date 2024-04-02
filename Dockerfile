@@ -1,24 +1,12 @@
-FROM node:20.1-alpine as frontend
-RUN corepack enable
-
-WORKDIR /app
-COPY frontend/.yarn .yarn/
-COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
-RUN yarn 
-COPY frontend /app
-
 ARG VERSION_SHA
-RUN echo "{ \"rev\": \"$VERSION_SHA\" }" > /app/version.json
-RUN yarn run generate
 
-FROM golang:1.21.0-alpine as server 
+FROM golang:1.22.0-alpine as server
 WORKDIR /app
-COPY server/go.mod server/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY server /app
+COPY . .
 
-ARG VERSION_SHA
-RUN go build -o server -ldflags="-X main.version=$VERSION_SHA" ./cmd/server
+RUN go build -o server -ldflags="-X main.version=$VERSION_SHA" ./cmd/veun
 
 FROM scratch as prod
 COPY --from=server /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
