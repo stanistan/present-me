@@ -1,4 +1,14 @@
-#!/bin/bash
+#!/bin/bash -euo pipefail
+
+cd "$(dirname ${BASH_SOURCE})"
+
+if [ $# -eq 0 ]; then
+    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+    ./dev go &
+    ./dev tailwind &
+    wait
+    exit 0
+fi
 
 case "$1" in
   go)
@@ -8,9 +18,7 @@ case "$1" in
     exec tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/dev-styles.css --watch
     ;;
   *)
-    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
-    ./dev go &
-    ./dev tailwind &
-    wait
+    echo "??? $1 ???"
+    exit 1
     ;;
 esac

@@ -155,7 +155,12 @@ func (s *app) Handler() http.Handler {
 }
 
 func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
-	return s.layout(home.Home{}, nil), nil, nil
+	query := r.URL.Query()
+	return s.layout(home.Home{
+		Owner: query.Get("owner"),
+		Repo:  query.Get("repo"),
+		PR:    query.Get("pr"),
+	}, nil), nil, nil
 }
 
 func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {

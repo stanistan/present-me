@@ -1,23 +1,93 @@
 <div class="mx-auto">
-  <div class="py-10 mb-10 bg-gray-100 border border-gray-200">
-      <div class="text-5xl flex flex-col font-extrabold text-center py-3">
-         [pr]esent-me
+    <div class="pt-10 mb-10 bg-indigo-100 border-b border-gray-200">
+      <div class="text-5xl flex flex-col font-extrabold text-center pt-3">
+        [pr]esent-me
+      </div>
+      <div class="prose max-w-prose mx-auto px-6 text-center text-xs py-2">
+        <p>
+          <code>present-me</code> uses the comments on a Pull Request to generate a slideshow.
+        </p>
+      </div>
+      <div class="pt-5 prose mx-auto text-center">
+        <p class="underline underline-offset-8">
+          Present a Pull Request.
+        </p>
+      </div>
+      <div class="bg-indigo-900 mt-3">
+        <div class="flex items-center gap-1 font-mono justify-center">
+          <div class="py-4">
+            <span class="text-gray-400">//github.com/</span>
+          </div>
+          <div class="py-4">
+            <input type="text" placeholder="owner" value="{{ .Owner }}" class="
+              border-t border-t-gray-900
+              shadow-lg
+              w-28
+              text-center p-1 rounded text-xs
+            ">
+          </div>
+          <div class="py-4">
+            <span class="text-gray-400">/</span>
+          </div>
+          <div class="py-4">
+            <input type="text" placeholder="repo" value="{{ .Repo }}" class="
+              border-t border-t-gray-900
+              shadow-lg
+              w-28
+              text-center p-1 rounded text-xs
+            ">
+          </div>
+          <div class="py-4">
+            <span class="text-gray-400">/pull/</span>
+          </div>
+          <div class="py-4">
+            <input type="text" placeholder="pr" value="{{ .PR }}" class="
+              border-t border-t-gray-900
+              shadow-lg
+              text-center p-1 rounded text-xs w-12
+            ">
+          </div>
+          <div>
+            <button class="
+              px-4
+              pb-[6px] pt-[4px]
+              ml-1
+              bg-purple-700 rounded-md
+              hover:bg-purple-600
+              active:bg-purple-800
+              text-white text-sm font-bold font-sans
+              shadow-xs hover:shadow-md
+              border-b border-b-gray-400 border-t border-t-purple-500">
+              pr-me
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="prose max-w-prose mx-auto px-4">
-      <p class="inline-block font-bold">What</p>
-      <p class="inline-block mb-4">
-        <code>present-me</code> is an experiment to try to give the author of a
-        Pull Request a better way to convey why a changeset looks the way that
-        it does, and how the folks reading and reviewing it should approach it.
-      </p>
-      <p class="inline-block font-bold">How</p>
       <p class="mb-4">
-        <code>present-me</code> uses a PR review's comments (and their
-        respective diff) to create slideshow-like presentation, in the order
-        that the comments are desired to appear, and only the diffs that are
-        annotated with comments, leaving all other changes out of mind.
+        There are a few kinds of PRs out there in the wild. There are the PRs that
+        are trivial to review, they are small, self-contained, etc.
       </p>
+      <p>
+        There are others though:
+      </p>
+        <ul class="list-disc ml-4">
+        <li class="prose py-1">
+          You might be updating a function signature in a library and have to update
+          the call site across hundreds of files. There's too much <em>noise</em> to
+          find the parts that are most important.
+        </li>
+        <li class="prose py-1">
+          You might be refactoring something more involved and want to tell a story
+          with your PR, or it's just an idea and you want to walk through it.
+        </li>
+        <li class="prose py-1">
+          You might have left a lot of comments annotating your PR but how do you
+          make sure that folks read them all in the right order? They're going to
+          look at the diff and read it <em>top to bottom</em> anyway.
+        </li>
+        </ul>
     </div>
 
   </div>
