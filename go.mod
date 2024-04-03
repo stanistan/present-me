@@ -8,12 +8,12 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.9.1-0.20240116154122-7838128b61c6
 	github.com/cespare/reflex v0.3.1
 	github.com/google/go-github/v58 v58.0.0
-	github.com/gorilla/mux v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/peterbourgon/diskv/v3 v3.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
-	github.com/stanistan/veun v0.0.0-20240202171837-b8387900868f
+	github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341
+	github.com/yuin/goldmark v1.7.0
 	golang.org/x/sync v0.3.0
 )
 
@@ -29,9 +29,5 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/ogier/pflag v0.0.1 // indirect
-	github.com/rs/xid v1.5.0 // indirect
-	github.com/yuin/goldmark v1.7.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 )
-
-replace github.com/stanistan/veun => ../veun
