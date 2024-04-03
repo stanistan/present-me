@@ -26,6 +26,9 @@ func (s *ListSourcesAPISource) GetReview(ctx context.Context) (api.Review, error
 		nil,
 		func(body string) (int, bool) { return 0, false },
 	)
+	if err != nil {
+		return api.Review{}, errors.WithStack(err)
+	}
 
 	var body string
 	if model.PR.Body != nil && *model.PR.Body != "" {

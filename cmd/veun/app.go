@@ -149,15 +149,9 @@ func (s *app) Handler() http.Handler {
 	return mux
 }
 
-func (s *app) pr(r *http.Request) (veun.AsView, http.Handler, error) {
-	params := github.ReviewParamsMap{
-		Owner: r.PathValue("owner"),
-		Repo:  r.PathValue("repo"),
-		Pull:  r.PathValue("pull"),
-	}
-
+func (s *app) listSources(ctx context.Context, params github.ReviewParamsMap) (veun.AsView, http.Handler, error) {
 	source := &github.ListSourcesAPISource{ReviewParamsMap: params}
-	model, err := source.GetReview(r.Context())
+	model, err := source.GetReview(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -168,13 +162,50 @@ func (s *app) pr(r *http.Request) (veun.AsView, http.Handler, error) {
 	), nil, nil
 }
 
+func (s *app) pr(r *http.Request) (veun.AsView, http.Handler, error) {
+	params := github.ReviewParamsMap{
+		Owner: r.PathValue("owner"),
+		Repo:  r.PathValue("repo"),
+		Pull:  r.PathValue("pull"),
+	}
+	return s.listSources(r.Context(), params)
+}
+
 func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
 	query := r.URL.Query()
-	return s.layout(home.Home{
+	h := home.Home{
 		Owner: query.Get("owner"),
 		Repo:  query.Get("repo"),
-		PR:    query.Get("pr"),
-	}, nil), nil, nil
+		Pull:  query.Get("pull"),
+	}
+
+	if h.Owner != "" && h.Repo != "" && h.Pull != "" {
+		params := github.ReviewParamsMap{
+			Owner: h.Owner, Repo: h.Repo, Pull: h.Pull,
+		}
+		source := &github.ListSourcesAPISource{ReviewParamsMap: params}
+		model, err := source.GetReview(r.Context())
+		if err != nil {
+			h.SearchResults = el.Div{
+				el.Class("mx-auto", "bg-pink-800", "text-white", "text-center", "text-xs", "p-3"),
+				el.Text(err.Error()),
+			}
+		} else {
+			sources := review.SourcesFragment(params, model)
+			h.SearchResults = el.Div{
+				el.Class(
+					"border-t-2 border-t-pink-200 bg-gray-50 pb-3",
+					//"border-b border-b-gray-200",
+				),
+				el.Div{
+					el.Class("max-w-2xl mx-auto"),
+					sources,
+				},
+			}
+		}
+	}
+
+	return s.layout(h, nil), nil, nil
 }
 
 func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {

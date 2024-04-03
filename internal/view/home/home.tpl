@@ -14,13 +14,13 @@
         </p>
       </div>
       <div class="bg-indigo-900 mt-3">
-        <form action="/search">
+        <form action="/" method="GET">
         <div class="flex items-center gap-1 font-mono justify-center">
           <div class="py-4">
             <span class="text-gray-400">//github.com/</span>
           </div>
           <div class="py-4">
-            <input type="text" placeholder="owner" value="{{ .Owner }}" class="
+            <input type="text" name="owner" placeholder="owner" value="{{ .Owner }}" class="
               border-t border-t-gray-900
               shadow-lg
               w-28
@@ -31,7 +31,7 @@
             <span class="text-gray-400">/</span>
           </div>
           <div class="py-4">
-            <input type="text" placeholder="repo" value="{{ .Repo }}" class="
+            <input type="text" name="repo" placeholder="repo" value="{{ .Repo }}" class="
               border-t border-t-gray-900
               shadow-lg
               w-28
@@ -42,7 +42,7 @@
             <span class="text-gray-400">/pull/</span>
           </div>
           <div class="py-4">
-            <input type="text" placeholder="pr" value="{{ .PR }}" class="
+            <input type="text" name="pull" placeholder="pr" value="{{ .Pull }}" class="
               border-t border-t-gray-900
               shadow-lg
               text-center p-1 rounded text-xs w-12
@@ -58,13 +58,16 @@
               active:bg-purple-800
               text-white text-sm font-bold font-sans
               shadow-xs hover:shadow-md
-              border-b border-b-gray-400 border-t border-t-purple-500">
+              border-b border-b-gray-400 border-t border-t-purple-500"
+              type="submit"
+              >
               pr-me
             </button>
           </div>
         </div>
         </form>
       </div>
+    {{ slot "results" }}
     </div>
     <div class="prose max-w-prose mx-auto px-4">
       <p class="mb-4">

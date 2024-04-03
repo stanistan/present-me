@@ -15,9 +15,10 @@ var (
 )
 
 type Home struct {
-	Owner, Repo, PR string
+	Owner, Repo, Pull string
+	SearchResults     veun.AsView
 }
 
 func (h Home) View(ctx context.Context) (*veun.View, error) {
-	return veun.V(t.T{Tpl: homeTpl, Data: h}), nil
+	return veun.V(t.T{Tpl: homeTpl, Slots: t.Slots{"results": h.SearchResults}, Data: h}), nil
 }

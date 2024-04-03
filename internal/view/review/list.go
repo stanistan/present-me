@@ -10,7 +10,7 @@ import (
 	"github.com/stanistan/veun/el"
 )
 
-func SourcesList(p github.ReviewParamsMap, m api.Review) veun.AsView {
+func SourcesFragment(p github.ReviewParamsMap, m api.Review) el.Fragment {
 	var tagCounts = tagsMeta(m)
 	var ks []string
 	for tag, _ := range tagCounts {
@@ -33,7 +33,7 @@ func SourcesList(p github.ReviewParamsMap, m api.Review) veun.AsView {
 				el.Class(
 					"block",
 					"px-3", "py-2", "border-b",
-					"text-sm", "bg-gray-white hover:bg-pink-50",
+					"text-sm", "bg-white hover:bg-pink-50",
 					"font-mono", "hover:text-indigo-900",
 				),
 				el.Href(fmt.Sprintf("/%s/%s/pull/%s/tag%s/cards", p.Owner, p.Repo, p.Pull, k)),
@@ -50,21 +50,31 @@ func SourcesList(p github.ReviewParamsMap, m api.Review) veun.AsView {
 		})
 	}
 
+	return el.Fragment{
+		Card{
+			Title: el.Div{
+				el.Class("text-md", "text-center"),
+				el.Text("Choose one: "),
+				el.Span{
+					el.Class("font-bold"),
+					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
+				},
+			},
+			Body: el.Div{
+				el.Ol{
+					el.Class("list-decimal"),
+					el.Fragment(content),
+				},
+			},
+		}.Render(),
+	}
+}
+
+func SourcesList(p github.ReviewParamsMap, m api.Review) veun.AsView {
 	return Layout(p, m, LayoutParams{
 		Content: el.Fragment{
 			el.Class("max-w-96", "p-3", "mx-auto"),
-			Card{
-				Title: el.Div{
-					el.Class("text-md", "text-center"),
-					el.Text("Choose one:"),
-				},
-				Body: el.Div{
-					el.Ol{
-						el.Class("list-decimal"),
-						el.Fragment(content),
-					},
-				},
-			}.Render(),
+			SourcesFragment(p, m),
 		},
 	})
 }
