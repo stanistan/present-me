@@ -28,8 +28,7 @@ func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 							GradientText(model.Title.Text),
 						},
 						Body: el.Div{
-							el.Class("p-4"),
-							Markdown(model.Body),
+							Markdown(model.Body, el.Class("p-4")),
 						},
 					}.Render(),
 					el.MapFragment(model.Comments, func(c api.Comment, idx int) el.Component {
@@ -46,7 +45,7 @@ func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 							Body: el.Div{
 								el.Class("flex flex-col md:flex-row max-h-[95vh] bg-gray-50"),
 								el.Div{
-									el.Class("p-3 flex-none md:w-2/5 text-md"),
+									el.Class("p-3 flex-none md:w-2/5 text-md bg-white"),
 									Markdown(c.Description),
 								},
 								el.Div{

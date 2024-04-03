@@ -102,6 +102,7 @@ func (s *app) layout(view veun.AsView, d func() veun.AsView) veun.AsView {
 		cssFile = "/static/styles.css"
 	}
 
+	s.log.Trace().Msg("returning layout")
 	return layout.Layout(layout.Params{
 		Title:    "present-me",
 		CSSFiles: []string{cssFile},
@@ -137,7 +138,7 @@ func (s *app) Handler() http.Handler {
 
 	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.review)) // do the source and kind
 	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}", hf(s.review))        // do the source thing
-	mux.Handle("GET /{owner}/{repo}/pull/{pr}/", hf(s.debug))                   // list review sources
+	mux.Handle("GET /{owner}/{repo}/pull/{pull}/", hf(s.pr))                    // list review sources
 	mux.Handle("GET /{owner}/{repo}/pull/", hf(s.debug))                        // list pulls
 	mux.Handle("GET /{owner}/{repo}/", hf(s.debug))                             // list pulls
 	mux.Handle("GET /{owner}/", hf(s.debug))                                    // list repos _should we drop this_
@@ -146,6 +147,25 @@ func (s *app) Handler() http.Handler {
 	mux.Handle("/", handler.OnlyRoot(h(request.Always(home.Home{}))))
 
 	return mux
+}
+
+func (s *app) pr(r *http.Request) (veun.AsView, http.Handler, error) {
+	params := github.ReviewParamsMap{
+		Owner: r.PathValue("owner"),
+		Repo:  r.PathValue("repo"),
+		Pull:  r.PathValue("pull"),
+	}
+
+	source := &github.ListSourcesAPISource{ReviewParamsMap: params}
+	model, err := source.GetReview(r.Context())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return s.layout(
+		review.SourcesList(params, model),
+		nil,
+	), nil, nil
 }
 
 func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
@@ -158,6 +178,8 @@ func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
 }
 
 func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
+	s.log.Debug().Msg("rendering review")
+
 	pathSource := r.PathValue("source")
 	_, reviewID, hasReviewID := strings.Cut(pathSource, "review-")
 	_, tag, hasTagID := strings.Cut(pathSource, "tag")
@@ -184,6 +206,7 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 
 	model, err := source.GetReview(r.Context())
 	if err != nil {
+		s.log.Trace().Msg("failed fetching reviw")
 		return nil, nil, err
 	}
 
@@ -195,6 +218,7 @@ func (s *app) review(r *http.Request) (veun.AsView, http.Handler, error) {
 		content = review.SlideContent(params, model)
 	}
 
+	s.log.Trace().Msg("rendering review layout")
 	return s.layout(
 		content,
 		func() veun.AsView { return s.debugView(r) },

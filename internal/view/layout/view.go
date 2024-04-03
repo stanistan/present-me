@@ -20,8 +20,8 @@ type Params struct {
 	CSSFiles []string
 }
 
+// TODO: do the duck-typing
 func (p Params) maybeOverrideWith(data any) Params {
-	// TODO: do the duck-typing
 	return p
 }
 

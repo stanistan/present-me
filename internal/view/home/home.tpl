@@ -14,6 +14,7 @@
         </p>
       </div>
       <div class="bg-indigo-900 mt-3">
+        <form action="/search">
         <div class="flex items-center gap-1 font-mono justify-center">
           <div class="py-4">
             <span class="text-gray-400">//github.com/</span>
@@ -62,6 +63,7 @@
             </button>
           </div>
         </div>
+        </form>
       </div>
     </div>
     <div class="prose max-w-prose mx-auto px-4">

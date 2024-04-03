@@ -77,13 +77,14 @@ func reviewLink(p github.ReviewParamsMap, to string) el.A {
 	}
 }
 
-func Markdown(in string) el.Component {
+func Markdown(in string, ps ...el.Param) el.Component {
 	if in == "" {
-		return nil
+		return el.Fragment{}
 	}
 
 	return el.Div{
 		el.Class("markdown"),
+		el.Fragment(ps),
 		el.Content{markdown(in)},
 	}
 }

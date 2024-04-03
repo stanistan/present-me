@@ -3,6 +3,7 @@ package review
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
 	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/github"
 	"github.com/stanistan/veun"
@@ -20,6 +21,7 @@ type LayoutParams struct {
 }
 
 func Layout(p github.ReviewParamsMap, model api.Review, layout LayoutParams) veun.AsView {
+	log.Info().Any("params", p).Msg("in layout")
 	return el.Div{
 
 		topBar(

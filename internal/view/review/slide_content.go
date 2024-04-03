@@ -10,16 +10,18 @@ import (
 	"github.com/stanistan/veun/el"
 )
 
-func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
-	toShow := 0 //
-	slide := func(idx int) el.AttrFunc {
+func slide(toShow int) func(int) el.AttrFunc {
+	return func(idx int) el.AttrFunc {
 		cl := "hidden"
 		if idx == toShow {
 			cl = "visible"
 		}
-
 		return el.Class("slide", fmt.Sprintf("slide-%d", idx), cl)
 	}
+}
+
+func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
+	slide := slide(0)
 
 	return Layout(p, model, LayoutParams{
 		TopBar: TopBar{
@@ -60,8 +62,7 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 								GradientText(model.Title.Text),
 							},
 							Body: el.Div{
-								el.Class("p-4"),
-								Markdown(model.Body),
+								Markdown(model.Body, el.Class("p-4")),
 							},
 						}.Render(),
 					},
