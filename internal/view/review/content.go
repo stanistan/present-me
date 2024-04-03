@@ -26,7 +26,7 @@ func topBar(main, right veun.AsView) el.Div {
 	return el.Div{
 		el.Class(
 			"py-2",
-			"bg-gradient-to-b from-gray-800 to-black",
+			"bg-indigo-900",
 			"text-white font-mono text-sm",
 		),
 		flexRow(
