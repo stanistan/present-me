@@ -3,5 +3,6 @@
 .cache/*
 .env
 node_modules/
-cmd/veun/static/dev*
+static/styles.dev.css
+static/styles.css
 data/

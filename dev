@@ -12,10 +12,10 @@ fi
 
 case "$1" in
   go)
-    exec env $(cat .env | xargs) go run github.com/cespare/reflex -d none -c reflex.conf
+    exec env $(cat .env | xargs) go run github.com/cespare/reflex -d none -s go run ./cmd/veun serve
     ;;
   tailwind)
-    exec bun run tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/dev-styles.css --watch
+    exec bun run tailwindcss -i static/input.css -o static/styles.dev.css --watch
     ;;
   *)
     echo "??? $1 ???"

@@ -1,0 +1,4 @@
+#!/bin/bash -euo pipefail
+
+bun run tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/styles.css --minify
+exec env $(cat .env | xargs) go run ./cmd/veun serve --environment=prod

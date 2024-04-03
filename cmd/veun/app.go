@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"net/http"
 	"strings"
@@ -22,11 +21,6 @@ import (
 	"github.com/stanistan/veun/vhttp"
 	"github.com/stanistan/veun/vhttp/handler"
 	"github.com/stanistan/veun/vhttp/request"
-)
-
-var (
-	//go:embed static
-	staticFiles embed.FS
 )
 
 func App(
@@ -103,7 +97,7 @@ func (s *app) layout(view veun.AsView, d func() veun.AsView) veun.AsView {
 		view = veun.Views{view, d()}
 	}
 
-	cssFile := "/static/dev-styles.css"
+	cssFile := "/static/styles.dev.css"
 	if s.config.Environment == "prod" {
 		cssFile = "/static/styles.css"
 	}
@@ -139,7 +133,7 @@ func (s *app) Handler() http.Handler {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("GET /static/*", http.FileServer(http.FS(staticFiles)))
+	mux.Handle("GET /static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}/{kind}", hf(s.review)) // do the source and kind
 	mux.Handle("GET /{owner}/{repo}/pull/{pull}/{source}", hf(s.review))        // do the source thing
