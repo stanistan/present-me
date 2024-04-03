@@ -18,10 +18,15 @@ var (
 	}
 )
 
+var cli struct {
+	pm.Config
+	Version struct{} `cmd:"version"`
+	Serve   struct{} `cmd:"serve"`
+}
+
 func main() {
-	// get our args
-	var config pm.Config
-	_ = kong.Parse(&config, cliOptions...)
+	k := kong.Parse(&cli, cliOptions...)
+	config := cli.Config
 
 	// init our logger and add it to the context
 	ctx, log := config.Logger(context.Background())
@@ -34,16 +39,26 @@ func main() {
 			Msg("could not initialize app")
 	}
 
-	log.Info().
-		Str("address", config.Address()).
-		Bool("debug", config.Debug).
-		Str("env", config.Environment).
-		Msg("starting server")
-
 	s := app.HTTPServer()
-	if err := s.ListenAndServe(); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("server failed")
+	switch k.Command() {
+	case "version":
+		log.Info().Str("sha", version).Msg("version")
+	case "serve":
+		log.Info().
+			Str("address", config.Address()).
+			Bool("debug", config.Debug).
+			Str("env", config.Environment).
+			Msg("starting server")
+
+		if err := s.ListenAndServe(); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("server failed")
+		}
+	case "":
+		log.Fatal().Msg("missing command")
+	default:
+		log.Fatal().Msg(k.Command())
 	}
+
 }
