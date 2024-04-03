@@ -9,6 +9,9 @@ import (
 
 func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 	return Layout(p, model, LayoutParams{
+		TopBar: TopBar{
+			ViewSelector: viewSelector(p),
+		},
 		Content: el.Fragment{
 			el.Class("relative"),
 			el.Div{

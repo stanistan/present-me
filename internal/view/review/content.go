@@ -50,6 +50,19 @@ func GradientText(text string) el.Span {
 	}
 }
 
+func viewSelector(p github.ReviewParamsMap) el.Div {
+	return el.Div{
+		el.Class(
+			"inline-block px-2 py-1",
+			"bg-slate-50 shadow-inner rounded-sm",
+			"text-black text-xs",
+		),
+		el.Fragment{
+			reviewLink(p, "cards"), el.Text(" | "), reviewLink(p, "slides"),
+		},
+	}
+}
+
 func reviewLink(p github.ReviewParamsMap, to string) el.A {
 	href := fmt.Sprintf("/%s/%s/pull/%s/%s/%s", p.Owner, p.Repo, p.Pull, p.Source(), to)
 	class := "underline"

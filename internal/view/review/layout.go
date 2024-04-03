@@ -9,9 +9,14 @@ import (
 	"github.com/stanistan/veun/el"
 )
 
+type TopBar struct {
+	PlayButton   veun.AsView
+	ViewSelector veun.AsView
+}
+
 type LayoutParams struct {
-	PlayButton veun.AsView
-	Content    el.Fragment
+	TopBar  TopBar
+	Content el.Fragment
 }
 
 func Layout(p github.ReviewParamsMap, model api.Review, layout LayoutParams) veun.AsView {
@@ -23,18 +28,9 @@ func Layout(p github.ReviewParamsMap, model api.Review, layout LayoutParams) veu
 					el.Class("px-3"),
 					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
 				},
-				el.Div{
-					el.Class(
-						"inline-block px-2 py-1",
-						"bg-slate-50 shadow-inner rounded-sm",
-						"text-black text-xs",
-					),
-					el.Fragment{
-						reviewLink(p, "cards"), el.Text(" | "), reviewLink(p, "slides"),
-					},
-				},
+				layout.TopBar.ViewSelector,
 			},
-			layout.PlayButton,
+			layout.TopBar.PlayButton,
 		),
 
 		el.Div{

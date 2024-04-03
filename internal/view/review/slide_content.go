@@ -22,10 +22,13 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 	}
 
 	return Layout(p, model, LayoutParams{
-		PlayButton: el.Button{
-			el.Class("text-xs px-2"),
-			el.ID("play-full-screen"),
-			el.Text("▶️"),
+		TopBar: TopBar{
+			PlayButton: el.Button{
+				el.Class("text-xs px-2"),
+				el.ID("play-full-screen"),
+				el.Text("▶️"),
+			},
+			ViewSelector: viewSelector(p),
 		},
 		Content: el.Fragment{
 			el.Class("relative h-[95vh]"),
