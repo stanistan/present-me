@@ -77,7 +77,7 @@ func listApply[T any](
 ) ([]T, error) {
 	items, err := cache.Apply(ctx, k, fetch)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	if predicate == nil {

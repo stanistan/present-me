@@ -14,7 +14,30 @@ type CommentsAPISource struct {
 	ReviewParamsMap ReviewParamsMap
 }
 
-var _ api.Source = &CommentsAPISource{}
+var (
+	_ api.SourceProvider = &CommentsAPISource{}
+	_ api.Source         = &CommentsAPISource{}
+)
+
+func (s *CommentsAPISource) Source() api.Source {
+	return s
+}
+
+func (s *CommentsAPISource) Link() string {
+	return s.ReviewParamsMap.Link()
+}
+
+func (s *CommentsAPISource) Type() string {
+	return "tag"
+}
+
+func (s *CommentsAPISource) Label() string {
+	if s.ReviewParamsMap.Tag == "" {
+		return "/unlabelled/"
+	}
+
+	return "#" + s.ReviewParamsMap.Tag
+}
 
 func (s *CommentsAPISource) GetReview(ctx context.Context) (api.Review, error) {
 	params, err := ReviewParamsFromMap(s.ReviewParamsMap)

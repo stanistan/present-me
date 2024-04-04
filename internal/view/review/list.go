@@ -2,7 +2,6 @@ package review
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/stanistan/present-me/internal/api"
 	"github.com/stanistan/present-me/internal/github"
@@ -10,51 +9,45 @@ import (
 	"github.com/stanistan/veun/el"
 )
 
-func SourcesFragment(p github.ReviewParamsMap, m api.Review) el.Fragment {
-	var tagCounts = tagsMeta(m)
-	var ks []string
-	for tag, _ := range tagCounts {
-		ks = append(ks, tag)
-	}
-
-	sort.Strings(ks)
-
-	var content []el.Param
-	for _, k := range ks {
-		var tag string
-		if k != "" {
-			tag = "#" + k
-		} else {
-			tag = "/unlabelled/"
-		}
-
-		content = append(content, el.Li{
-			el.A{
-				el.Class(
-					"block",
-					"px-3", "py-2", "border-b",
-					"text-sm", "bg-white hover:bg-pink-50",
-					"font-mono", "hover:text-indigo-900",
-				),
-				el.Href(fmt.Sprintf("/%s/%s/pull/%s/tag%s/cards", p.Owner, p.Repo, p.Pull, k)),
-				el.Div{
-					el.Class("underline"),
-					el.Text(tag),
+func SourcesFragment(
+	p github.ReviewParamsMap, m api.Review, sources []api.SourceProvider,
+) el.Fragment {
+	content := el.MapFragment(
+		sources,
+		func(s api.SourceProvider, _ int) el.Param {
+			label := s.Label()
+			href := s.Link()
+			return el.Li{
+				el.A{
+					el.Class(
+						"block",
+						"px-3", "py-2", "border-b",
+						"text-sm", "bg-white hover:bg-pink-50",
+						"font-mono", "hover:text-indigo-900",
+					),
+					el.Href(href),
+					el.Div{
+						el.Class("underline"),
+						el.Text(label),
+					},
 				},
-				el.Div{
-					el.Class("text-xs"),
-					el.Text(fmt.Sprintf("%d", tagCounts[k])),
-					el.Text(" comment(s)"),
-				},
+			}
+		},
+	)
+
+	if len(content) == 0 {
+		content = el.Fragment{
+			el.Div{
+				el.Class("text-center", "p-2"),
+				el.Text("none"),
 			},
-		})
+		}
 	}
 
 	return el.Fragment{
 		Card{
 			Title: el.Div{
 				el.Class("text-md", "text-center"),
-				el.Text("Choose one: "),
 				el.Span{
 					el.Class("font-bold"),
 					el.Text(fmt.Sprintf("%s/%s#%s", p.Owner, p.Repo, p.Pull)),
@@ -63,32 +56,18 @@ func SourcesFragment(p github.ReviewParamsMap, m api.Review) el.Fragment {
 			Body: el.Div{
 				el.Ol{
 					el.Class("list-decimal"),
-					el.Fragment(content),
+					content,
 				},
 			},
 		}.Render(),
 	}
 }
 
-func SourcesList(p github.ReviewParamsMap, m api.Review) veun.AsView {
+func SourcesList(p github.ReviewParamsMap, m api.Review, sources []api.SourceProvider) veun.AsView {
 	return Layout(p, m, LayoutParams{
 		Content: el.Fragment{
 			el.Class("max-w-96", "p-3", "mx-auto"),
-			SourcesFragment(p, m),
+			SourcesFragment(p, m, sources),
 		},
 	})
-}
-
-func tagsMeta(m api.Review) map[string]int {
-	out, ok := m.MetaData["reviewTags"]
-	if !ok {
-		return nil
-	}
-
-	tags, ok := out.(map[string]int)
-	if !ok {
-		return nil
-	}
-
-	return tags
 }

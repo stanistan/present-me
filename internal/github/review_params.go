@@ -63,6 +63,13 @@ type ReviewParamsMap struct {
 	Kind   string `json:"kind"`
 }
 
+func (r ReviewParamsMap) Link() string {
+	return fmt.Sprintf(
+		"/%s/%s/pull/%s/%s/%s",
+		r.Owner, r.Repo, r.Pull, r.Source(), r.Kind,
+	)
+}
+
 func (r ReviewParamsMap) Source() string {
 	switch r.Review {
 	case "":
@@ -70,6 +77,20 @@ func (r ReviewParamsMap) Source() string {
 	default:
 		return "review-" + r.Review
 	}
+}
+
+func (r ReviewParamsMap) WithTag(tag string) ReviewParamsMap {
+	r2 := r
+	r2.Tag = tag
+	r2.Review = ""
+	return r2
+}
+
+func (r ReviewParamsMap) WithReview(review string) ReviewParamsMap {
+	r2 := r
+	r2.Tag = ""
+	r2.Review = review
+	return r2
 }
 
 func NewReviewParamsMap(values url.Values) ReviewParamsMap {

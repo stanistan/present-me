@@ -11,6 +11,14 @@ type Source interface {
 	GetReview(context.Context) (Review, error)
 }
 
+// SourceProvider is something that can provide a source.
+type SourceProvider interface {
+	Source() Source
+	Link() string
+	Type() string
+	Label() string
+}
+
 // Review represents anything that we can present, it is explicitly agnostic
 // of data provider.
 //

@@ -62,6 +62,22 @@ func WrapErr(err error) *Error {
 	}
 }
 
+func Is404(err error) bool {
+	return IsHttpCode(err, 404)
+}
+
+func IsHttpCode(err error, code int) bool {
+	if err == nil {
+		return false
+	}
+
+	if e, ok := err.(*Error); ok {
+		return e.HttpCode == code
+	}
+
+	return false
+}
+
 func New(msg string) error {
 	return errors.New(msg)
 }

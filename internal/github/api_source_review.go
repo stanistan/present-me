@@ -13,7 +13,26 @@ type ReviewAPISource struct {
 	ReviewParamsMap ReviewParamsMap
 }
 
-var _ api.Source = &ReviewAPISource{}
+var (
+	_ api.Source         = &ReviewAPISource{}
+	_ api.SourceProvider = &ReviewAPISource{}
+)
+
+func (s *ReviewAPISource) Source() api.Source {
+	return s
+}
+
+func (s *ReviewAPISource) Link() string {
+	return s.ReviewParamsMap.Link()
+}
+
+func (s *ReviewAPISource) Type() string {
+	return "review"
+}
+
+func (s *ReviewAPISource) Label() string {
+	return "Review " + s.ReviewParamsMap.Review
+}
 
 func (s *ReviewAPISource) GetReview(ctx context.Context) (api.Review, error) {
 	params, err := ReviewParamsFromMap(s.ReviewParamsMap)

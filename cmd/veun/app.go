@@ -123,13 +123,18 @@ func (s *app) Handler() http.Handler {
 				ForceRefresh: r.URL.Query().Get("refresh") == "1",
 			}
 		})
+		logHandler = func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r.WithContext(s.log.WithContext(r.Context())))
+			})
+		}
 
 		h = func(r request.Handler) http.Handler {
-			return gHandler(cHandler(vhttp.Handler(r)))
+			return logHandler(gHandler(cHandler(vhttp.Handler(r))))
 		}
 
 		hf = func(r request.HandlerFunc) http.Handler {
-			return gHandler(cHandler(vhttp.HandlerFunc(r)))
+			return logHandler(gHandler(cHandler(vhttp.HandlerFunc(r))))
 		}
 	)
 
@@ -151,13 +156,13 @@ func (s *app) Handler() http.Handler {
 
 func (s *app) listSources(ctx context.Context, params github.ReviewParamsMap) (veun.AsView, http.Handler, error) {
 	source := &github.ListSourcesAPISource{ReviewParamsMap: params}
-	model, err := source.GetReview(ctx)
+	model, sources, err := source.Sources(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return s.layout(
-		review.SourcesList(params, model),
+		review.SourcesList(params, model, sources),
 		nil,
 	), nil, nil
 }
@@ -167,6 +172,7 @@ func (s *app) pr(r *http.Request) (veun.AsView, http.Handler, error) {
 		Owner: r.PathValue("owner"),
 		Repo:  r.PathValue("repo"),
 		Pull:  r.PathValue("pull"),
+		Kind:  "cards",
 	}
 	return s.listSources(r.Context(), params)
 }
@@ -181,17 +187,17 @@ func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
 
 	if h.Owner != "" && h.Repo != "" && h.Pull != "" {
 		params := github.ReviewParamsMap{
-			Owner: h.Owner, Repo: h.Repo, Pull: h.Pull,
+			Owner: h.Owner, Repo: h.Repo, Pull: h.Pull, Kind: "cards",
 		}
 		source := &github.ListSourcesAPISource{ReviewParamsMap: params}
-		model, err := source.GetReview(r.Context())
+		model, sources, err := source.Sources(r.Context())
 		if err != nil {
 			h.SearchResults = el.Div{
 				el.Class("mx-auto", "bg-pink-800", "text-white", "text-center", "text-xs", "p-3"),
 				el.Text(err.Error()),
 			}
 		} else {
-			sources := review.SourcesFragment(params, model)
+			sources := review.SourcesFragment(params, model, sources)
 			h.SearchResults = el.Div{
 				el.Class(
 					"border-t-2 border-t-pink-200 bg-gray-50 pb-3",
