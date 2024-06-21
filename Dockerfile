@@ -1,7 +1,7 @@
 
 FROM oven/bun:1.1 as tw
 WORKDIR /app
-COPY package.json bun.lockb .
+COPY package.json bun.lockb ./
 RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run tailwindcss -i ./static/input.css -o styles.css --minify
