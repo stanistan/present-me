@@ -2,7 +2,7 @@
 *.pem
 .cache/*
 .env
-.hermit/node/lib/node_modules/*
-.hermit/node/cache/*
-server/static
+node_modules/
+static/styles.dev.css
+static/styles.css
 data/

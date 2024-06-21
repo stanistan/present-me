@@ -1,27 +1,26 @@
-FROM node:20.1-alpine as frontend
-RUN corepack enable
 
+FROM oven/bun:1.1 as tw
 WORKDIR /app
-COPY frontend/.yarn .yarn/
-COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
-RUN yarn 
-COPY frontend /app
+COPY package.json bun.lockb .
+RUN bun install --frozen-lockfile
+COPY . .
+RUN bun run tailwindcss -i ./static/input.css -o styles.css --minify
 
-ARG VERSION_SHA
-RUN echo "{ \"rev\": \"$VERSION_SHA\" }" > /app/version.json
-RUN yarn run generate
 
-FROM golang:1.21.0-alpine as server 
+FROM golang:1.22.0 as app
+ENV GOARCH=amd64
+ENV GOOS=linux
 WORKDIR /app
-COPY server/go.mod server/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY server /app
+COPY . .
 
 ARG VERSION_SHA
-RUN go build -o server -ldflags="-X main.version=$VERSION_SHA" ./cmd/server
+RUN go build -o server -ldflags="-X main.version=$VERSION_SHA" ./cmd/veun
 
 FROM scratch as prod
-COPY --from=server /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=server /app/server /app
-COPY --from=frontend /app/.output/public /static
-ENTRYPOINT ["/app"]
+COPY --from=app /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=app /app/server /app
+COPY --from=app /app/static /static
+COPY --from=tw /app/styles.css /static/styles.css
+ENTRYPOINT ["/app", "serve"]

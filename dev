@@ -1,0 +1,25 @@
+#!/bin/bash -euo pipefail
+
+cd "$(dirname ${BASH_SOURCE})"
+
+if [ $# -eq 0 ]; then
+    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+    ./dev go &
+    ./dev tailwind &
+    wait
+    exit 0
+fi
+
+case "$1" in
+  go)
+    exec env $(cat .env | xargs) go run github.com/cespare/reflex \
+      -d none -s -- go run ./cmd/veun serve
+    ;;
+  tailwind)
+    exec bun run tailwindcss -i static/input.css -o static/styles.dev.css -w
+    ;;
+  *)
+    echo "??? $1 ???"
+    exit 1
+    ;;
+esac
