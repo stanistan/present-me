@@ -62,7 +62,7 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 								GradientText(model.Title.Text),
 							},
 							Body: el.Div{
-								Markdown(model.Body, el.Class("p-4")),
+								Markdown(model.Body, el.Class("p-4 overflow-scroll max-h-[70vh]")),
 							},
 						}.Render(),
 					},

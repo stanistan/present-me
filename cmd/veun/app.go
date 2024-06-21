@@ -201,7 +201,6 @@ func (s *app) home(r *http.Request) (veun.AsView, http.Handler, error) {
 			h.SearchResults = el.Div{
 				el.Class(
 					"border-t-2 border-t-pink-200 bg-gray-50 pb-3",
-					//"border-b border-b-gray-200",
 				),
 				el.Div{
 					el.Class("max-w-2xl mx-auto"),

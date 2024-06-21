@@ -95,12 +95,27 @@ func (s *ListSourcesAPISource) Sources(ctx context.Context) (api.Review, []api.S
 		})
 	}
 
+	commentsByReviewID := map[int64]int{}
+	for _, c := range comments {
+		if c.PullRequestReviewID == nil {
+			continue
+		}
+		id := *c.PullRequestReviewID
+		count, _ := commentsByReviewID[id]
+		commentsByReviewID[id] = count + 1
+	}
+
 	for _, r := range reviews {
-		sources = append(sources, &ReviewAPISource{
-			ReviewParamsMap: s.ReviewParamsMap.WithReview(
-				strconv.FormatInt(*r.ID, 10),
-			),
-		})
+		if count, ok := commentsByReviewID[*r.ID]; ok && count > 0 {
+			if r.Body == nil || len(*r.Body) == 0 {
+				continue
+			}
+			sources = append(sources, &ReviewAPISource{
+				ReviewParamsMap: s.ReviewParamsMap.WithReview(
+					strconv.FormatInt(*r.ID, 10),
+				),
+			})
+		}
 	}
 
 	return r, sources, nil
