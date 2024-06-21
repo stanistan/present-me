@@ -23,4 +23,4 @@ COPY --from=app /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=app /app/server /app
 COPY --from=app /app/static /static
 COPY --from=tw /app/styles.css /static/styles.css
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/app", "serve"]
