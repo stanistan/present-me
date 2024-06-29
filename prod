@@ -1,7 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-
-bun run tailwindcss -i cmd/veun/static/input.css -o cmd/veun/static/styles.css --minify
-
-# shellcheck disable=SC2046,SC2002
-exec env $(cat .env | xargs) go run ./cmd/veun serve --environment=prod
