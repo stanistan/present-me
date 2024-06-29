@@ -3,6 +3,9 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[@]}")/../"
 
+# shellcheck disable=SC1091
+. bin/activate-hermit || true
+
 _run_dev() {
     trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
     _run_go-dev &
@@ -37,6 +40,15 @@ _run_tw-dev() {
   exec bun run tailwindcss -w \
     -i static/input.css \
     -o static/styles.dev.css
+}
+
+_run_bootstrap() {
+  go mod download
+  bun install --frozen-lockfile
+}
+
+_run_shellcheck() {
+  shellcheck "${BASH_SOURCE[@]}"
 }
 
 "_run_$1"
