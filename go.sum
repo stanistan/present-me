@@ -51,8 +51,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.33.0 h1:1cU2KZkvPxNyfgEmhHAz/1A9Bz+llsdYzklWFzgp0r8=
 github.com/rs/zerolog v1.33.0/go.mod h1:/7mN4D5sKwJLZQ2b/znpjC3/GQWY/xaDXUM0kKWRHss=
-github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341 h1:AP1TnULJzPN8b/6UkOltkrDCXXezh7r19vSEPLutb/8=
-github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341/go.mod h1:ULO5bcyT9qyVIoFHhho3iaYQYCKjz2ov0sWaYpclZKQ=
+github.com/stanistan/veun v0.0.0-20240403125541-8bd34ca84f60 h1:Hk3l489qbY7JjJ1iamO/dBhAUCBQx/RLlmF/BtqfpLQ=
+github.com/stanistan/veun v0.0.0-20240403125541-8bd34ca84f60/go.mod h1:ULO5bcyT9qyVIoFHhho3iaYQYCKjz2ov0sWaYpclZKQ=
 github.com/yuin/goldmark v1.7.4 h1:BDXOHExt+A7gwPCJgPIIq7ENvceR7we7rOS9TNoLZeg=
 github.com/yuin/goldmark v1.7.4/go.mod h1:uzxRWxtg69N339t3louHJ7+O03ezfj6PlliRlaOzY1E=
 golang.org/x/sync v0.7.0 h1:YsImfSBoP9QPYL0xyKJPq0gcaJdG3rInoqxTWbfQu9M=

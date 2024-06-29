@@ -12,7 +12,7 @@ require (
 	github.com/peterbourgon/diskv/v3 v3.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
-	github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341
+	github.com/stanistan/veun v0.0.0-20240403125541-8bd34ca84f60
 	github.com/yuin/goldmark v1.7.4
 	golang.org/x/sync v0.7.0
 )
