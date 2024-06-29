@@ -74,7 +74,7 @@ func SlideContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 							Card{
 								Badge: idx + 1,
 								Title: el.A{
-									el.Attr{"target", "_blank"},
+									el.Attr{Key: "target", Value: "_blank"},
 									el.Href(c.Title.HRef),
 									el.Code{el.Text(c.Title.Text)},
 								},

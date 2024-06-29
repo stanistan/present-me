@@ -101,7 +101,7 @@ func (s *ListSourcesAPISource) Sources(ctx context.Context) (api.Review, []api.S
 			continue
 		}
 		id := *c.PullRequestReviewID
-		count, _ := commentsByReviewID[id]
+		count := commentsByReviewID[id]
 		commentsByReviewID[id] = count + 1
 	}
 

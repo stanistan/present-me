@@ -40,7 +40,7 @@ func PageContent(p github.ReviewParamsMap, model api.Review) veun.AsView {
 								},
 								el.Class("underline", "hover:no-underline"),
 								el.Href(c.Title.HRef),
-								el.Attr{"target", "_blank"},
+								el.Attr{Key: "target", Value: "_blank"},
 							},
 							Body: el.Div{
 								el.Class("flex flex-col md:flex-row max-h-[95vh] bg-gray-50"),

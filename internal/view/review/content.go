@@ -117,7 +117,9 @@ func (c Card) Render() el.Component {
 			el.Div{
 				el.Class("w-full", "text-sm", "p-3", "bg-slate-100", "border-b", "border-slate-300", "gap-1", "rounded-t-xl"),
 				badge(c.Badge),
-				el.Content{c.Title},
+				el.Content{
+					c.Title,
+				},
 			},
 			el.Content{c.Body},
 		},
