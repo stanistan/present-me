@@ -1,6 +1,7 @@
-#!/bin/bash -euo pipefail
+#!/bin/bash
+set -euo pipefail
 
-cd "$(dirname ${BASH_SOURCE})"
+cd "$(dirname "${BASH_SOURCE[@]}")"
 
 if [ $# -eq 0 ]; then
     trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
@@ -12,8 +13,8 @@ fi
 
 case "$1" in
   go)
-    exec env $(cat .env | xargs) go run github.com/cespare/reflex \
-      -d none -s -- go run ./cmd/veun serve
+    # shellcheck disable=SC2046,SC2002
+    exec env $(cat .env | xargs) go run github.com/cespare/reflex -d none -s -- go run ./cmd/veun serve
     ;;
   tailwind)
     exec bun run tailwindcss -i static/input.css -o static/styles.dev.css -w
