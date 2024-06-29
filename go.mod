@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
 	github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341
-	github.com/yuin/goldmark v1.7.0
+	github.com/yuin/goldmark v1.7.4
 	golang.org/x/sync v0.3.0
 )
 
