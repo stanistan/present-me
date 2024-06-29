@@ -14,7 +14,7 @@ require (
 	github.com/rs/zerolog v1.33.0
 	github.com/stanistan/veun v0.0.0-20240402235235-b62e076ae341
 	github.com/yuin/goldmark v1.7.4
-	golang.org/x/sync v0.3.0
+	golang.org/x/sync v0.7.0
 )
 
 require (
