@@ -1,65 +1,55 @@
 #!/bin/bash
 set -euo pipefail
 
-# We ensure that we're running in the project directory
-# assuming that this script is in a single level sudirectory
-# out from the PROJECT base...
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-PROJECT_DIR="$SCRIPT_DIR/../"
-cd "$PROJECT_DIR"
+cd "$(dirname "${BASH_SOURCE[@]}")/../"
 
-usage() {
-  echo "Commands: "
-  rg '^\s+([^)]+)\)$' "${BASH_SOURCE[0]}" -r '- prmectl $1' -N | grep -v '\*'
+# shellcheck disable=SC1091
+. bin/activate-hermit || true
+
+_run_dev() {
+    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
+    _run_go-dev &
+    _run_tw-dev &
+    wait
+    exit 0
 }
 
-case "$1" in
-  bootstrap)
-    # 1. Hermit has dependencies in this directory.
-    hermit install
-    # 2. Corepack installs yarn, then we get all of our frontend/ deps
-    corepack enable
-    pushd frontend
-    yarn
-    popd
-    # 3. Get all of our server/ deps
-    pushd server
-    go mod download
-    popd
-    ;;
-  dev)
-    trap 'trap " " SIGTERM; kill 0; wait' SIGINT SIGTERM
-    prmectl start-frontend &
-    prmectl start-server &
-    wait
-    ;;
-  local-prod)
-    cd frontend
-    yarn generate
-    cd ../server
-    (rm static || true) && ln -s ../frontend/.output/public static
-    # shellcheck disable=SC2046,SC2002
-    exec env $(cat .env | xargs) \
-      go run ./cmd/server
-    ;;
-  start-frontend)
-    cd frontend
-    exec yarn run dev
-    ;;
-  start-server)
-    cd server
-    # shellcheck disable=SC2046,SC2002
-    exec env $(cat .env | xargs) \
-      go run github.com/cespare/reflex -d none -s -- \
-      go run ./cmd/server --serve=proxy
-    ;;
-  help)
-    usage
-    ;;
-  *)
-    echo "invalid option: $1"
-    echo
-    usage
-    exit 1
-    ;;
-esac
+_run_prod() {
+  _run_tw-minify && _run_go-prod
+}
+
+_run_tw-minify() {
+  bun run tailwindcss --minify \
+    -i static/input.css \
+    -o static/styles.css
+}
+
+_run_go-prod() {
+  # shellcheck disable=SC2046,SC2002
+  exec env $(cat .env | xargs) \
+    go run ./cmd/veun serve --environment=prod
+}
+
+_run_go-dev() {
+  # shellcheck disable=SC2046,SC2002
+  exec env $(cat .env | xargs) \
+    go run github.com/cespare/reflex -d none -s -- go run ./cmd/veun serve
+}
+
+_run_tw-dev() {
+  exec bun run tailwindcss -w \
+    -i static/input.css \
+    -o static/styles.dev.css
+}
+
+_run_bootstrap() {
+  hermit install
+  go mod download
+  bun install --frozen-lockfile
+}
+
+_run_shellcheck() {
+  shellcheck "${BASH_SOURCE[@]}"
+}
+
+"_run_$1"

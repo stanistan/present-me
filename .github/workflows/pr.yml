@@ -10,12 +10,7 @@ on:
 
 jobs:
 
-  # server:
-  # can we run the server, is the API alright?
-  #
-  # Priority is to fail fast, so first can we compile and build
-  # the server binary, then tests, and linting.
-  server:
+  app:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -33,5 +28,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: cashapp/activate-hermit@v1
-    - name: shellcheck ./dev
-      run:  shellcheck ./prod
+    - name: shellcheck
+      run:  shellcheck bin/prmectl
