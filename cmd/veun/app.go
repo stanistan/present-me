@@ -108,7 +108,7 @@ func (s *app) layout(view veun.AsView, d func() veun.AsView) veun.AsView {
 		CSSFiles: []string{cssFile},
 		JSFiles:  []string{"/static/prism.js"},
 		Version: layout.Version{
-			URL: "https://github.com/stanistan/present-me/" + version,
+			URL: "https://github.com/stanistan/present-me/commit/" + version,
 			SHA: version[0:7],
 		},
 	}, view)
