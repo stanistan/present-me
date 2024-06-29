@@ -43,6 +43,7 @@ _run_tw-dev() {
 }
 
 _run_bootstrap() {
+  hermit install
   go mod download
   bun install --frozen-lockfile
 }

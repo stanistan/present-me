@@ -30,16 +30,13 @@ to generate something that can be, well, presented!
 
 ## Development
 
-This project uses [hermit](https://cashapp.github.io/hermit/) for dependency management.
+This project uses [hermit](https://cashapp.github.io/hermit/) for dependency management,
+if you have the shell hooks this will automatically work, otherwise you can use `bin/prmectl`.
 
 ### Bootstrap
 
 ```sh
-# for go packages
-go mod download
-
-# for tailwindcss
-bun install
+bin/prmectl boostrap
 ```
 
 Make sure you've run this before anything else!
@@ -93,7 +90,7 @@ Commands:
 #### Development
 
 ```bash
-dev
+bin/prmectl dev
 ```
 
 - <http://localhost:8080>
